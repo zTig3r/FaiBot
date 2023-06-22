@@ -123,7 +123,9 @@ public class TwitchHandler {
         VideoList list = client.getHelix().
                 getVideos(null, null, id, null, null, null, null, Video.Type.ARCHIVE, null, null, null).execute();
 
-        updateDuration(Duration.parse(list.getVideos().get(0).getDuration()));
+        String[] split = list.getVideos().get(0).getDuration().split("[hms]");
+
+        updateDuration(Duration.ofHours(Integer.parseInt(split[0])).plusMinutes(Integer.parseInt(split[1])));
 
         MessageEmbed embed = new EmbedBuilder()
                 .setAuthor("fienix_and_izio", null, profileImage)
