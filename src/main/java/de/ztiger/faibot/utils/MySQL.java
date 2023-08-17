@@ -16,16 +16,28 @@ public class MySQL {
     private Connection connection;
 
     public boolean isConnected() {
-        return (connection != null);
+        try {
+            return connection != null && !connection.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     public void connect() throws ClassNotFoundException, SQLException {
-        if (isConnected()) return;
-
-        connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + database, username, password);
+        if (!isConnected()) {
+            connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + database, username, password);
+        }
     }
 
     public Connection getConnection() {
+        if(!isConnected()) {
+            try {
+                connect();
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
         return connection;
     }
 }
