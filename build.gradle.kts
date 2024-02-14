@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.ztiger"
-version = "1.3"
+version = "1.6"
 
 repositories {
     mavenCentral()
@@ -12,14 +12,14 @@ repositories {
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    implementation("com.github.twitch4j:twitch4j:1.15.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    implementation("com.github.twitch4j:twitch4j:1.19.0")
     implementation("net.dv8tion:JDA:5.0.0-beta.11") {
         exclude(module="opus-java")
     }
-    implementation ("ch.qos.logback:logback-classic:1.4.6")
+    implementation ("ch.qos.logback:logback-classic:1.4.14")
+    implementation ("org.mariadb.jdbc:mariadb-java-client:3.3.2")
     implementation ("org.slf4j:slf4j-api:2.0.4")
-    implementation ("mysql:mysql-connector-java:8.0.32")
     implementation ("io.github.cdimascio:dotenv-java:2.3.2")
     implementation ("com.vaadin.external.google:android-json:0.0.20131108.vaadin1")
 }

@@ -4,6 +4,7 @@ import de.ztiger.faibot.FaiBot;
 import de.ztiger.faibot.utils.YoutubeHandler;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -84,5 +85,14 @@ public class BotReady extends ListenerAdapter {
         };
 
         timer1.schedule(twoMinTask, 100000, 500 * 60 * 5);
+
+        checkUsersDB(guild);
+    }
+
+    private static void checkUsersDB(Guild guild) {
+        for (Member member : guild.getMembers()) {
+            String id = member.getUser().getId();
+            if(getter.getId(id) == 0) setter.addUser(id);
+        }
     }
 }

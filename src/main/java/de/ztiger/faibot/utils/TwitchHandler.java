@@ -30,12 +30,7 @@ public class TwitchHandler {
     private static TwitchClient client;
 
     private static Timer timer;
-    private static TimerTask task = new TimerTask() {
-        @Override
-        public void run() {
-            updateEmbed();
-        }
-    };
+    private static TimerTask task;
 
 
     public TwitchHandler() {
@@ -52,25 +47,15 @@ public class TwitchHandler {
 
         client.getClientHelper().enableStreamEventListener("fienix_and_izio");
         client.getEventManager().onEvent(ChannelGoLiveEvent.class, event -> {
-            updateValues();
-
-            sendLiveEmbed();
-
-            timer = new Timer();
-            timer.schedule(task, 300000, 1800000);
-
             logger.info("TwitchHandler: Stream is now live");
+            sendLiveEmbed();
         });
 
         client.getEventManager().onEvent(ChannelChangeGameEvent.class, event -> updateEmbed());
 
         client.getEventManager().onEvent(ChannelGoOfflineEvent.class, event -> {
             logger.info("TwitchHandler: Stream is now offline");
-
             sendOffEmbed();
-
-            duration = "";
-            timer.cancel();
         });
 
         logger.info("TwitchHandler initialized");
@@ -88,16 +73,12 @@ public class TwitchHandler {
 
         StringBuilder result = new StringBuilder();
 
-        if (hours != 0) {
-            result.append(hours).append(" Stunde");
-            if (hours != 1) result.append("n");
-        }
+        result.append(hours).append(" Stunde");
+        if (hours != 1) result.append("n");
 
-        if (minutes != 0) {
-            if (result.length() > 0) result.append(" ");
-            result.append(minutes).append(" Minute");
-            if (minutes != 1) result.append("n");
-        }
+        if (!result.isEmpty()) result.append(" ");
+        result.append(minutes).append(" Minute");
+        if (minutes != 1) result.append("n");
 
         duration = result.toString();
     }
@@ -136,6 +117,11 @@ public class TwitchHandler {
                 .build();
 
         twitchChannel.editMessageById(messageID, " ").setEmbeds(embed).queue();
+
+        duration = "";
+        timer.cancel();
+        timer = null;
+        task = null;
     }
 
     private static void updateValues() {
@@ -153,6 +139,18 @@ public class TwitchHandler {
     }
 
     private static void sendLiveEmbed() {
+        updateValues();
+
+        timer = new Timer();
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                updateEmbed();
+            }
+        };
+
+        timer.schedule(task, 300000, 1800000);
+
         twitchChannel.sendMessage("Hey @everyone, Fienix und Izio sind nun Live. Schaut gerne mal vorbei ^^").setEmbeds(createEmbed()).queue((message) -> messageID = message.getId());
     }
 

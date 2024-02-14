@@ -2,7 +2,7 @@ package de.ztiger.faibot;
 
 import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.listeners.*;
-import de.ztiger.faibot.utils.MySQL;
+import de.ztiger.faibot.utils.MariaDB;
 import de.ztiger.faibot.utils.SQLGetter;
 import de.ztiger.faibot.utils.SQLSetter;
 import de.ztiger.faibot.utils.TwitchHandler;
@@ -32,7 +32,7 @@ public class FaiBot {
     private static ShardManager shardManager;
     public static TextChannel logChannel, recommendationsChannel, welcomeChannel, botChannel;
     public static NewsChannel twitchChannel, youtubeChannel;
-    public static MySQL mysql;
+    public static MariaDB mariaDB;
     public static SQLGetter getter;
     public static SQLSetter setter;
 
@@ -43,20 +43,20 @@ public class FaiBot {
             throw new RuntimeException(e);
         }
 
-        mysql = new MySQL();
+        mariaDB = new MariaDB();
         getter = new SQLGetter();
         setter = new SQLSetter();
 
         try {
-            mysql.connect();
+            mariaDB.connect();
 
-            if (mysql.isConnected()) {
-                logger.info("Connected to MySQL database!");
+            if (mariaDB.isConnected()) {
+                logger.info("Connected to MariaDB database!");
                 createTables();
-            } else logger.error("Could not connect to MySQL database!");
+            } else logger.error("Could not connect to MariaDB database!");
 
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
         File data = new File("data");

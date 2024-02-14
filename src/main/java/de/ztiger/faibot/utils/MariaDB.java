@@ -6,7 +6,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class MySQL {
+import static de.ztiger.faibot.FaiBot.logger;
+
+public class MariaDB {
 
     private final String url = FaiBot.config.get("DB_URL");
     private final String username = FaiBot.config.get("DB_USER");
@@ -25,7 +27,7 @@ public class MySQL {
 
     public void connect() throws ClassNotFoundException, SQLException {
         if (!isConnected()) {
-            connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + database, username, password);
+            connection = DriverManager.getConnection("jdbc:mariadb://" + url + "/" + database + "?user=" + username +"&password=" + password);
         }
     }
 
@@ -34,7 +36,7 @@ public class MySQL {
             try {
                 connect();
             } catch (ClassNotFoundException | SQLException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
 

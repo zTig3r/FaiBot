@@ -50,12 +50,13 @@ public class YoutubeHandler {
             sendVideoEmbed();
 
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
     private static void sendVideoEmbed() {
-        if (getter.getLastVideo().equals(videoId)) return;
+        String lastVideo = getter.getLastVideo();
+        if (lastVideo == null || lastVideo.equals(videoId)) return;
         youtubeChannel.sendMessage("@everyone Neues Video von **Izi Fit:** \n\rhttps://youtu.be/" + videoId).queue();
         setter.setLastVideo(videoId);
         logger.info("New video posted: " + videoId);
