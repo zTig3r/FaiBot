@@ -104,7 +104,11 @@ public class TwitchHandler {
         VideoList list = client.getHelix().
                 getVideos(null, null, id, null, null, null, null, Video.Type.ARCHIVE, null, null, null).execute();
 
-        String[] split = list.getVideos().get(0).getDuration().split("[hms]");
+        String timestamp = list.getVideos().get(0).getDuration();
+
+        if(!timestamp.contains("h")) timestamp = "0h" + timestamp;
+
+        String[] split = timestamp.split("[hms]");
 
         updateDuration(Duration.ofHours(Integer.parseInt(split[0])).plusMinutes(Integer.parseInt(split[1])));
 
