@@ -14,7 +14,7 @@ public class Inventory {
 
     public static void sendInventory(SlashCommandInteractionEvent event) {
         EmbedBuilder embed = new EmbedBuilder()
-                .setAuthor(event.getUser().getAsTag(), null, event.getUser().getAvatarUrl())
+                .setAuthor(event.getUser().getName(), null, event.getUser().getAvatarUrl())
                 .setTitle("Inventar")
                 .setColor(Color.decode("#94c6f3"));
 

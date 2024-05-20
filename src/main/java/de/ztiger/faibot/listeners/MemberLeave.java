@@ -18,7 +18,7 @@ public class MemberLeave extends ListenerAdapter {
                 .setColor(Color.RED)
                 .setAuthor("Member left", null, event.getUser().getAvatarUrl())
                 .setThumbnail(event.getUser().getAvatarUrl())
-                .addField("\u00A0", event.getUser().getAsMention() + " " + event.getUser().getAsTag(), false)
+                .addField("\u00A0", event.getUser().getAsMention() + " " + event.getUser().getEffectiveName(), false)
                 .setFooter("ID: " + event.getUser().getId())
                 .setTimestamp(OffsetDateTime.now())
                 .build();

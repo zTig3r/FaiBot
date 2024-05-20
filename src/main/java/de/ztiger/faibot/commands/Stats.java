@@ -33,21 +33,16 @@ public class Stats {
     private final static int maxX = 0;
 
     public static void sendStats(SlashCommandInteractionEvent event) {
-        Member member;
-        if (event.getOption("user") != null) member = event.getOption("user").getAsMember();
-        else member = event.getMember();
+        Member member = event.getOption("user") != null ? event.getOption("user").getAsMember() : event.getMember();
 
         event.replyFiles(FileUpload.fromData(createStatsImage(member, convertColor(getter.getCardColor(member.getId()))))).queue();
-
     }
 
     public static void sendPreview(ButtonInteractionEvent event, String color) {
-        Member member = event.getMember();
-
         Button apply = Button.primary("apply", "✅ Anwenden");
         Button cancel = Button.secondary("cancel", "❌ Abbrechen");
 
-        event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(member, convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
+        event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
 
     }
 
@@ -101,11 +96,9 @@ public class Stats {
             LineBreakMeasurer measurer = new LineBreakMeasurer(cI, frc);
             TextLayout textLayout = measurer.nextLayout(overlay.getWidth());
 
-            AttributedString nameString = new AttributedString(member.getEffectiveName() + " #" + member.getUser().getDiscriminator());
+            AttributedString nameString = new AttributedString(member.getEffectiveName());
             nameString.addAttribute(TextAttribute.FONT, normalC, 0, member.getEffectiveName().length());
-            nameString.addAttribute(TextAttribute.FONT, small, member.getEffectiveName().length(), member.getEffectiveName().length() + member.getUser().getDiscriminator().length() + 2);
             nameString.addAttribute(TextAttribute.FOREGROUND, Color.WHITE, 0, member.getEffectiveName().length());
-            nameString.addAttribute(TextAttribute.FOREGROUND, Color.decode("#8e8e8e"), member.getEffectiveName().length(), member.getEffectiveName().length() + member.getUser().getDiscriminator().length() + 2);
 
             AttributedString xpString = new AttributedString(xp + " / " + xpForNextLevel + " XP");
             xpString.addAttribute(TextAttribute.FONT, smallC, 0, String.valueOf(xp).length() + String.valueOf(xpForNextLevel).length() + 6);
@@ -150,8 +143,7 @@ public class Stats {
             timer.schedule(new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    if (new File(userCardPath).delete())
-                        logger.info("Deleted temporary files of " + member.getEffectiveName());
+                    if (new File(userCardPath).delete()) logger.info("Deleted temporary files of " + member.getEffectiveName());
                     else logger.warn("Couldn't delete temporary files");
                 }
             }, 10000);

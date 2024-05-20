@@ -13,8 +13,8 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-    implementation("com.github.twitch4j:twitch4j:1.19.0")
-    implementation("net.dv8tion:JDA:5.0.0-beta.11") {
+    implementation("com.github.twitch4j:twitch4j:1.20.0")
+    implementation("net.dv8tion:JDA:5.0.0-beta.24") {
         exclude(module="opus-java")
     }
     implementation ("ch.qos.logback:logback-classic:1.4.14")

@@ -31,13 +31,13 @@ public class Daily {
         setter.addPoints(event.getUser().getId(), amount);
 
         MessageEmbed embed = new EmbedBuilder()
-                .setAuthor(event.getUser().getAsTag(), null, event.getUser().getAvatarUrl())
+                .setAuthor(event.getUser().getName(), null, event.getUser().getAvatarUrl())
                 .setTitle("Tägliche Belohnung")
                 .addField("Belohnung", amount + " Punkte", false)
                 .setColor(Color.decode("#94c6f3"))
                 .build();
 
-        logger.info("User " + event.getUser().getAsTag() + " received " + amount + " points as daily reward.");
+        logger.info("User " + event.getUser().getEffectiveName() + " received " + amount + " points as daily reward.");
         event.replyEmbeds(embed).queue();
     }
 }

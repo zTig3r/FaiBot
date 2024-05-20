@@ -24,7 +24,7 @@ public class MessageUpdate extends ListenerAdapter {
             Message message = event.getMessage();
 
             MessageEmbed embed = new EmbedBuilder()
-                    .setAuthor(event.getAuthor().getAsTag(), null, event.getAuthor().getAvatarUrl())
+                    .setAuthor(event.getAuthor().getEffectiveName(), null, event.getAuthor().getAvatarUrl())
                     .setColor(Color.ORANGE)
                     .addField("Message edited: " + event.getMessage().getJumpUrl(), "\u00A0", false)
                     .addField("Before", get(message).getContentRaw(), false)

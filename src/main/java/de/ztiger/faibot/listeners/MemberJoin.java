@@ -27,7 +27,7 @@ public class MemberJoin extends ListenerAdapter {
                 .setColor(Color.GREEN)
                 .setAuthor("Member joined", null, event.getUser().getAvatarUrl())
                 .setThumbnail(event.getUser().getAvatarUrl())
-                .addField("\u00A0", event.getUser().getAsMention() + " " + event.getUser().getAsTag(), false)
+                .addField("\u00A0", event.getUser().getAsMention() + " " + event.getUser().getEffectiveName(), false)
                 .addField("Account Age", ageString, false)
                 .setFooter("ID: " + event.getUser().getId())
                 .setTimestamp(OffsetDateTime.now())

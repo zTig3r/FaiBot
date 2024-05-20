@@ -22,7 +22,7 @@ public class MessageDelete extends ListenerAdapter {
             Message message = get(event.getMessageId(), event.getChannel().getId());
 
             EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor(message.getAuthor().getAsTag(), null, message.getAuthor().getAvatarUrl())
+                    .setAuthor(message.getAuthor().getEffectiveName(), null, message.getAuthor().getAvatarUrl())
                     .setColor(Color.RED)
                     .addField("Message deleted in " + message.getChannel().getAsMention(), "\u00A0 " + message.getContentRaw(), false)
                     .setFooter("User ID: " + message.getAuthor().getId() + " | Message ID:" + message.getId())
