@@ -96,6 +96,20 @@ public class SQLGetter {
         return 0;
     }
 
+    public int getStreak(String id) {
+        try {
+            PreparedStatement ps = mariaDB.getConnection().prepareStatement("SELECT streak FROM stats WHERE userid = ?");
+            ps.setInt(1, getId(id));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("streak");
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return 0;
+    }
+
     public List<String> getInventory(String id) {
         List<String> items = new ArrayList<>();
 

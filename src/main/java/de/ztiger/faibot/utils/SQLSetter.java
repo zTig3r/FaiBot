@@ -107,6 +107,26 @@ public class SQLSetter {
         }
     }
 
+    public void addStreak(String id) {
+        try {
+            PreparedStatement ps = mariaDB.getConnection().prepareStatement("UPDATE stats SET streak = streak + 1 WHERE userid = ?");
+            ps.setInt(1, getter.getId(id));
+            ps.executeUpdate();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public void resetStreak(String id) {
+        try {
+            PreparedStatement ps = mariaDB.getConnection().prepareStatement("UPDATE stats SET streak = 1 WHERE userid = ?");
+            ps.setInt(1, getter.getId(id));
+            ps.executeUpdate();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+    }
+
     public void setLastVideo(String id) {
         try {
             PreparedStatement ps = mariaDB.getConnection().prepareStatement("INSERT INTO cache (content, typ) VALUES (?, ?) ON DUPLICATE KEY UPDATE content = ?");

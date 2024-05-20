@@ -28,7 +28,7 @@ public class TableCreator {
     public static void createTxp() {
         try {
             PreparedStatement ps = mariaDB.getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS stats "
-                    + "(userid INT(100), xp INT(100) DEFAULT 0, level INT(100) DEFAULT 0, points INT(100) DEFAULT 0, messages INT(100) DEFAULT 0, PRIMARY KEY (userid), UNIQUE (userid))");
+                    + "(userid INT(100), xp INT(100) DEFAULT 0, level INT(100) DEFAULT 0, points INT(100) DEFAULT 0, messages INT(100) DEFAULT 0, streak INT(100) DEFAULT 0, PRIMARY KEY (userid), UNIQUE (userid))");
             ps.executeUpdate();
         } catch (SQLException e) {
             logger.error(e.getMessage());
