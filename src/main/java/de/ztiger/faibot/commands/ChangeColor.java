@@ -9,25 +9,24 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.*;
 
-import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.commands.Stats.sendPreview;
+import static de.ztiger.faibot.listeners.BotReady.GUILD;
+import static de.ztiger.faibot.utils.Colors.*;
+import static de.ztiger.faibot.utils.Lang.format;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 @SuppressWarnings("ConstantConditions")
 public class ChangeColor {
 
-    private static final Button red = Button.secondary("red", "🟥 Rot");
-    private static final Button blue = Button.secondary("blue", "🟦 Blau");
-    private static final Button pink = Button.secondary("pink", "🟪 Pink");
-    private static final Button green = Button.secondary("green", "🟩 Grün");
-    private static final Button orange = Button.secondary("orange", "🟧 Orange");
-    private static final Button purple = Button.secondary("purple", "🟪 Violett");
-    private static final Button lightblue = Button.secondary("lightblue", "🟦 Hellblau");
-    private static final Button yellow = Button.secondary("yellow", "🟨 Gelb");
-    private static final Button reset = Button.danger("reset", "🗑️ Farbe entfernen");
+    private static final String KEY = "color.";
+
+    private static final List<Button> colorButtons = createColorButtons();
+    private static final Button reset = Button.danger("reset", getLang(KEY + "reset"));
     private static final Button back = Button.danger("back", "↩️ Zurück");
     private static final HashMap<Member, String> colorCache = new HashMap<>();
 
@@ -39,43 +38,35 @@ public class ChangeColor {
         event.editMessage((MessageEditData) getColorEmbed('e')).queue();
     }
 
-    public static void nameColorEmbed(ButtonInteractionEvent event) {
+    public static void colorEmebd(ButtonInteractionEvent event, boolean isName) {
+        Map<String, Object> replacement = Map.of("type", isName ? getLang("color.type.name") : getLang("color.type.stats"));
+
+        String key = KEY + "select.";
+
         MessageEmbed embed = new EmbedBuilder()
-                .setTitle("🎨 Farbe für deinen Namen ändern")
-                .setDescription("Hier kannst du deine Farbe für deinen Namen ändern.")
+                .setTitle(format(key + "title", replacement))
+                .setDescription(format(key + "description", replacement))
                 .addField("", "\u00A0", false)
-                .addField("⚠️ Du kannst nur Farben auswählen, welche du bereits freigeschalten hast.", "", false)
-                .addField("➡️ Wähle aus, welche Farbe du für deinen Namen verwenden möchtest.", "\u00A0", false)
-                .setColor(Color.decode("#94c6f3"))
+                .addField(getLang(key + "warn"), "", false)
+                .addField(format(key + "task", replacement), "\u00A0", false)
+                .setColor(nixo)
                 .build();
 
-        event.editMessageEmbeds(embed).setComponents(ActionRow.of(orange, blue, yellow, pink, reset), ActionRow.of(purple, red, green, lightblue, back)).queue();
+        event.editMessageEmbeds(embed).setComponents(ActionRow.of(colorButtons.get(0), colorButtons.get(1), colorButtons.get(2), colorButtons.get(3), reset), ActionRow.of(colorButtons.get(4), colorButtons.get(5), colorButtons.get(6), colorButtons.get(7), back)).queue();
     }
-
-    public static void statsColorEmbed(ButtonInteractionEvent event) {
-        MessageEmbed embed = new EmbedBuilder()
-                .setTitle("🎨 Farbe für deine Statistiken ändern")
-                .setDescription("Hier kannst du deine Farbe für deine Statistiken ändern.")
-                .addField("", "\u00A0", false)
-                .addField("⚠️ Du kannst nur Farben auswählen, welche du bereits freigeschalten hast.", "", false)
-                .addField("➡️ Wähle aus, welche Farbe du für deine Statistiken verwenden möchtest.", "\u00A0", false)
-                .setColor(Color.decode("#94c6f3"))
-                .build();
-
-        event.editMessageEmbeds(embed).setComponents(ActionRow.of(red, blue, pink, green, reset), ActionRow.of(orange, purple, lightblue, yellow, back)).setAttachments().queue();
-    }
-
 
     private static MessageData getColorEmbed(char type) {
         Button nameColor = Button.primary("nameColor", "👋 Name");
         Button statsColor = Button.primary("statsColor", "📊 Statistiken");
 
+        String key = "color.main.";
+
         MessageEmbed embed = new EmbedBuilder()
-                .setTitle("🎨 Farben ändern")
-                .setDescription("Hier kannst du deine Farbe für deinen Namen und deine Statistiken ändern.")
+                .setTitle(getLang(key + "title"))
+                .setDescription(getLang(key + "description"))
                 .addField("", "\u00A0", false)
-                .addField("➡️ Wähle zuerst aus welche Farbe du ändern möchtest.", "\u00A0", false)
-                .setColor(Color.decode("#94c6f3"))
+                .addField(getLang(key + "task"), "\u00A0", false)
+                .setColor(nixo)
                 .build();
 
         if (type == 'n')
@@ -87,23 +78,11 @@ public class ChangeColor {
     }
 
     public static void changeColor(ButtonInteractionEvent event) {
-        List<String> colors = new ArrayList<>(getter.getInventory(event.getMember().getId()));
-
-        Map<String, Runnable> colorActions = Map.of(
-                "red", () -> handleColor("red", event),
-                "blue", () -> handleColor("blue", event),
-                "pink", () -> handleColor("pink", event),
-                "green", () -> handleColor("green", event),
-                "orange", () -> handleColor("orange", event),
-                "lightblue", () -> handleColor("lightblue", event),
-                "yellow", () -> handleColor("yellow", event),
-                "purple", () -> handleColor("purple", event),
-                "reset", () -> handleReset(event)
-        );
-
         String buttonId = event.getButton().getId();
-        if (colors.contains(buttonId) || buttonId.equals("reset")) colorActions.get(buttonId).run();
-        else event.reply("Du besitzt diese Farbe nicht! *Kaufe weitere Farben:* `/shop`").setEphemeral(true).queue();
+
+        if (buttonId.equals("reset")) handleReset(event);
+        else if (getter.getInventory(event.getMember().getId()).contains(buttonId)) handleColor(event);
+        else event.reply(getLang("colors.locked")).setEphemeral(true).queue();
     }
 
     private static void handleReset(ButtonInteractionEvent event) {
@@ -111,25 +90,25 @@ public class ChangeColor {
         Member member = event.getMember();
 
         if (title.contains("Name")) {
-            member.getRoles().stream()
-                    .filter(role -> Arrays.asList("Rot", "Blau", "Pink", "Grün", "Orange", "Violett", "Hellblau", "Gelb").contains(role.getName()))
-                    .forEach(role -> event.getGuild().removeRoleFromMember(member, role).queue());
+            resetNameColor(member);
             logger.info("Resetting namecolor for " + member.getEffectiveName());
-            event.editMessage("Deine Namenfarbe wurde erfolgreich zurückgesetzt!").setEmbeds().setAttachments().setComponents().queue();
         } else if (title.contains("Statistiken")) {
-            logger.info("Resetting statscolor for " + member.getEffectiveName());
             setter.setCardColor(member.getId(), "#94c6f3");
-            event.editMessage("Deine Statistikfarbe wurde erfolgreich zurückgesetzt!").setEmbeds().setAttachments().setComponents().queue();
+            logger.info("Resetting statscolor for " + member.getEffectiveName());
         }
+
+        String key = "color.type.";
+
+        event.editMessage(format("color.reset", Map.of("type", title.contains("Name") ? getLang(key + "name") : getLang(key + "stats")))).setEmbeds().setAttachments().setComponents().queue();
     }
 
-    private static void handleColor(String color, ButtonInteractionEvent event) {
+    private static void handleColor(ButtonInteractionEvent event) {
         String title = event.getMessage().getEmbeds().get(0).getTitle();
-        Member member = event.getMember();
+        String color = event.getButton().getId();
 
         if (title.contains("Name")) setNameColor(event, color);
         else if (title.contains("Statistiken")) {
-            colorCache.put(member, color);
+            colorCache.put(event.getMember(), color);
             sendPreview(event, color);
         }
     }
@@ -139,7 +118,7 @@ public class ChangeColor {
         setter.setCardColor(member.getId(), colorCache.get(member));
 
         logger.info("Setting statscolor for " + member.getEffectiveName() + " to " + colorCache.get(member));
-        event.editMessage("Deine Statistikfarbe wurde erfolgreich zu ` " + colorCache.get(member) + " ` geändert!").setAttachments().setComponents().queue();
+        event.editMessage("Deine Statistikfarbe wurde erfolgreich zu ` " + colors.get(colorCache.get(member)).translation + " ` geändert!").setAttachments().setComponents().queue();
 
         colorCache.remove(member);
     }
@@ -147,27 +126,22 @@ public class ChangeColor {
 
     private static void setNameColor(ButtonInteractionEvent event, String color) {
         Member member = event.getMember();
+
+        resetNameColor(member);
+
+        String newRole = colors.get(color).translation;
+
+        event.getGuild().addRoleToMember(member, event.getGuild().getRolesByName(newRole, true).get(0)).queue();
+
+        logger.info("Setting namecolor for " + member.getUser().getName() + " to " + color);
+        event.editMessage("Deine Namensfarbe wurde erfolgreich zu ` " + newRole + " ` geändert!").setEmbeds().setComponents().queue();
+    }
+
+    private static void resetNameColor(Member member) {
+        List<String> translations = getTranslations();
+
         member.getRoles().stream()
-                .filter(role -> Arrays.asList("Rot", "Blau", "Pink", "Grün", "Orange", "Violett", "Hellblau", "Gelb").contains(role.getName()))
-                .forEach(role -> event.getGuild().removeRoleFromMember(member, role).queue());
-
-        Map<String, String> colorToRole = Map.of(
-                "red", "Rot",
-                "blue", "Blau",
-                "pink", "Pink",
-                "green", "Grün",
-                "orange", "Orange",
-                "purple", "Violett",
-                "lightblue", "Hellblau",
-                "yellow", "Gelb"
-        );
-
-        String newRole = colorToRole.getOrDefault(color, null);
-        if (newRole != null) {
-            event.getGuild().addRoleToMember(member, event.getGuild().getRolesByName(newRole, true).get(0)).queue();
-        }
-
-        logger.info("Setting namecolor for " + member.getEffectiveName() + " to " + color);
-        event.editMessage("Deine Namenfarbe wurde erfolgreich zu ` " + color + " ` geändert!").setEmbeds().setComponents().queue();
+                .filter(role -> translations.contains(role.getName()))
+                .forEach(role -> GUILD.removeRoleFromMember(member, role).queue());
     }
 }

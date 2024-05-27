@@ -13,18 +13,20 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
-import java.util.Map;
 import java.util.Timer;
 
 import static de.ztiger.faibot.FaiBot.getter;
 import static de.ztiger.faibot.FaiBot.logger;
 import static de.ztiger.faibot.listeners.MessageReceived.calcXP;
+import static de.ztiger.faibot.listeners.MessageReceived.getLastLevelsXP;
+import static de.ztiger.faibot.utils.Colors.colors;
 
 @SuppressWarnings({"ConstantConditions"})
 public class Stats {
@@ -43,7 +45,6 @@ public class Stats {
         Button cancel = Button.secondary("cancel", "❌ Abbrechen");
 
         event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
-
     }
 
     private static File createStatsImage(Member member, Color color) {
@@ -143,14 +144,15 @@ public class Stats {
             timer.schedule(new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    if (new File(userCardPath).delete()) logger.info("Deleted temporary files of " + member.getEffectiveName());
+                    if (new File(userCardPath).delete())
+                        logger.info("Deleted temporary files of " + member.getEffectiveName());
                     else logger.warn("Couldn't delete temporary files");
                 }
             }, 10000);
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error while creating stats image: " + e.getMessage());
         }
 
         return new File(userCardPath);
@@ -180,38 +182,6 @@ public class Stats {
     }
 
     private static Color convertColor(String color) {
-        Color converted = null;
-
-        if (color == null) converted = Color.decode("#94c6f3");
-        else {
-            Map<String, String> stringToColor = Map.of(
-                    "red", "#a30000",
-                    "blue", "#206694",
-                    "pink", "#ff00b0",
-                    "green", "#1abc9c",
-                    "orange", "#e67e22",
-                    "purple", "#7f00b4",
-                    "lightblue", "#00f1ff",
-                    "yellow", "#faff00"
-            );
-
-            String newColor = stringToColor.getOrDefault(color, null);
-            if (newColor != null) {
-                converted = Color.decode(newColor);
-            }
-        }
-
-        return converted;
+        return Color.decode((color == null ? "#94c6f3" : colors.get(color).hex));
     }
-
-    private static int getLastLevelsXP(int level) {
-        int xp = 0;
-
-        for (int i = 0; i <= level; i++) {
-            xp += calcXP(i);
-        }
-
-        return xp;
-    }
-
 }

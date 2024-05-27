@@ -8,24 +8,17 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static de.ztiger.faibot.FaiBot.*;
+import static de.ztiger.faibot.utils.Colors.*;
 
 @SuppressWarnings("ConstantConditions")
 public class Shop {
 
-    private static final Button red = Button.secondary("BUYred", "🟥 Rot");
-    private static final Button blue = Button.secondary("BUYblue", "🟦 Blau");
-    private static final Button pink = Button.secondary("BUYpink", "🟪 Pink");
-    private static final Button green = Button.secondary("BUYgreen", "🟩 Grün");
-    private static final Button orange = Button.secondary("BUYorange", "🟧 Orange");
-    private static final Button purple = Button.secondary("BUYpurple", "🟪 Violett");
-    private static final Button lightblue = Button.secondary("BUYlightblue", "🟦 Hellblau");
-    private static final Button yellow = Button.secondary("BUYyellow", "🟨 Gelb");
+    private static final List<Button> colorButtons = createColorButtons();
     private static final Button cancel = Button.danger("BUYcancel", "✕ Abbrechen");
     private static final Button confirm = Button.success("BUYconfirm", "✓ Bestätigen");
     private static final HashMap<Member, String> shopCache = new HashMap<>();
@@ -45,8 +38,8 @@ public class Shop {
     public static List<ActionRow> getActionRows(List<String> colors) {
         List<Button> buttons = new ArrayList<>();
 
-        for (Button button : new Button[]{orange, blue, yellow, pink, purple, red, green, lightblue}) {
-            if (colors.contains(button.getId().replace("BUY", ""))) buttons.add(button.asDisabled());
+        for (Button button : colorButtons) {
+            if (colors.contains(button.getId())) buttons.add(button.asDisabled());
             else buttons.add(button);
         }
 
@@ -59,30 +52,17 @@ public class Shop {
                 .addField("\u00A0", "Hier kannst du dir Farben für deinen Namen und deine Statistiken kaufen.", false)
                 .addField("Jede Farbe kostet 750 Punkte.", "\u00A0", false)
                 .addField("➡️ Wähle zuerst aus welche Farbe du kaufen möchtest", "\u00A0", false)
-                .setColor(Color.decode("#94c6f3"))
+                .setColor(nixo)
                 .build();
     }
 
     public static void handleShopEmbed(ButtonInteractionEvent event) {
-        String color = " ";
-
-        switch (event.getButton().getId().substring(3)) {
-            case "red" -> color = "Rot";
-            case "blue" -> color = "Blau";
-            case "green" -> color = "Grün";
-            case "pink" -> color = "Rosa";
-            case "orange" -> color = "Orange";
-            case "purple" -> color = "Violett";
-            case "lightblue" -> color = "Hellblau";
-            case "yellow" -> color = "Gelb";
-        }
-
-        shopCache.put(event.getMember(), event.getButton().getId().substring(3));
+        shopCache.put(event.getMember(), event.getButton().getId());
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("🛒 Shop")
-                .setDescription("Bist du dir sicher, dass du dir die Farbe **" + color + "** für **750 Points** kaufen möchtest?")
-                .setColor(Color.decode("#94c6f3"))
+                .setDescription("Bist du dir sicher, dass du dir die Farbe **" + colors.get(shopCache.get(event.getMember())).translation + "** für **750 Points** kaufen möchtest?")
+                .setColor(nixo)
                 .build();
 
         ActionRow row = ActionRow.of(confirm, cancel);
@@ -96,25 +76,14 @@ public class Shop {
             return;
         }
 
-        String color = " ";
-
-        switch (shopCache.get(event.getMember())) {
-            case "red" -> color = "Rot";
-            case "blue" -> color = "Blau";
-            case "green" -> color = "Grün";
-            case "pink" -> color = "Rosa";
-            case "orange" -> color = "Orange";
-            case "purple" -> color = "Violett";
-            case "lightblue" -> color = "Hellblau";
-            case "yellow" -> color = "Gelb";
-        }
+        String color = shopCache.get(event.getMember());
 
         setter.removePoints(event.getMember().getId(), 750);
         setter.addInventory(event.getMember().getId(), shopCache.get(event.getMember()));
 
         shopCache.remove(event.getMember());
 
-        logger.info("User " + event.getMember().getUser().getAsTag() + " bought the color " + color);
-        event.editMessage("Du hast dir erfolgreich die Farbe **" + color + "** gekauft!").setComponents().setEmbeds().queue();
+        logger.info("User " + event.getMember().getUser().getEffectiveName() + " bought the color " + color);
+        event.editMessage("Du hast dir erfolgreich die Farbe **" + colors.get(color).translation + "** gekauft!").setComponents().setEmbeds().queue();
     }
 }

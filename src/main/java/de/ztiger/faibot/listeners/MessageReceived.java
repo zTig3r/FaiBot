@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.MessageCachingService.add;
@@ -80,14 +81,8 @@ public class MessageReceived extends ListenerAdapter {
         return true;
     }
 
-    private static int getLastLevelsXP(int level) {
-        int xp = 0;
-
-        for (int i = 0; i <= level; i++) {
-            xp += calcXP(i);
-        }
-
-        return xp;
+    public static int getLastLevelsXP(int level) {
+        return IntStream.rangeClosed(0, level).map(MessageReceived::calcXP).sum();
     }
 
     public static int calcXP(Member member) {

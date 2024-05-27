@@ -1,0 +1,47 @@
+color:
+  main:
+    title: "🎨 Farben ändern"
+    description: "Hier kannst du deine Farbe für deinen Namen und deine Statistiken ändern."
+    task: "➡️ Wähle zuerst aus welche Farbe du ändern möchtest."
+  select:
+    title: "🎨 Farbe für {type} ändern"
+    description: "Hier kannst du deine Farbe für {type} auswählen."
+    warn: "⚠️ Du kannst nur Farben auswählen, welche du bereits freigeschaltet hast."
+    task: "➡️ Wähle aus, welche Farbe du für {type} verwenden möchtest."
+    reset: "🗑️ Farbe entfernen"
+  type:
+    name: "deinen Namen"
+    stats: "deine Statistiken"
+  success: "Die Farbe für {type} wurde erfolgreich zu ` {color} ` geändert."
+  locked: Du besitzt diese Farbe nicht! *Kaufe weitere Farben:* `/shop`"
+  reset: "Die Farbe für {type} wurde erfolgreich zurückgesetzt."
+
+daily:
+  title: "🎁 Tägliche Belohnung"
+  error: "Du hast deine tägliche Belohnung bereits abgeholt!"
+  reward: "Belohnung"
+  rewardFormat: "{amount} Punkte"
+  streak: "Streak: {streak}"
+
+inventory:
+  title: "Inventar"
+  noItems: "Du besitzt derzeit keine Items."
+  shop: "🛒 Weitere Items freischalten: /shop"
+
+leaderboard:
+  title: "🏆 Leaderboard"
+  next: "➡️ Nächste Seite"
+  back: "⬅️ Vorherige Seite"
+  format: "{position}) {name} Level: {level} | XP: {xp} | Punkte: {points} | Nachrichten: {messages}"
+  page: "Seite {page}"
+
+serverstats:
+  title: "📊 SERVER STATS 📊"
+  all: "All Members: {members}"
+  members: "Members: {members}"
+  bots: "Bots: {bots}"
+  success: "Server Stats wurden erfolgreich eingerichtet!"
+  error: "Server Stats sind bereits eingerichtet!"
+
+welcomeMessage: "{user} Herzlich Willkommen auf Fienix und Izio's Discord Server! <:Nixo_Cool:1076155167038255225> \n\r → Stelle dich doch Mal kurz vor. <:Nixo_Herz:795298661651054612>"
+wrongChannel: "Bitte benutze diesen Befehl in {channel}!"

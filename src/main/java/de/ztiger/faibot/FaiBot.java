@@ -69,7 +69,6 @@ public class FaiBot {
 
     }
 
-
     private FaiBot() throws LoginException {
         config = Dotenv.configure().load();
         shardManager = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"))
@@ -87,5 +86,4 @@ public class FaiBot {
     public static ShardManager getShardManager() {
         return shardManager;
     }
-
 }

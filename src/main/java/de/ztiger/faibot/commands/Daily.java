@@ -5,13 +5,18 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-import java.awt.*;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static de.ztiger.faibot.FaiBot.*;
+import static de.ztiger.faibot.utils.Colors.nixo;
+import static de.ztiger.faibot.utils.Lang.format;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 public class Daily {
+
+    private static final String KEY = "daily.";
 
     public static void sendDailyReward(SlashCommandInteractionEvent event) {
         User user = event.getUser();
@@ -23,7 +28,7 @@ public class Daily {
         LocalDate now = LocalDate.now();
 
         if (last.equals(now)) {
-            event.reply("Du hast deine tägliche Belohnung bereits erhalten!").setEphemeral(true).queue();
+            event.reply(getLang(KEY + "error")).setEphemeral(true).queue();
             return;
         }
 
@@ -37,10 +42,10 @@ public class Daily {
 
         MessageEmbed embed = new EmbedBuilder()
                 .setAuthor(user.getName(), null, event.getUser().getAvatarUrl())
-                .setTitle("Tägliche Belohnung")
-                .addField("Belohnung", amount + " Punkte", false)
-                .setFooter("Streak: " + getter.getStreak(id), null)
-                .setColor(Color.decode("#94c6f3"))
+                .setTitle(getLang(KEY + "title"))
+                .addField(getLang(KEY + "reward"), format(KEY + ".rewardFormat", Map.of("amount", amount)), false)
+                .setFooter(format(KEY + ".streak", Map.of("streak", getter.getStreak(id))), null)
+                .setColor(nixo)
                 .build();
 
         logger.info("User " + event.getUser().getEffectiveName() + " received " + amount + " points as daily reward.");
