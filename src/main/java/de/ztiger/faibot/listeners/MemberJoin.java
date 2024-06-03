@@ -38,7 +38,7 @@ public class MemberJoin extends ListenerAdapter {
                 .setTimestamp(OffsetDateTime.now())
                 .build();
 
-        setter.addUser(event.getUser().getId());
+        if(!getter.userExists(user.getId())) setter.addUser(event.getUser().getId());
 
         welcomeChannel.sendMessage(format("welcomeMessage", Map.of("user", user.getAsMention()))).queue();
         logChannel.sendMessageEmbeds(embed).queue();

@@ -1,27 +1,48 @@
 package de.ztiger.faibot.utils;
 
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.simpleyaml.configuration.file.FileConfiguration;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static de.ztiger.faibot.FaiBot.cfgm;
+import static de.ztiger.faibot.FaiBot.logger;
+import static de.ztiger.faibot.listeners.BotReady.GUILD;
 
 public class Colors {
 
+    public static HashMap<String, ColorInfo> colors = new HashMap<>();
+
     public static final Color nixo = new Color(0x94c6f3);
 
-    public static final HashMap<String, ColorInfo> colors = new HashMap<>() {{
-        put("red", new ColorInfo("Rot", "🟥", "#a30000"));
-        put("blue", new ColorInfo("Blau", "🟦", "#206694"));
-        put("pink", new ColorInfo("Pink", "🟪", "#ff00b0"));
-        put("green", new ColorInfo("Grün", "🟩", "#1abc9c"));
-        put("orange", new ColorInfo("Orange", "🟧", "#e67e22"));
-        put("purple", new ColorInfo("Violett", "🟪", "#7f00b4"));
-        put("lightblue", new ColorInfo("Hellblau", "🟦", "#00f1ff"));
-        put("yellow", new ColorInfo("Gelb", "🟨", "#faff00"));
-    }};
+    private static List<Button> colorButtons = new ArrayList<>();
+
+    public static void setupColors() {
+        try {
+            FileConfiguration colorFile = cfgm.getConfig("colors");
+
+            colorFile.getKeys(false).forEach(color -> colors.put(color, new ColorInfo(colorFile.getString(color + ".translation"), colorFile.getString(color + ".emoji"), colorFile.getString(color + ".hex"))));
+
+            colorButtons = colors.entrySet().stream().map(entry -> Button.secondary(entry.getKey(), entry.getValue().emoji + " " + entry.getValue().translation)).collect(Collectors.toList());
+
+            colors.values().forEach(info -> {
+                List<Role> roles = GUILD.getRolesByName(info.translation, true);
+                int colorRGB = Color.decode(info.hex).getRGB();
+
+                if (roles.isEmpty()) GUILD.createRole().setName(info.translation).setColor(colorRGB).queue();
+                else if (roles.get(0).getColorRaw() != colorRGB) roles.get(0).getManager().setColor(colorRGB).queue();
+            });
+        } catch (Exception e) {
+            logger.error("Error while loading colors file: {}", e.getMessage());
+        }
+    }
 
     public static class ColorInfo {
         public String translation;
@@ -35,15 +56,10 @@ public class Colors {
         }
     }
 
-    public static List<Button> createColorButtons() {
-        List<Button> buttons = new ArrayList<>();
-
-        for(String color : colors.keySet()) {
-            ColorInfo colorInfo = colors.get(color);
-            buttons.add(Button.secondary(color, colorInfo.emoji + " " + colorInfo.translation));
-        }
-
-        return buttons;
+    public static List<ActionRow> createColorActionRows() {
+        return IntStream.range(0, (colorButtons.size() + 4) / 5)
+                .mapToObj(i -> ActionRow.of(colorButtons.subList(i * 5, Math.min((i + 1) * 5, colorButtons.size()))))
+                .collect(Collectors.toList());
     }
 
     public static List<String> getTranslations() {

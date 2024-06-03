@@ -2,10 +2,7 @@ package de.ztiger.faibot;
 
 import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.listeners.*;
-import de.ztiger.faibot.utils.MariaDB;
-import de.ztiger.faibot.utils.SQLGetter;
-import de.ztiger.faibot.utils.SQLSetter;
-import de.ztiger.faibot.utils.TwitchHandler;
+import de.ztiger.faibot.utils.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -22,6 +19,7 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.sql.SQLException;
 
+import static de.ztiger.faibot.utils.Colors.setupColors;
 import static de.ztiger.faibot.utils.TableCreator.createTables;
 
 @SuppressWarnings({"InstantiationOfUtilityClass"})
@@ -36,7 +34,11 @@ public class FaiBot {
     public static SQLGetter getter;
     public static SQLSetter setter;
 
+    public static ConfigManager cfgm;
+
     public static void main(String[] args) {
+        cfgm = new ConfigManager();
+
         try {
             new FaiBot();
         } catch (LoginException e) {
@@ -67,6 +69,7 @@ public class FaiBot {
 
         new TwitchHandler();
 
+        setupColors();
     }
 
     private FaiBot() throws LoginException {

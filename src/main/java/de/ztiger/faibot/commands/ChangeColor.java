@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.*;
 
@@ -24,9 +25,7 @@ import static de.ztiger.faibot.utils.Lang.getLang;
 public class ChangeColor {
 
     private static final String KEY = "color.";
-
-    private static final List<Button> colorButtons = createColorButtons();
-    private static final Button reset = Button.danger("reset", getLang(KEY + "reset"));
+    private static final Button reset = Button.danger("reset", getLang(KEY + "select.reset"));
     private static final Button back = Button.danger("back", "↩️ Zurück");
     private static final HashMap<Member, String> colorCache = new HashMap<>();
 
@@ -38,7 +37,7 @@ public class ChangeColor {
         event.editMessage((MessageEditData) getColorEmbed('e')).queue();
     }
 
-    public static void colorEmebd(ButtonInteractionEvent event, boolean isName) {
+    public static void colorEmbed(ButtonInteractionEvent event, boolean isName) {
         Map<String, Object> replacement = Map.of("type", isName ? getLang("color.type.name") : getLang("color.type.stats"));
 
         String key = KEY + "select.";
@@ -52,14 +51,29 @@ public class ChangeColor {
                 .setColor(nixo)
                 .build();
 
-        event.editMessageEmbeds(embed).setComponents(ActionRow.of(colorButtons.get(0), colorButtons.get(1), colorButtons.get(2), colorButtons.get(3), reset), ActionRow.of(colorButtons.get(4), colorButtons.get(5), colorButtons.get(6), colorButtons.get(7), back)).queue();
+        List<ActionRow> rows = createColorActionRows();
+        List<ItemComponent> lastRowComponents = rows.get(rows.size() - 1).getComponents();
+
+        switch (lastRowComponents.size()) {
+            case 1,2,3 -> {
+                lastRowComponents.add(reset);
+                lastRowComponents.add(back);
+            }
+            case 4 -> {
+                lastRowComponents.add(reset);
+                rows.add(ActionRow.of(back));
+            }
+            case 5 -> rows.add(ActionRow.of(reset, back));
+        }
+
+        event.editMessageEmbeds(embed).setComponents(rows).setAttachments().queue();
     }
 
     private static MessageData getColorEmbed(char type) {
         Button nameColor = Button.primary("nameColor", "👋 Name");
         Button statsColor = Button.primary("statsColor", "📊 Statistiken");
 
-        String key = "color.main.";
+        String key = KEY + "main.";
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle(getLang(key + "title"))
@@ -82,7 +96,7 @@ public class ChangeColor {
 
         if (buttonId.equals("reset")) handleReset(event);
         else if (getter.getInventory(event.getMember().getId()).contains(buttonId)) handleColor(event);
-        else event.reply(getLang("colors.locked")).setEphemeral(true).queue();
+        else event.reply(getLang("color.locked")).setEphemeral(true).queue();
     }
 
     private static void handleReset(ButtonInteractionEvent event) {

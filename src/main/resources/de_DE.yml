@@ -13,7 +13,7 @@ color:
     name: "deinen Namen"
     stats: "deine Statistiken"
   success: "Die Farbe für {type} wurde erfolgreich zu ` {color} ` geändert."
-  locked: Du besitzt diese Farbe nicht! *Kaufe weitere Farben:* `/shop`"
+  locked: "Du besitzt diese Farbe nicht! *Kaufe weitere Farben:* `/shop`"
   reset: "Die Farbe für {type} wurde erfolgreich zurückgesetzt."
 
 daily:
@@ -42,6 +42,15 @@ serverstats:
   bots: "Bots: {bots}"
   success: "Server Stats wurden erfolgreich eingerichtet!"
   error: "Server Stats sind bereits eingerichtet!"
+
+shop:
+  title: "🛒 Shop"
+  description: "Hier kannst du dir Farben für deinen Namen und deine Statistiken kaufen."
+  price: "Jede Farbe kostet {price} Punkte."
+  task: "➡️ Wähle zuerst aus welche Farbe du kaufen möchtest"
+  confirmDescription: "Möchtest du die Farbe ` {color} ` wirklich für **{price} Punkte** kaufen?"
+  error: "Du hast nicht genug Punkte um dir diese Farbe zu kaufen!"
+  success: "Die Farbe ` {color} ` wurde erfolgreich gekauft."
 
 welcomeMessage: "{user} Herzlich Willkommen auf Fienix und Izio's Discord Server! <:Nixo_Cool:1076155167038255225> \n\r → Stelle dich doch Mal kurz vor. <:Nixo_Herz:795298661651054612>"
 wrongChannel: "Bitte benutze diesen Befehl in {channel}!"

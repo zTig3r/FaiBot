@@ -24,9 +24,9 @@ import java.util.Timer;
 
 import static de.ztiger.faibot.FaiBot.getter;
 import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.listeners.MessageReceived.calcXP;
-import static de.ztiger.faibot.listeners.MessageReceived.getLastLevelsXP;
 import static de.ztiger.faibot.utils.Colors.colors;
+import static de.ztiger.faibot.utils.XP.calcXP;
+import static de.ztiger.faibot.utils.XP.getLastLevelsXP;
 
 @SuppressWarnings({"ConstantConditions"})
 public class Stats {
@@ -182,6 +182,6 @@ public class Stats {
     }
 
     private static Color convertColor(String color) {
-        return Color.decode((color == null ? "#94c6f3" : colors.get(color).hex));
+        return Color.decode((color.contains("#") ? "#94c6f3" : colors.get(color).hex));
     }
 }

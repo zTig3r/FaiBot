@@ -1,31 +1,26 @@
 package de.ztiger.faibot.utils;
 
-import org.simpleyaml.configuration.file.FileConfiguration;
-import org.simpleyaml.configuration.file.YamlConfiguration;
-
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static de.ztiger.faibot.FaiBot.cfgm;
 import static de.ztiger.faibot.FaiBot.logger;
 
 public class Lang {
 
-    private static HashMap<String, String> cache = new HashMap<>();
+    private static final HashMap<String, String> cache = new HashMap<>();
 
     public static String getLang(String key) {
         if (cache.containsKey(key)) return cache.get(key);
 
         try {
-            FileConfiguration lang = YamlConfiguration.loadConfiguration(new File(Lang.class.getClassLoader().getResource("de_DE.yml").toURI()));
+            String value = cfgm.getConfig(cfgm.getConfig("config").getString("language")).getString(key);
 
-            Object value = lang.get(key);
-
-            cache.put(key, value.toString());
-            return value.toString();
+            cache.put(key, value);
+            return value;
 
         } catch (Exception e) {
-            logger.error("Error while loading language file: " + e.getMessage());
+            logger.error("Error while loading language file: {}", e.getMessage());
         }
 
         return key;

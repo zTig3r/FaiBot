@@ -14,6 +14,7 @@ import static de.ztiger.faibot.utils.MessageCachingService.remove;
 
 @SuppressWarnings("ConstantConditions")
 public class MessageDelete extends ListenerAdapter {
+
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
         if (event.getChannel() == logChannel) return;

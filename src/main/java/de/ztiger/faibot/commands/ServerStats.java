@@ -29,15 +29,12 @@ public class ServerStats {
 
         GUILD.createVoiceChannel(format(KEY + "all", Map.of("members", members + "")))
                 .setParent(GUILD.getCategoriesByName(name, true).get(0))
-                .setUserlimit(0)
                 .queue();
         GUILD.createVoiceChannel(format(KEY + "members", Map.of("members", members - bots + "")))
                 .setParent(GUILD.getCategoriesByName(name, true).get(0))
-                .setUserlimit(0)
                 .queue();
         GUILD.createVoiceChannel(format(KEY + "bots", Map.of("bots", bots + "")))
                 .setParent(GUILD.getCategoriesByName(name, true).get(0))
-                .setUserlimit(0)
                 .queue();
 
         logger.info("Created Server Stats category");

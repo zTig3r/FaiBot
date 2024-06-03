@@ -31,13 +31,13 @@ public class Leaderboard {
     }
 
     public static void next(ButtonInteractionEvent event) {
-        int page = Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
+        int page = getPage(event);
 
         event.editMessageEmbeds(createLeaderboardEmbed(page)).setActionRow(back, (page == maxPage) ? next.asDisabled() : next).queue();
     }
 
     public static void back(ButtonInteractionEvent event) {
-        int page = Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
+        int page = getPage(event);
 
         event.editMessageEmbeds(createLeaderboardEmbed(page - 2)).setActionRow((page - 1 == 1) ? back.asDisabled() : back , next).queue();
     }
@@ -59,5 +59,9 @@ public class Leaderboard {
         }
 
         return embed.build();
+    }
+
+    private static int getPage(ButtonInteractionEvent event) {
+        return Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
     }
 }

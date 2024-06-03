@@ -117,7 +117,7 @@ public class SQLGetter {
             PreparedStatement ps = mariaDB.getConnection().prepareStatement("SELECT typ FROM backpacks WHERE userid = ?");
             ps.setInt(1, getId(id));
             ResultSet rs = ps.executeQuery();
-            while(rs.next()) {
+            while (rs.next()) {
                 items.add(rs.getString("typ"));
             }
 
@@ -151,7 +151,7 @@ public class SQLGetter {
             ps.setInt(1, offset);
             ps.setInt(2, 10);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()) {
+            while (rs.next()) {
                 members.add(getShardManager().getGuildById(config.get("GUILD")).getMemberById(getMemberById(rs.getInt("userid"))));
             }
 
@@ -169,7 +169,7 @@ public class SQLGetter {
             ps.setInt(1, getId(id));
             ResultSet rs = ps.executeQuery();
 
-            if(rs.next()) return rs.getInt("rank");
+            if (rs.next()) return rs.getInt("rank");
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -203,5 +203,17 @@ public class SQLGetter {
             logger.error(e.getMessage());
         }
         return null;
+    }
+
+    public boolean userExists(String id) {
+        try {
+            PreparedStatement ps = mariaDB.getConnection().prepareStatement("SELECT * FROM users WHERE dcid = ?");
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return false;
     }
 }

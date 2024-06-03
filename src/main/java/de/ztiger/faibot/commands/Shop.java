@@ -8,50 +8,49 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.Colors.*;
+import static de.ztiger.faibot.utils.Lang.format;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 @SuppressWarnings("ConstantConditions")
 public class Shop {
 
-    private static final List<Button> colorButtons = createColorButtons();
+    private static final String KEY = "shop.";
+
     private static final Button cancel = Button.danger("BUYcancel", "✕ Abbrechen");
     private static final Button confirm = Button.success("BUYconfirm", "✓ Bestätigen");
     private static final HashMap<Member, String> shopCache = new HashMap<>();
 
     public static void sendShopEmbed(SlashCommandInteractionEvent event) {
-        List<String> colors = new ArrayList<>(getter.getInventory(event.getMember().getId()));
-
-        event.replyEmbeds(createShopEmbed()).setComponents(getActionRows(colors)).setEphemeral(true).queue();
+        event.replyEmbeds(createShopEmbed()).setComponents(getActionRows(event.getMember().getId())).setEphemeral(true).queue();
     }
 
     public static void sendShopEmbed(ButtonInteractionEvent event) {
-        List<String> colors = new ArrayList<>(getter.getInventory(event.getMember().getId()));
-
-        event.editMessageEmbeds(createShopEmbed()).setComponents(getActionRows(colors)).queue();
+        event.editMessageEmbeds(createShopEmbed()).setComponents(getActionRows(event.getMember().getId())).queue();
     }
 
-    public static List<ActionRow> getActionRows(List<String> colors) {
-        List<Button> buttons = new ArrayList<>();
+    public static List<ActionRow> getActionRows(String ID) {
+        List<String> colors = getter.getInventory(ID);
+        List<ActionRow> rows = createColorActionRows();
 
-        for (Button button : colorButtons) {
-            if (colors.contains(button.getId())) buttons.add(button.asDisabled());
-            else buttons.add(button);
-        }
+        rows.forEach(row -> row.getButtons().forEach(button -> {
+            if (colors.contains(button.getId())) row.getComponents().set(row.getButtons().indexOf(button), button.asDisabled());
+        }));
 
-        return List.of(ActionRow.of(buttons.subList(0, 4)), ActionRow.of(buttons.subList(4, 8)));
+        return rows;
     }
 
     private static MessageEmbed createShopEmbed() {
         return new EmbedBuilder()
-                .setTitle("🛒 Shop")
-                .addField("\u00A0", "Hier kannst du dir Farben für deinen Namen und deine Statistiken kaufen.", false)
-                .addField("Jede Farbe kostet 750 Punkte.", "\u00A0", false)
-                .addField("➡️ Wähle zuerst aus welche Farbe du kaufen möchtest", "\u00A0", false)
+                .setTitle(getLang(KEY + "title"))
+                .addField("\u00A0", getLang(KEY + "description"), false)
+                .addField(format(KEY + "price", Map.of("price", getColorPrice())), "\u00A0", false)
+                .addField(getLang(KEY + "task"), "\u00A0", false)
                 .setColor(nixo)
                 .build();
     }
@@ -60,30 +59,34 @@ public class Shop {
         shopCache.put(event.getMember(), event.getButton().getId());
 
         MessageEmbed embed = new EmbedBuilder()
-                .setTitle("🛒 Shop")
-                .setDescription("Bist du dir sicher, dass du dir die Farbe **" + colors.get(shopCache.get(event.getMember())).translation + "** für **750 Points** kaufen möchtest?")
+                .setTitle(getLang(KEY + "title"))
+                .setDescription(format(KEY + "confirmDescription", Map.of("color", colors.get(shopCache.get(event.getMember())).translation, "price", getColorPrice())))
                 .setColor(nixo)
                 .build();
 
-        ActionRow row = ActionRow.of(confirm, cancel);
-
-        event.editMessageEmbeds(embed).setComponents(row).queue();
+        event.editMessageEmbeds(embed).setActionRow(confirm, cancel).queue();
     }
 
     public static void handleBuy(ButtonInteractionEvent event) {
-        if (getter.getPoints(event.getMember().getId()) < 750) {
-            event.reply("Du hast nicht genug Punkte um dir diese Farbe zu kaufen!").setEphemeral(true).queue();
+        int colorPrice = getColorPrice();
+
+        if (getter.getPoints(event.getMember().getId()) < colorPrice) {
+            event.reply(getLang(KEY + "error")).setEphemeral(true).queue();
             return;
         }
 
         String color = shopCache.get(event.getMember());
 
-        setter.removePoints(event.getMember().getId(), 750);
+        setter.removePoints(event.getMember().getId(), colorPrice);
         setter.addInventory(event.getMember().getId(), shopCache.get(event.getMember()));
 
         shopCache.remove(event.getMember());
 
         logger.info("User " + event.getMember().getUser().getEffectiveName() + " bought the color " + color);
-        event.editMessage("Du hast dir erfolgreich die Farbe **" + colors.get(color).translation + "** gekauft!").setComponents().setEmbeds().queue();
+        event.editMessage(format(KEY + "success", Map.of("color", colors.get(color).translation))).setComponents().setEmbeds().queue();
+    }
+
+    private static int getColorPrice() {
+        return cfgm.getConfig("config").getInt("colorPrice");
     }
 }

@@ -86,11 +86,11 @@ public class BotReady extends ListenerAdapter {
 
         timer1.schedule(twoMinTask, 100000, 500 * 60 * 5);
 
-        checkUsersDB(GUILD);
+        checkUsersDB();
     }
 
-    private static void checkUsersDB(Guild guild) {
-        for (Member member : guild.getMembers()) {
+    private static void checkUsersDB() {
+        for (Member member : GUILD.getMembers()) {
             String id = member.getUser().getId();
             if(getter.getId(id) == 0) setter.addUser(id);
         }
