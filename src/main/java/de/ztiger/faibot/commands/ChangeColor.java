@@ -105,10 +105,10 @@ public class ChangeColor {
 
         if (title.contains("Name")) {
             resetNameColor(member);
-            logger.info("Resetting namecolor for " + member.getEffectiveName());
+            logger.info("Resetting namecolor for {}", member.getEffectiveName());
         } else if (title.contains("Statistiken")) {
             setter.setCardColor(member.getId(), "#94c6f3");
-            logger.info("Resetting statscolor for " + member.getEffectiveName());
+            logger.info("Resetting statscolor for {}", member.getEffectiveName());
         }
 
         String key = "color.type.";
@@ -131,7 +131,7 @@ public class ChangeColor {
         Member member = event.getMember();
         setter.setCardColor(member.getId(), colorCache.get(member));
 
-        logger.info("Setting statscolor for " + member.getEffectiveName() + " to " + colorCache.get(member));
+        logger.info("Setting statscolor for {} to {}", member.getEffectiveName(), colorCache.get(member));
         event.editMessage("Deine Statistikfarbe wurde erfolgreich zu ` " + colors.get(colorCache.get(member)).translation + " ` geändert!").setAttachments().setComponents().queue();
 
         colorCache.remove(member);
@@ -147,7 +147,7 @@ public class ChangeColor {
 
         event.getGuild().addRoleToMember(member, event.getGuild().getRolesByName(newRole, true).get(0)).queue();
 
-        logger.info("Setting namecolor for " + member.getUser().getName() + " to " + color);
+        logger.info("Setting namecolor for {} to {}", member.getUser().getName(), color);
         event.editMessage("Deine Namensfarbe wurde erfolgreich zu ` " + newRole + " ` geändert!").setEmbeds().setComponents().queue();
     }
 

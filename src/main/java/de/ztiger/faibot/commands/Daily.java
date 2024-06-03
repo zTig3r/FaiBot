@@ -48,7 +48,7 @@ public class Daily {
                 .setColor(nixo)
                 .build();
 
-        logger.info("User " + event.getUser().getEffectiveName() + " received " + amount + " points as daily reward.");
+        logger.info("User {} received {} points as daily reward.", event.getUser().getEffectiveName(), amount);
         event.replyEmbeds(embed).queue();
     }
 }

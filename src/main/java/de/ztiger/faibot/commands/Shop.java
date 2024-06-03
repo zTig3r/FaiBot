@@ -82,7 +82,7 @@ public class Shop {
 
         shopCache.remove(event.getMember());
 
-        logger.info("User " + event.getMember().getUser().getEffectiveName() + " bought the color " + color);
+        logger.info("User {} bought the color {}", event.getMember().getUser().getEffectiveName(), color);
         event.editMessage(format(KEY + "success", Map.of("color", colors.get(color).translation))).setComponents().setEmbeds().queue();
     }
 

@@ -145,14 +145,14 @@ public class Stats {
                 @Override
                 public void run() {
                     if (new File(userCardPath).delete())
-                        logger.info("Deleted temporary files of " + member.getEffectiveName());
+                        logger.info("Deleted temporary files of {}", member.getEffectiveName());
                     else logger.warn("Couldn't delete temporary files");
                 }
             }, 10000);
 
 
         } catch (IOException e) {
-            logger.error("Error while creating stats image: " + e.getMessage());
+            logger.error("Error while creating stats image: {}", e.getMessage());
         }
 
         return new File(userCardPath);
