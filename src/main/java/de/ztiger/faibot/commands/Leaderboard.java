@@ -1,16 +1,16 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
@@ -45,20 +45,18 @@ public class Leaderboard {
     private static MessageEmbed createLeaderboardEmbed(int page) {
         int i = page * 10;
 
-        ArrayList<Member> members = new ArrayList<>(getter.getTopMembers(i));
+        Map<String, String> contents = new HashMap<>();
 
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle(getLang(KEY + "title"));
-        embed.setFooter(format(KEY + "page", Map.of("page", page + 1)), null);
+        contents.put("page", String.valueOf(page + 1));
 
-        for (Member m : members) {
+        for (Member m : getter.getTopMembers(i)) {
             if (m != null) {
-                embed.addField("\u00A0", format(KEY + "format", Map.of("position", i + 1, "name", m.getAsMention(), "level", getter.getLevel(m.getId()), "xp", getter.getXP(m.getId()), "points", getter.getPoints(m.getId()), "messages", getter.getMessages(m.getId()))), false);
+                contents.put("field" + i, format(KEY + "format", Map.of("position", i + 1, "name", m.getAsMention(), "level", getter.getLevel(m.getId()), "xp", getter.getXP(m.getId()), "points", getter.getPoints(m.getId()), "messages", getter.getMessages(m.getId()))));
                 i++;
             }
         }
 
-        return embed.build();
+        return getEmbed("leaderboard", contents);
     }
 
     private static int getPage(ButtonInteractionEvent event) {

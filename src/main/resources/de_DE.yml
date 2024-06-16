@@ -1,39 +1,22 @@
 color:
-  main:
-    title: "🎨 Farben ändern"
-    description: "Hier kannst du deine Farbe für deinen Namen und deine Statistiken ändern."
-    task: "➡️ Wähle zuerst aus welche Farbe du ändern möchtest."
-  select:
-    title: "🎨 Farbe für {type} ändern"
-    description: "Hier kannst du deine Farbe für {type} auswählen."
-    warn: "⚠️ Du kannst nur Farben auswählen, welche du bereits freigeschaltet hast."
-    task: "➡️ Wähle aus, welche Farbe du für {type} verwenden möchtest."
-    reset: "🗑️ Farbe entfernen"
+  reset: "🗑️ Farbe entfernen"
   type:
     name: "deinen Namen"
     stats: "deine Statistiken"
   success: "Die Farbe für {type} wurde erfolgreich zu ` {color} ` geändert."
   locked: "Du besitzt diese Farbe nicht! *Kaufe weitere Farben:* `/shop`"
-  reset: "Die Farbe für {type} wurde erfolgreich zurückgesetzt."
+  successReset: "Die Farbe für {type} wurde erfolgreich zurückgesetzt."
 
 daily:
-  title: "🎁 Tägliche Belohnung"
   error: "Du hast deine tägliche Belohnung bereits abgeholt!"
-  reward: "Belohnung"
-  rewardFormat: "{amount} Punkte"
-  streak: "Streak: {streak}"
 
 inventory:
-  title: "Inventar"
   noItems: "Du besitzt derzeit keine Items."
-  shop: "🛒 Weitere Items freischalten: /shop"
 
 leaderboard:
-  title: "🏆 Leaderboard"
   next: "➡️ Nächste Seite"
   back: "⬅️ Vorherige Seite"
   format: "{position}) {name} Level: {level} | XP: {xp} | Punkte: {points} | Nachrichten: {messages}"
-  page: "Seite {page}"
 
 serverstats:
   title: "📊 SERVER STATS 📊"
@@ -44,11 +27,6 @@ serverstats:
   error: "Server Stats sind bereits eingerichtet!"
 
 shop:
-  title: "🛒 Shop"
-  description: "Hier kannst du dir Farben für deinen Namen und deine Statistiken kaufen."
-  price: "Jede Farbe kostet {price} Punkte."
-  task: "➡️ Wähle zuerst aus welche Farbe du kaufen möchtest"
-  confirmDescription: "Möchtest du die Farbe ` {color} ` wirklich für **{price} Punkte** kaufen?"
   error: "Du hast nicht genug Punkte um dir diese Farbe zu kaufen!"
   success: "Die Farbe ` {color} ` wurde erfolgreich gekauft."
 

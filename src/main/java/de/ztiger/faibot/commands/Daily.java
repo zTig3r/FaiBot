@@ -1,7 +1,5 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -10,10 +8,10 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.Colors.nixo;
-import static de.ztiger.faibot.utils.Lang.format;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
+@SuppressWarnings("ConstantConditions")
 public class Daily {
 
     private static final String KEY = "daily.";
@@ -40,15 +38,7 @@ public class Daily {
         setter.setLastReward(id, now.toString());
         setter.addPoints(id, amount);
 
-        MessageEmbed embed = new EmbedBuilder()
-                .setAuthor(user.getName(), null, event.getUser().getAvatarUrl())
-                .setTitle(getLang(KEY + "title"))
-                .addField(getLang(KEY + "reward"), format(KEY + ".rewardFormat", Map.of("amount", amount)), false)
-                .setFooter(format(KEY + ".streak", Map.of("streak", getter.getStreak(id))), null)
-                .setColor(nixo)
-                .build();
-
         logger.info("User {} received {} points as daily reward.", event.getUser().getEffectiveName(), amount);
-        event.replyEmbeds(embed).queue();
+        event.replyEmbeds(getEmbed("daily", Map.of("amount", String.valueOf(amount), "streak", String.valueOf(getter.getStreak(id)), "author_name", user.getName(), "author_icon", event.getUser().getAvatarUrl()))).queue();
     }
 }

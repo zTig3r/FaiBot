@@ -15,7 +15,7 @@ public class ConfigManager {
 
     private final Map<String, FileConfiguration> configs = new HashMap<>();
 
-    private static final List<String> configList = Arrays.asList("colors", "config", "de_DE");
+    private static final List<String> configList = Arrays.asList("colors", "config", "de_DE", "embeds");
 
     public ConfigManager() {
         setup();

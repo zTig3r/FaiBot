@@ -1,6 +1,5 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -14,6 +13,7 @@ import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.Colors.*;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
@@ -27,11 +27,11 @@ public class Shop {
     private static final HashMap<Member, String> shopCache = new HashMap<>();
 
     public static void sendShopEmbed(SlashCommandInteractionEvent event) {
-        event.replyEmbeds(createShopEmbed()).setComponents(getActionRows(event.getMember().getId())).setEphemeral(true).queue();
+        event.replyEmbeds(getShopEmbed()).setComponents(getActionRows(event.getMember().getId())).setEphemeral(true).queue();
     }
 
     public static void sendShopEmbed(ButtonInteractionEvent event) {
-        event.editMessageEmbeds(createShopEmbed()).setComponents(getActionRows(event.getMember().getId())).queue();
+        event.editMessageEmbeds(getShopEmbed()).setComponents(getActionRows(event.getMember().getId())).queue();
     }
 
     public static List<ActionRow> getActionRows(String ID) {
@@ -45,26 +45,14 @@ public class Shop {
         return rows;
     }
 
-    private static MessageEmbed createShopEmbed() {
-        return new EmbedBuilder()
-                .setTitle(getLang(KEY + "title"))
-                .addField("\u00A0", getLang(KEY + "description"), false)
-                .addField(format(KEY + "price", Map.of("price", getColorPrice())), "\u00A0", false)
-                .addField(getLang(KEY + "task"), "\u00A0", false)
-                .setColor(nixo)
-                .build();
+    private static MessageEmbed getShopEmbed() {
+        return getEmbed("shop", Map.of("price", getColorPrice() + ""));
     }
 
     public static void handleShopEmbed(ButtonInteractionEvent event) {
         shopCache.put(event.getMember(), event.getButton().getId());
 
-        MessageEmbed embed = new EmbedBuilder()
-                .setTitle(getLang(KEY + "title"))
-                .setDescription(format(KEY + "confirmDescription", Map.of("color", colors.get(shopCache.get(event.getMember())).translation, "price", getColorPrice())))
-                .setColor(nixo)
-                .build();
-
-        event.editMessageEmbeds(embed).setActionRow(confirm, cancel).queue();
+        event.editMessageEmbeds(getEmbed("shopConfirm", Map.of("color", colors.get(shopCache.get(event.getMember())).translation, "price", getColorPrice() + ""))).setActionRow(confirm, cancel).queue();
     }
 
     public static void handleBuy(ButtonInteractionEvent event) {

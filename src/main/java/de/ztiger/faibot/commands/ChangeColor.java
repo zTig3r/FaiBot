@@ -1,14 +1,11 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.utils.messages.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +15,7 @@ import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.commands.Stats.sendPreview;
 import static de.ztiger.faibot.listeners.BotReady.GUILD;
 import static de.ztiger.faibot.utils.Colors.*;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
@@ -25,37 +23,27 @@ import static de.ztiger.faibot.utils.Lang.getLang;
 public class ChangeColor {
 
     private static final String KEY = "color.";
-    private static final Button reset = Button.danger("reset", getLang(KEY + "select.reset"));
-    private static final Button back = Button.danger("back", "↩️ Zurück");
     private static final HashMap<Member, String> colorCache = new HashMap<>();
 
+    private static final Button reset = Button.danger("reset", getLang(KEY + ".reset"));
+    private static final Button back = Button.danger("back", "↩️ Zurück");
+    private static final Button nameColor = Button.primary("nameColor", "👋 Name");
+    private static final Button statsColor = Button.primary("statsColor", "📊 Statistiken");
+
     public static void sendColorEmbed(SlashCommandInteractionEvent event) {
-        event.reply((MessageCreateData) getColorEmbed('n')).setEphemeral(true).queue();
+        event.replyEmbeds(getEmbed("changeColorMenu")).addActionRow(nameColor, statsColor).setEphemeral(true).queue();
     }
 
     public static void sendColorEmbed(ButtonInteractionEvent event) {
-        event.editMessage((MessageEditData) getColorEmbed('e')).queue();
+        event.editMessageEmbeds(getEmbed("changeColorMenu")).setActionRow(nameColor, statsColor).queue();
     }
 
     public static void colorEmbed(ButtonInteractionEvent event, boolean isName) {
-        Map<String, Object> replacement = Map.of("type", isName ? getLang("color.type.name") : getLang("color.type.stats"));
-
-        String key = KEY + "select.";
-
-        MessageEmbed embed = new EmbedBuilder()
-                .setTitle(format(key + "title", replacement))
-                .setDescription(format(key + "description", replacement))
-                .addField("", "\u00A0", false)
-                .addField(getLang(key + "warn"), "", false)
-                .addField(format(key + "task", replacement), "\u00A0", false)
-                .setColor(nixo)
-                .build();
-
         List<ActionRow> rows = createColorActionRows();
         List<ItemComponent> lastRowComponents = rows.get(rows.size() - 1).getComponents();
 
         switch (lastRowComponents.size()) {
-            case 1,2,3 -> {
+            case 1, 2, 3 -> {
                 lastRowComponents.add(reset);
                 lastRowComponents.add(back);
             }
@@ -66,29 +54,7 @@ public class ChangeColor {
             case 5 -> rows.add(ActionRow.of(reset, back));
         }
 
-        event.editMessageEmbeds(embed).setComponents(rows).setAttachments().queue();
-    }
-
-    private static MessageData getColorEmbed(char type) {
-        Button nameColor = Button.primary("nameColor", "👋 Name");
-        Button statsColor = Button.primary("statsColor", "📊 Statistiken");
-
-        String key = KEY + "main.";
-
-        MessageEmbed embed = new EmbedBuilder()
-                .setTitle(getLang(key + "title"))
-                .setDescription(getLang(key + "description"))
-                .addField("", "\u00A0", false)
-                .addField(getLang(key + "task"), "\u00A0", false)
-                .setColor(nixo)
-                .build();
-
-        if (type == 'n')
-            return new MessageCreateBuilder().setEmbeds(embed).setActionRow(nameColor, statsColor).build();
-        else if (type == 'e')
-            return new MessageEditBuilder().setEmbeds(embed).setActionRow(nameColor, statsColor).build();
-
-        return null;
+        event.editMessageEmbeds(getEmbed("changeColorSelect", Map.of("type", isName ? getLang("color.type.name") : getLang("color.type.stats")))).setComponents(rows).setAttachments().queue();
     }
 
     public static void changeColor(ButtonInteractionEvent event) {
@@ -113,7 +79,7 @@ public class ChangeColor {
 
         String key = "color.type.";
 
-        event.editMessage(format("color.reset", Map.of("type", title.contains("Name") ? getLang(key + "name") : getLang(key + "stats")))).setEmbeds().setAttachments().setComponents().queue();
+        event.editMessage(format("color.successReset", Map.of("type", title.contains("Name") ? getLang(key + "name") : getLang(key + "stats")))).setEmbeds().setAttachments().setComponents().queue();
     }
 
     private static void handleColor(ButtonInteractionEvent event) {
@@ -132,23 +98,21 @@ public class ChangeColor {
         setter.setCardColor(member.getId(), colorCache.get(member));
 
         logger.info("Setting statscolor for {} to {}", member.getEffectiveName(), colorCache.get(member));
-        event.editMessage("Deine Statistikfarbe wurde erfolgreich zu ` " + colors.get(colorCache.get(member)).translation + " ` geändert!").setAttachments().setComponents().queue();
+        event.editMessage(format("color.success", Map.of("color", colors.get(colorCache.get(member)).translation))).setAttachments().setComponents().queue();
 
         colorCache.remove(member);
     }
 
-
     private static void setNameColor(ButtonInteractionEvent event, String color) {
         Member member = event.getMember();
+        String newRole = colors.get(color).translation;
 
         resetNameColor(member);
-
-        String newRole = colors.get(color).translation;
 
         event.getGuild().addRoleToMember(member, event.getGuild().getRolesByName(newRole, true).get(0)).queue();
 
         logger.info("Setting namecolor for {} to {}", member.getUser().getName(), color);
-        event.editMessage("Deine Namensfarbe wurde erfolgreich zu ` " + newRole + " ` geändert!").setEmbeds().setComponents().queue();
+        event.editMessage(format("color.success", Map.of("color", newRole))).setEmbeds().setComponents().queue();
     }
 
     private static void resetNameColor(Member member) {

@@ -1,0 +1,47 @@
+# First line is always the title
+# d: Starts a description field
+# b: Start a bold field
+# n: Starts a normal field
+# bl: Starts a bold field with a line break and a normal field
+# "" is a line break
+# Last line without a prefix is always the footer
+
+changeColorMenu:
+  - "🎨 Farben ändern"
+  - "d:Hier kannst du deine Farbe für deinen Namen und deine Statistiken ändern."
+  - ""
+  - "b:➡️ Wähle zuerst aus welche Farbe du ändern möchtest."
+
+changeColorSelect:
+    - "🎨 Farbe für {type} ändern"
+    - "d:Hier kannst du deine Farbe für {type} auswählen."
+    - ""
+    - "b:⚠️ Du kannst nur Farben auswählen, welche du bereits freigeschaltet hast."
+    - ""
+    - "b:➡️ Wähle aus, welche Farbe du für {type} verwenden möchtest."
+
+daily:
+    - "🎁 Tägliche Belohnung"
+    - "bl:Belohnung;{amount} Punkte"
+    - "Streak: {streak}"
+
+inventory:
+    - "Inventar"
+    - "d:Hier siehst du alle Items, die du besitzt:"
+    - "🛒 Weitere Items freischalten: /shop"
+
+leaderboard:
+    - "🏆 Leaderboard"
+    - "Seite {page}"
+
+shop:
+    - "🛒 Shop"
+    - "d:Hier kannst du dir Farben für deinen Namen und deine Statistiken kaufen."
+    - ""
+    - "b:Jede Farbe kostet {price} Punkte."
+    - ""
+    - "b:➡️ Wähle zuerst aus welche Farbe du kaufen möchtest"
+
+shopConfirm:
+    - "🛒 Farbe kaufen"
+    - "d:Möchtest du die Farbe ` {color} ` wirklich für **{price} Punkte** kaufen?"
