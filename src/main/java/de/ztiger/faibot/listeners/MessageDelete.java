@@ -1,14 +1,15 @@
 package de.ztiger.faibot.listeners;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
-import java.time.OffsetDateTime;
+import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.logChannel;
+import static de.ztiger.faibot.FaiBot.logger;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.MessageCachingService.get;
 import static de.ztiger.faibot.utils.MessageCachingService.remove;
 
@@ -22,19 +23,13 @@ public class MessageDelete extends ListenerAdapter {
         try {
             Message message = get(event.getMessageId(), event.getChannel().getId());
 
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor(message.getAuthor().getEffectiveName(), null, message.getAuthor().getAvatarUrl())
-                    .setColor(Color.RED)
-                    .addField("Message deleted in " + message.getChannel().getAsMention(), "\u00A0 " + message.getContentRaw(), false)
-                    .setFooter("User ID: " + message.getAuthor().getId() + " | Message ID:" + message.getId())
-                    .setTimestamp(OffsetDateTime.now());
-
-            if (!message.getAttachments().isEmpty()) embed.setImage(message.getAttachments().get(0).getUrl());
+            Map<String, String> contents = Map.of("channel", message.getChannel().getAsMention(), "message", message.getContentRaw(), "uID", message.getAuthor().getId(), "mID", message.getId(), "author_name", message.getAuthor().getEffectiveName(), "author_icon", message.getAuthor().getAvatarUrl());
 
             remove(message);
 
-            logChannel.sendMessageEmbeds(embed.build()).queue();
-        } catch (Exception ignored) {
+            logChannel.sendMessageEmbeds(getEmbed("messageDelete", contents, Color.RED)).queue();
+        } catch (Exception e) {
+            logger.error("Error while processing message delete event", e);
         }
     }
 }

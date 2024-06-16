@@ -1,8 +1,9 @@
-# First line is always the title
+# First line is always the title - May also be empty
 # d: Starts a description field
 # b: Start a bold field
 # n: Starts a normal field
 # bl: Starts a bold field with a line break and a normal field
+# ts: Adds the current timestamp
 # "" is a line break
 # Last line without a prefix is always the footer
 
@@ -33,6 +34,35 @@ inventory:
 leaderboard:
     - "🏆 Leaderboard"
     - "Seite {page}"
+
+memberJoin:
+    - "Member joined"
+    - "n:{tag} {name}"
+    - "bl:Account Age;{age}"
+    - "ID: {id}"
+    - "ts:"
+    - "tn:{img}"
+
+memberLeave:
+    - "Member left"
+    - "n:{tag} {name}"
+    - "ID: {id}"
+    - "ts:"
+    - "tn:{img}"
+
+messageDelete:
+    - ""
+    - "bl:Message deleted in {channel};{message}"
+    - "User ID: {uID} | Message ID: {mID}"
+    - "ts:"
+
+messageEdit:
+    - ""
+    - "b:Message edited in {msgLink}"
+    - "bl:Before;{oldMessage}"
+    - "bl:After;{newMessage}"
+    - "User ID: {uID} | Message ID: {mID}"
+    - "ts:"
 
 shop:
     - "🛒 Shop"

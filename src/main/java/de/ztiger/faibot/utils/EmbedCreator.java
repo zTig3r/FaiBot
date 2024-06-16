@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 
+import java.awt.*;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -19,14 +21,18 @@ public class EmbedCreator {
     private static final Field EMPTY = new MessageEmbed.Field("", EMPTYLINE, false, false);
 
     public static MessageEmbed getEmbed(String type) {
-        return embeds.computeIfAbsent(type, s -> createEmbed(s, null));
+        return embeds.computeIfAbsent(type, s -> createEmbed(s, null, nixo));
     }
 
     public static MessageEmbed getEmbed(String type, Map<String, String> replacements) {
-        return embeds.computeIfAbsent(type + "_" + replacements, s -> createEmbed(s, replacements));
+        return embeds.computeIfAbsent(type + "_" + replacements, s -> createEmbed(s, replacements, nixo));
     }
 
-    private static MessageEmbed createEmbed(String type, Map<String, String> replacements) {
+    public static MessageEmbed getEmbed(String type, Map<String, String> replacements, Color color) {
+        return embeds.computeIfAbsent(type + "_" + replacements, s -> createEmbed(s, replacements, color));
+    }
+
+    private static MessageEmbed createEmbed(String type, Map<String, String> replacements, Color color) {
         LinkedList<String> values = new LinkedList<>(cfgm.getConfig("embeds").getStringList(type.split("_")[0]));
         EmbedBuilder builder = new EmbedBuilder();
 
@@ -41,8 +47,8 @@ public class EmbedCreator {
                 builder.setAuthor(replacements.get("author_name"), null, replacements.get("author_icon"));
         }
 
-        builder.setTitle(values.get(0));
-        builder.setColor(nixo);
+        if(!values.get(0).isEmpty()) builder.setTitle(values.get(0));
+        builder.setColor(color);
 
         for (String content : values.subList(1, values.size())) {
             String value = content.split(":").length > 1 ? content.split(":", 2)[1] : content;
@@ -51,6 +57,8 @@ public class EmbedCreator {
                 case "d" -> builder.setDescription(value);
                 case "b" -> builder.addField(value, EMPTYLINE, false);
                 case "n" -> builder.addField(EMPTYLINE, value, false);
+                case "ts" -> builder.setTimestamp(OffsetDateTime.now());
+                case "tn" -> builder.setThumbnail(value);
                 case "bl" -> {
                     String[] split = value.split(";");
                     builder.addField(split[0], split[1], false);
