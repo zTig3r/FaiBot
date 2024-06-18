@@ -16,7 +16,6 @@ import static de.ztiger.faibot.commands.ServerStats.setupStats;
 import static de.ztiger.faibot.commands.Shop.*;
 import static de.ztiger.faibot.commands.Stats.sendStats;
 import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.utils.Lang.getLang;
 import static de.ztiger.faibot.utils.TwitchHandler.triggerLiveEmbed;
 import static de.ztiger.faibot.utils.TwitchHandler.triggerOffEmbed;
 import static de.ztiger.faibot.utils.YoutubeHandler.triggerVideoCheck;
@@ -48,25 +47,19 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        String id = event.getButton().getId();
-
-        if(!event.getMessage().getEmbeds().isEmpty()) {
-            if (event.getMessage().getEmbeds().get(0).getTitle().equals(getLang("shop.title"))) {
-                if (id.contains("cancel")) sendShopEmbed(event);
-                else if (id.contains("confirm")) handleBuy(event);
-                else handleShopEmbed(event);
-                return;
-            }
-        }
-
-        switch (id) {
+        switch (event.getButton().getId()) {
             case "nameColor" -> colorEmbed(event, true);
             case "statsColor", "cancel" -> colorEmbed(event, false);
             case "back" -> sendColorEmbed(event);
             case "apply" -> applyColor(event);
             case "next" -> next(event);
             case "return" -> back(event);
-            default -> changeColor(event);
+            case "BUYcancel" -> sendShopEmbed(event);
+            case "BUYconfirm" -> handleBuy(event);
+            default -> {
+                if(event.getButton().getId().startsWith("BUY")) handleShopEmbed(event);
+                else changeColor(event);
+            }
         }
     }
 }

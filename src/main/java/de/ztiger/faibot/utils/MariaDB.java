@@ -41,8 +41,8 @@ public class MariaDB {
     }
 
     protected Object getValue(String query, Object... params) {
-        try (Connection conn = getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try {
+            PreparedStatement ps = getConnection().prepareStatement(query);
             for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
 
             ResultSet rs = ps.executeQuery();
@@ -54,8 +54,8 @@ public class MariaDB {
     }
 
     protected void setValue(String query, Object... params) {
-        try (Connection conn = getConnection()) {
-            PreparedStatement ps = conn.prepareStatement(query);
+        try {
+            PreparedStatement ps = getConnection().prepareStatement(query);
             for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
 
             ps.executeUpdate();

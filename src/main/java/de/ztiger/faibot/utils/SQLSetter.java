@@ -30,7 +30,7 @@ public class SQLSetter {
     }
 
     public void addInventory(String id, String type) {
-        mariaDB.setValue("INSERT INTO inventory (userid, typ) VALUES (?, ?)", getter.getId(id), type);
+        mariaDB.setValue("INSERT INTO backpacks (userid, typ) VALUES (?, ?)", getter.getId(id), type);
     }
 
     public void setCardColor(String id, String color) {

@@ -40,6 +40,7 @@ public class Shop {
 
         rows.forEach(row -> row.getButtons().forEach(button -> {
             if (colors.contains(button.getId())) row.getComponents().set(row.getButtons().indexOf(button), button.asDisabled());
+            else row.getComponents().set(row.getButtons().indexOf(button), button.withId("BUY" + button.getId()));
         }));
 
         return rows;
@@ -50,7 +51,7 @@ public class Shop {
     }
 
     public static void handleShopEmbed(ButtonInteractionEvent event) {
-        shopCache.put(event.getMember(), event.getButton().getId());
+        shopCache.put(event.getMember(), event.getButton().getId().substring(3));
 
         event.editMessageEmbeds(getEmbed("shopConfirm", Map.of("color", colors.get(shopCache.get(event.getMember())).translation, "price", getColorPrice() + ""))).setActionRow(confirm, cancel).queue();
     }
