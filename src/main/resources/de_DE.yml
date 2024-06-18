@@ -32,3 +32,6 @@ shop:
 
 welcomeMessage: "{user} Herzlich Willkommen auf Fienix und Izio's Discord Server! <:Nixo_Cool:1076155167038255225> \n\r → Stelle dich doch Mal kurz vor. <:Nixo_Herz:795298661651054612>"
 wrongChannel: "Bitte benutze diesen Befehl in {channel}!"
+
+xp:
+  levelUp: "Level UP!"

@@ -11,19 +11,14 @@ public class Lang {
     private static final HashMap<String, String> cache = new HashMap<>();
 
     public static String getLang(String key) {
-        if (cache.containsKey(key)) return cache.get(key);
-
-        try {
-            String value = cfgm.getConfig(cfgm.getConfig("config").getString("language")).getString(key);
-
-            cache.put(key, value);
-            return value;
-
-        } catch (Exception e) {
-            logger.error("Error while loading language file: {}", e.getMessage());
-        }
-
-        return key;
+        return cache.computeIfAbsent(key, k -> {
+            try {
+                return cfgm.getConfig(cfgm.getConfig("config").getString("language")).getString(k);
+            } catch (Exception e) {
+                logger.error("Error while loading language file: {}", e.getMessage());
+                return k;
+            }
+        });
     }
 
     public static String format(String key, Map<String, Object> replacements) {

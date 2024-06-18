@@ -2,9 +2,7 @@ package de.ztiger.faibot.utils;
 
 import de.ztiger.faibot.FaiBot;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 import static de.ztiger.faibot.FaiBot.logger;
 
@@ -26,13 +24,12 @@ public class MariaDB {
     }
 
     public void connect() throws ClassNotFoundException, SQLException {
-        if (!isConnected()) {
-            connection = DriverManager.getConnection("jdbc:mariadb://" + url + "/" + database + "?user=" + username +"&password=" + password);
-        }
+        if (!isConnected())
+            connection = DriverManager.getConnection("jdbc:mariadb://" + url + "/" + database + "?user=" + username + "&password=" + password);
     }
 
     public Connection getConnection() {
-        if(!isConnected()) {
+        if (!isConnected()) {
             try {
                 connect();
             } catch (ClassNotFoundException | SQLException e) {
@@ -41,5 +38,29 @@ public class MariaDB {
         }
 
         return connection;
+    }
+
+    protected Object getValue(String query, Object... params) {
+        try (Connection conn = getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(query);
+            for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getObject(1);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return null;
+    }
+
+    protected void setValue(String query, Object... params) {
+        try (Connection conn = getConnection()) {
+            PreparedStatement ps = conn.prepareStatement(query);
+            for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 }

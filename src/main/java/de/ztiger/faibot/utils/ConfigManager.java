@@ -21,14 +21,15 @@ public class ConfigManager {
         setup();
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void setup() {
-        try {
-            for(String filename : configList) {
+        configList.forEach(filename -> {
+            try {
                 configs.put(filename, YamlConfiguration.loadConfiguration(new File(ConfigManager.class.getClassLoader().getResource(filename + ".yml").toURI())));
+            } catch (Exception e) {
+                logger.error("Error while loading config file {}: {}", filename, e.getMessage());
             }
-        } catch (Exception e) {
-            logger.error("Error while loading config files: {}", e.getMessage());
-        }
+        });
     }
 
     public FileConfiguration getConfig(String name) {

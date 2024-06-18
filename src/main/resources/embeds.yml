@@ -35,6 +35,10 @@ leaderboard:
     - "🏆 Leaderboard"
     - "Seite {page}"
 
+levelUp:
+    - ""
+    - "d:{user} hat Level {level} erreicht!"
+
 memberJoin:
     - "Member joined"
     - "n:{tag} {name}"

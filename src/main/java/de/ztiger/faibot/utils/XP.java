@@ -1,15 +1,16 @@
 package de.ztiger.faibot.utils;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.FaiBot.botChannel;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 public class XP {
 
@@ -23,6 +24,7 @@ public class XP {
         return 5 * (level * level) + (50 * level) + 100;
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static void checkLevelUp(Member member) {
         int level = getter.getLevel(member.getId());
         int xpForNextLevel = calcXP(level);
@@ -30,14 +32,12 @@ public class XP {
 
         if (xp >= xpForNextLevel) {
             setter.addLevel(member.getId());
-            MessageEmbed embed = new EmbedBuilder()
-                    .setAuthor("Level UP!", null, member.getUser().getAvatarUrl())
-                    .setDescription(member.getAsMention() + " hat Level " + (level + 1) + " erreicht!")
-                    .setColor(Color.GREEN)
-                    .build();
+            level++;
 
-            logger.info("{} reached level {}!", member.getEffectiveName(), level + 1);
-            botChannel.sendMessageEmbeds(embed).queue();
+            Map<String, String> contents = Map.of("user", member.getAsMention(), "level", String.valueOf(level), "author_name", getLang("xp.levelUp"), "author_icon", member.getUser().getAvatarUrl());
+
+            logger.info("{} reached level {}!", member.getEffectiveName(), level);
+            botChannel.sendMessageEmbeds(getEmbed("levelUp", contents, Color.GREEN)).queue();
         }
     }
 

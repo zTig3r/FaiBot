@@ -25,7 +25,7 @@ public class ChangeColor {
     private static final String KEY = "color.";
     private static final HashMap<Member, String> colorCache = new HashMap<>();
 
-    private static final Button reset = Button.danger("reset", getLang(KEY + ".reset"));
+    private static final Button reset = Button.danger("reset", getLang(KEY + "reset"));
     private static final Button back = Button.danger("back", "↩️ Zurück");
     private static final Button nameColor = Button.primary("nameColor", "👋 Name");
     private static final Button statsColor = Button.primary("statsColor", "📊 Statistiken");
