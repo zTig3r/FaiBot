@@ -63,4 +63,13 @@ public class MariaDB {
             logger.error(e.getMessage());
         }
     }
+
+    protected void createTable(String query) {
+        try {
+            PreparedStatement ps = getConnection().prepareStatement(query);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+        }
+    }
 }
