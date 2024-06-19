@@ -1,49 +1,30 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.getter;
+import static de.ztiger.faibot.utils.Colors.colors;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 @SuppressWarnings("ConstantConditions")
 public class Inventory {
 
     public static void sendInventory(SlashCommandInteractionEvent event) {
-        EmbedBuilder embed = new EmbedBuilder()
-                .setAuthor(event.getUser().getAsTag(), null, event.getUser().getAvatarUrl())
-                .setTitle("Inventar")
-                .setColor(Color.decode("#94c6f3"));
+        Map<String, String> contents = new HashMap<>();
+        List<String> items = new ArrayList<>(getter.getInventory(event.getMember().getId()));
 
-        List<String> colors = new ArrayList<>(getter.getInventory(event.getMember().getId()));
+        if (items.isEmpty()) contents.put("field", getLang("inventory.noItems"));
+        else items.forEach(item -> {
+            String itemT = colors.get(item).translation;
+            contents.put("field" + itemT, itemT);
+        });
 
-        if(colors.isEmpty()) {
-            embed.addField("\u00A0", "Du besitzt derzeit keine Items", false);
-        }
-
-        for (String color : colors) {
-            String converted = "";
-
-            switch(color) {
-                case "red" -> converted = "Rote Farbe";
-                case "blue" -> converted = "Blaue Farbe";
-                case "green" -> converted = "Grüne Farbe";
-                case "pink" -> converted = "Rosa Farbe";
-                case "orange" -> converted = "Orange Farbe";
-                case "purple" -> converted = "Violette Farbe";
-                case "lightblue" -> converted = "Hellblaue Farbe";
-                case "yellow" -> converted = "Gelbe Farbe";
-            }
-
-            embed.addField("\u00A0", converted, false);
-        }
-
-        embed.setFooter("Weitere Items freischalten: /shop");
-
-        event.replyEmbeds(embed.build()).setEphemeral(true).queue();
-
+        event.replyEmbeds(getEmbed("inventory", contents)).setEphemeral(true).queue();
     }
 }

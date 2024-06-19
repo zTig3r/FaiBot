@@ -13,18 +13,21 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
-import java.util.Map;
 import java.util.Timer;
 
 import static de.ztiger.faibot.FaiBot.getter;
 import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.listeners.MessageReceived.calcXP;
+import static de.ztiger.faibot.utils.Colors.colors;
+import static de.ztiger.faibot.utils.Lang.getLang;
+import static de.ztiger.faibot.utils.XP.calcXP;
+import static de.ztiger.faibot.utils.XP.getLastLevelsXP;
 
 @SuppressWarnings({"ConstantConditions"})
 public class Stats {
@@ -32,23 +35,23 @@ public class Stats {
     private final static int minX = -900;
     private final static int maxX = 0;
 
+    private static final Font small = new Font("Tw Cen MT", Font.PLAIN, 40);
+    private static final Font normal = new Font("Tw Cen MT", Font.PLAIN, 50);
+    private static final Font smallC = new Font("Century Gothic", Font.PLAIN, 40);
+    private static final Font normalC = new Font("Century Gothic", Font.BOLD, 50);
+    private static final Font bigC = new Font("Century Gothic", Font.BOLD, 60);
+
+    private static final Button apply = Button.success("apply", getLang("stats.apply"));
+    private static final Button cancel = Button.danger("cancel", getLang("stats.cancel"));
+
     public static void sendStats(SlashCommandInteractionEvent event) {
-        Member member;
-        if (event.getOption("user") != null) member = event.getOption("user").getAsMember();
-        else member = event.getMember();
+        Member member = event.getOption("user") != null ? event.getOption("user").getAsMember() : event.getMember();
 
         event.replyFiles(FileUpload.fromData(createStatsImage(member, convertColor(getter.getCardColor(member.getId()))))).queue();
-
     }
 
     public static void sendPreview(ButtonInteractionEvent event, String color) {
-        Member member = event.getMember();
-
-        Button apply = Button.primary("apply", "✅ Anwenden");
-        Button cancel = Button.secondary("cancel", "❌ Abbrechen");
-
-        event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(member, convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
-
+        event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
     }
 
     private static File createStatsImage(Member member, Color color) {
@@ -80,12 +83,6 @@ public class Stats {
             contents.drawImage(ImageIO.read(new URL(member.getUser().getAvatarUrl())), 15, 15, 283, 283, null);
             contents.drawImage(overlay, 0, 0, null);
 
-            Font small = new Font("Tw Cen MT", Font.PLAIN, 40);
-            Font normal = new Font("Tw Cen MT", Font.PLAIN, 50);
-            Font smallC = new Font("Century Gothic", Font.PLAIN, 40);
-            Font normalC = new Font("Century Gothic", Font.BOLD, 50);
-            Font bigC = new Font("Century Gothic", Font.BOLD, 60);
-
             AttributedString rankString = new AttributedString("PLATZ " + rank);
             rankString.addAttribute(TextAttribute.FONT, small, 0, 5);
             rankString.addAttribute(TextAttribute.FONT, bigC, 6, String.valueOf(rank).length() + 6);
@@ -101,11 +98,9 @@ public class Stats {
             LineBreakMeasurer measurer = new LineBreakMeasurer(cI, frc);
             TextLayout textLayout = measurer.nextLayout(overlay.getWidth());
 
-            AttributedString nameString = new AttributedString(member.getEffectiveName() + " #" + member.getUser().getDiscriminator());
+            AttributedString nameString = new AttributedString(member.getEffectiveName());
             nameString.addAttribute(TextAttribute.FONT, normalC, 0, member.getEffectiveName().length());
-            nameString.addAttribute(TextAttribute.FONT, small, member.getEffectiveName().length(), member.getEffectiveName().length() + member.getUser().getDiscriminator().length() + 2);
             nameString.addAttribute(TextAttribute.FOREGROUND, Color.WHITE, 0, member.getEffectiveName().length());
-            nameString.addAttribute(TextAttribute.FOREGROUND, Color.decode("#8e8e8e"), member.getEffectiveName().length(), member.getEffectiveName().length() + member.getUser().getDiscriminator().length() + 2);
 
             AttributedString xpString = new AttributedString(xp + " / " + xpForNextLevel + " XP");
             xpString.addAttribute(TextAttribute.FONT, smallC, 0, String.valueOf(xp).length() + String.valueOf(xpForNextLevel).length() + 6);
@@ -151,14 +146,14 @@ public class Stats {
                 @Override
                 public void run() {
                     if (new File(userCardPath).delete())
-                        logger.info("Deleted temporary files of " + member.getEffectiveName());
+                        logger.info("Deleted temporary files of {}", member.getEffectiveName());
                     else logger.warn("Couldn't delete temporary files");
                 }
             }, 10000);
 
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error while creating stats image: {}", e.getMessage());
         }
 
         return new File(userCardPath);
@@ -188,38 +183,6 @@ public class Stats {
     }
 
     private static Color convertColor(String color) {
-        Color converted = null;
-
-        if (color == null) converted = Color.decode("#94c6f3");
-        else {
-            Map<String, String> stringToColor = Map.of(
-                    "red", "#a30000",
-                    "blue", "#206694",
-                    "pink", "#ff00b0",
-                    "green", "#1abc9c",
-                    "orange", "#e67e22",
-                    "purple", "#7f00b4",
-                    "lightblue", "#00f1ff",
-                    "yellow", "#faff00"
-            );
-
-            String newColor = stringToColor.getOrDefault(color, null);
-            if (newColor != null) {
-                converted = Color.decode(newColor);
-            }
-        }
-
-        return converted;
+        return Color.decode((color.contains("#") ? "#94c6f3" : colors.get(color).hex));
     }
-
-    private static int getLastLevelsXP(int level) {
-        int xp = 0;
-
-        for (int i = 0; i <= level; i++) {
-            xp += calcXP(i);
-        }
-
-        return xp;
-    }
-
 }

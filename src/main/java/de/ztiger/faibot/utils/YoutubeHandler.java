@@ -59,7 +59,7 @@ public class YoutubeHandler {
         if (lastVideo == null || lastVideo.equals(videoId)) return;
         youtubeChannel.sendMessage("@everyone Neues Video von **Izi Fit:** \n\rhttps://youtu.be/" + videoId).queue();
         setter.setLastVideo(videoId);
-        logger.info("New video posted: " + videoId);
+        logger.info("New video posted: {}", videoId);
     }
 
     public static void triggerVideoCheck(SlashCommandInteractionEvent event) {

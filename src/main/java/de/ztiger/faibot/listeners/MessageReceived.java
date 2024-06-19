@@ -1,25 +1,19 @@
 package de.ztiger.faibot.listeners;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.awt.*;
-import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.MessageCachingService.add;
+import static de.ztiger.faibot.utils.XP.*;
 
 @SuppressWarnings("ConstantConditions")
 public class MessageReceived extends ListenerAdapter {
-
-    HashMap<Member, Long> userTimer = new HashMap<>();
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -46,57 +40,9 @@ public class MessageReceived extends ListenerAdapter {
             setter.addXP(id, ThreadLocalRandom.current().nextInt(15, 25));
             setter.addPoints(id, ThreadLocalRandom.current().nextInt(0, 3));
             checkLevelUp(event.getMember());
-            userTimer.put(event.getMember(), System.currentTimeMillis());
+            addUserTimer(event.getMember());
         }
 
         setter.addMessage(id);
-    }
-
-    private void checkLevelUp(Member member) {
-        int level = getter.getLevel(member.getId());
-        int xpForNextLevel = calcXP(level);
-        int xp = getter.getXP(member.getId()) - getLastLevelsXP(level - 1);
-
-        if (xp >= xpForNextLevel) {
-            setter.addLevel(member.getId());
-            MessageEmbed embed = new EmbedBuilder()
-                    .setAuthor("Level UP!", null, member.getUser().getAvatarUrl())
-                    .setDescription(member.getAsMention() + " hat Level " + (level + 1) + " erreicht!")
-                    .setColor(Color.GREEN)
-                    .build();
-
-            logger.info(member.getEffectiveName() + " reached level " + (level + 1) + "!");
-            botChannel.sendMessageEmbeds(embed).queue();
-        }
-    }
-
-    private boolean canGetXp(Member member) {
-        if (userTimer.containsKey(member)) {
-            if ((((userTimer.get(member) / 1000) + 60) - (System.currentTimeMillis() / 1000)) <= 0) {
-                userTimer.remove(member);
-                return true;
-            } else return false;
-        }
-        return true;
-    }
-
-    private static int getLastLevelsXP(int level) {
-        int xp = 0;
-
-        for (int i = 0; i <= level; i++) {
-            xp += calcXP(i);
-        }
-
-        return xp;
-    }
-
-    public static int calcXP(Member member) {
-        int level = getter.getLevel(member.getId());
-
-        return 5 * (level * level) + (50 * level) + 100 - getter.getXP(member.getId());
-    }
-
-    public static int calcXP(int level) {
-        return 5 * (level * level) + (50 * level) + 100;
     }
 }

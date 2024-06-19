@@ -106,7 +106,7 @@ public class TwitchHandler {
 
         String timestamp = list.getVideos().get(0).getDuration();
 
-        if(!timestamp.contains("h")) timestamp = "0h" + timestamp;
+        if (!timestamp.contains("h")) timestamp = "0h" + timestamp;
 
         String[] split = timestamp.split("[hms]");
 

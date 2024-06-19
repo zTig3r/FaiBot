@@ -1,0 +1,32 @@
+red:
+  emoji: "🟥"
+  hex: "#A30000"
+  translation: "Rot"
+blue:
+  emoji: "🟦"
+  hex: "#206694"
+  translation: "Blau"
+pink:
+  emoji: "🟪"
+  hex: "#FF00B0"
+  translation: "Pink"
+green:
+  emoji: "🟩"
+  hex: "#1ABC9C"
+  translation: "Grün"
+orange:
+  emoji: "🟧"
+  hex: "#E67E22"
+  translation: "Orange"
+purple:
+  emoji: "🟪"
+  hex: "#7F00B4"
+  translation: "Violett"
+lightblue:
+  emoji: "🟦"
+  hex: "#00F1FF"
+  translation: "Hellblau"
+yellow:
+  emoji: "🟨"
+  hex: "#FAFF00"
+  translation: "Gelb"

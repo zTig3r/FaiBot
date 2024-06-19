@@ -1,67 +1,65 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
+import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
+import static de.ztiger.faibot.utils.Lang.format;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 @SuppressWarnings("ConstantConditions")
 public class Leaderboard {
 
-    private static final Button next = Button.secondary("next", "➡️ Nächste Seite");
-    private static final Button back = Button.secondary("return", "⬅️ Vorherige Seite");
-    private static final int maxPage = (int) Math.ceil((double) getShardManager().getGuildById(config.get("GUILD")).getMembers().size() / 10);
+    private static final String KEY = "leaderboard.";
+
+    private static final Button next = Button.secondary("next", getLang(KEY + "next"));
+    private static final Button back = Button.secondary("return", getLang(KEY + "back"));
+
+    private static int maxPage = 0;
 
     public static void sendLeaderboardEmbed(SlashCommandInteractionEvent event) {
-        ActionRow row = ActionRow.of(back, next);
-        Button backButton = row.getButtons().get(0).asDisabled();
-        Button nextButton = row.getButtons().get(1).asEnabled();
+        maxPage = (int) Math.ceil((double) getShardManager().getGuildById(config.get("GUILD")).getMembers().size() / 10);
 
-        MessageEmbed embed = createLeaderboardEmbed(0);
-        event.replyEmbeds(embed).setActionRow(backButton, nextButton).setEphemeral(true).queue();
+        event.replyEmbeds(createLeaderboardEmbed(0)).setActionRow(back.asDisabled(), (maxPage > 1) ? next : next.asDisabled()).setEphemeral(true).queue();
     }
 
     public static void next(ButtonInteractionEvent event) {
-        int page = Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
-        ActionRow row = ActionRow.of(back, next);
-        Button button = row.getButtons().get(1).asEnabled();
-        if (page == maxPage) button = row.getButtons().get(1).asDisabled();
+        int page = getPage(event);
 
-        event.editMessageEmbeds(createLeaderboardEmbed(page)).setActionRow(back, button).queue();
+        event.editMessageEmbeds(createLeaderboardEmbed(page)).setActionRow(back, (page == maxPage) ? next.asDisabled() : next).queue();
     }
 
     public static void back(ButtonInteractionEvent event) {
-        int page = Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
-        ActionRow row = ActionRow.of(back, next);
-        Button button = row.getButtons().get(0).asEnabled();
-        if (page - 1 == 1) button = row.getButtons().get(0).asDisabled();
+        int page = getPage(event);
 
-        event.editMessageEmbeds(createLeaderboardEmbed(page - 2)).setActionRow(button, next).queue();
+        event.editMessageEmbeds(createLeaderboardEmbed(page - 2)).setActionRow((page - 1 == 1) ? back.asDisabled() : back, next).queue();
     }
 
     private static MessageEmbed createLeaderboardEmbed(int page) {
         int i = page * 10;
 
-        ArrayList<Member> members = new ArrayList<>(getter.getTopMembers(i));
+        Map<String, String> contents = new HashMap<>();
 
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Leaderboard");
-        embed.setFooter("Seite " + (page + 1));
+        contents.put("page", String.valueOf(page + 1));
 
-        for (Member m : members) {
+        for (Member m : getter.getTopMembers(i)) {
             if (m != null) {
-                embed.addField("\u00A0", i + 1 + ") " + m.getAsMention() + " Level: " + getter.getLevel(m.getId()) + " | XP: " + getter.getXP(m.getId()) + " | Punkte: " + getter.getPoints(m.getId()) + " | Nachrichten: " + getter.getMessages(m.getId()), false);
+                contents.put("field" + i, format(KEY + "format", Map.of("position", i + 1, "name", m.getAsMention(), "level", getter.getLevel(m.getId()), "xp", getter.getXP(m.getId()), "points", getter.getPoints(m.getId()), "messages", getter.getMessages(m.getId()))));
                 i++;
             }
         }
 
-        return embed.build();
+        return getEmbed("leaderboard", contents);
+    }
+
+    private static int getPage(ButtonInteractionEvent event) {
+        return Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
     }
 }

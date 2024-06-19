@@ -19,24 +19,24 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static de.ztiger.faibot.commands.ServerStats.name;
 import static de.ztiger.faibot.FaiBot.*;
+import static de.ztiger.faibot.utils.Lang.getLang;
 
 @SuppressWarnings("ConstantConditions")
 public class BotReady extends ListenerAdapter {
 
-    static Dotenv config = Dotenv.configure().load();
+    public static final Dotenv config = Dotenv.configure().load();
+    public static Guild GUILD;
 
     @Override
     public void onReady(ReadyEvent event) {
+        GUILD = event.getJDA().getGuildById(config.get("GUILD"));
         logChannel = event.getJDA().getTextChannelById(config.get("LOG"));
         recommendationsChannel = event.getJDA().getTextChannelById(config.get("RECOMMENDATIONS"));
         welcomeChannel = event.getJDA().getTextChannelById(config.get("WELCOME"));
         botChannel = event.getJDA().getTextChannelById(config.get("BOT"));
         twitchChannel = event.getJDA().getNewsChannelById(config.get("TWITCH"));
         youtubeChannel = event.getJDA().getNewsChannelById(config.get("YOUTUBE"));
-
-        Guild guild = event.getJDA().getGuildById(config.get("GUILD"));
 
         List<CommandData> cmds = new ArrayList<>();
 
@@ -52,9 +52,9 @@ public class BotReady extends ListenerAdapter {
         cmds.add(Commands.slash("endtwitch", "Beende die Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
         cmds.add(Commands.slash("checkyoutube", "Sende eine Benachrichtigung, wenn ein neues Video hochgeladen wird").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
 
-        guild.updateCommands().addCommands(cmds).queue();
+        GUILD.updateCommands().addCommands(cmds).queue();
 
-
+        String name = getLang("serverstats.title");
         Timer timer = new Timer();
         TimerTask hourlyTask = new TimerTask() {
             @Override
@@ -86,13 +86,13 @@ public class BotReady extends ListenerAdapter {
 
         timer1.schedule(twoMinTask, 100000, 500 * 60 * 5);
 
-        checkUsersDB(guild);
+        checkUsersDB();
     }
 
-    private static void checkUsersDB(Guild guild) {
-        for (Member member : guild.getMembers()) {
+    private static void checkUsersDB() {
+        for (Member member : GUILD.getMembers()) {
             String id = member.getUser().getId();
-            if(getter.getId(id) == 0) setter.addUser(id);
+            if (getter.getId(id) == 0) setter.addUser(id);
         }
     }
 }

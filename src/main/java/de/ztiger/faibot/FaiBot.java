@@ -2,10 +2,7 @@ package de.ztiger.faibot;
 
 import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.listeners.*;
-import de.ztiger.faibot.utils.MariaDB;
-import de.ztiger.faibot.utils.SQLGetter;
-import de.ztiger.faibot.utils.SQLSetter;
-import de.ztiger.faibot.utils.TwitchHandler;
+import de.ztiger.faibot.utils.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -22,6 +19,7 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.sql.SQLException;
 
+import static de.ztiger.faibot.utils.Colors.setupColors;
 import static de.ztiger.faibot.utils.TableCreator.createTables;
 
 @SuppressWarnings({"InstantiationOfUtilityClass"})
@@ -36,7 +34,11 @@ public class FaiBot {
     public static SQLGetter getter;
     public static SQLSetter setter;
 
+    public static ConfigManager cfgm;
+
     public static void main(String[] args) {
+        cfgm = new ConfigManager();
+
         try {
             new FaiBot();
         } catch (LoginException e) {
@@ -67,14 +69,14 @@ public class FaiBot {
 
         new TwitchHandler();
 
+        setupColors();
     }
-
 
     private FaiBot() throws LoginException {
         config = Dotenv.configure().load();
         shardManager = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"))
                 .setAutoReconnect(true)
-                .addEventListeners(new CommandManager(), new MessageReceived(), new MemberLeave(), new MessageDelete(), new MessageUpdate(), new MemberJoin(), new BotReady())
+                .addEventListeners(new CommandManager(), new MessageReceived(), new MemberLeave(), new MessageDelete(), new MessageEdit(), new MemberJoin(), new BotReady())
                 .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
                 .setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -87,5 +89,4 @@ public class FaiBot {
     public static ShardManager getShardManager() {
         return shardManager;
     }
-
 }

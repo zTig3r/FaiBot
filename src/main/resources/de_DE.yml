@@ -1,0 +1,46 @@
+color:
+  reset: "🗑️ Farbe entfernen"
+  type:
+    name: "deinen Namen"
+    stats: "deine Statistiken"
+  success: "Die Farbe für {type} wurde erfolgreich zu ` {color} ` geändert."
+  successReset: "Die Farbe für {type} wurde erfolgreich zurückgesetzt."
+  back: "↩️ Zurück"
+  name: "👋 Name"
+  stats: "📊 Statistiken"
+
+daily:
+  error: "Du hast deine tägliche Belohnung bereits abgeholt!"
+  streakBonus: "+ {amount} Streak-Bonus"
+
+inventory:
+  noItems: "Du besitzt derzeit keine Items."
+
+leaderboard:
+  next: "➡️ Nächste Seite"
+  back: "⬅️ Vorherige Seite"
+  format: "{position}) {name} Level: {level} | XP: {xp} | Punkte: {points} | Nachrichten: {messages}"
+
+serverstats:
+  title: "📊 SERVER STATS 📊"
+  all: "All Members: {members}"
+  members: "Members: {members}"
+  bots: "Bots: {bots}"
+  success: "Server Stats wurden erfolgreich eingerichtet!"
+  error: "Server Stats sind bereits eingerichtet!"
+
+shop:
+  error: "Du hast nicht genug Punkte um dir diese Farbe zu kaufen!"
+  success: "Die Farbe ` {color} ` wurde erfolgreich gekauft."
+  cancel: "✕ Abbrechen"
+  confirm: "✓ Bestätigen"
+
+stats:
+  apply: "✓ Anwenden"
+  cancel: "✕ Abbrechen"
+
+welcomeMessage: "{user} Herzlich Willkommen auf Fienix und Izio's Discord Server! <:Nixo_Cool:1076155167038255225> \n\r → Stelle dich doch Mal kurz vor. <:Nixo_Herz:795298661651054612>"
+wrongChannel: "Bitte benutze diesen Befehl in {channel}!"
+
+xp:
+  levelUp: "Level UP!"

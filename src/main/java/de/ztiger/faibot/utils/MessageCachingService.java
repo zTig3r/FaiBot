@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Message;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-
 @SuppressWarnings("SuspiciousMethodCalls")
 public class MessageCachingService {
 
@@ -37,5 +36,4 @@ public class MessageCachingService {
 
         return cache.get(channelID).get(messageID);
     }
-
 }
