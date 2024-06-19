@@ -11,6 +11,7 @@ color:
 
 daily:
   error: "Du hast deine tägliche Belohnung bereits abgeholt!"
+  streakBonus: "+ {amount} Streak-Bonus"
 
 inventory:
   noItems: "Du besitzt derzeit keine Items."

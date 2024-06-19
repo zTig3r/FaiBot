@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
+import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
 @SuppressWarnings("ConstantConditions")
@@ -35,10 +36,14 @@ public class Daily {
         if (!now.minusDays(1).equals(last)) setter.resetStreak(id);
         else setter.increaseStreak(id);
 
+        int streak = getter.getStreak(id);
+        boolean streakBonus = streak % 10 == 0;
+        int bonusPoints = streakBonus ? (streak / 10) * 10 : 0;
+
         setter.setLastReward(id, now.toString());
-        setter.addPoints(id, amount);
+        setter.addPoints(id, amount + bonusPoints);
 
         logger.info("User {} received {} points as daily reward.", event.getUser().getEffectiveName(), amount);
-        event.replyEmbeds(getEmbed("daily", Map.of("amount", String.valueOf(amount), "streak", String.valueOf(getter.getStreak(id)), "author_name", user.getName(), "author_icon", event.getUser().getAvatarUrl()))).queue();
+        event.replyEmbeds(getEmbed("daily", Map.of("amount", amount + (streakBonus ? " *" + format(KEY + "streakBonus", Map.of("amount", bonusPoints + "*")) : ""), "streak", String.valueOf(getter.getStreak(id)), "author_name", user.getName(), "author_icon", event.getUser().getAvatarUrl()))).queue();
     }
 }
