@@ -4,7 +4,6 @@ color:
     name: "deinen Namen"
     stats: "deine Statistiken"
   success: "Die Farbe für {type} wurde erfolgreich zu ` {color} ` geändert."
-  locked: "Du besitzt diese Farbe nicht! *Kaufe weitere Farben:* `/shop`"
   successReset: "Die Farbe für {type} wurde erfolgreich zurückgesetzt."
   back: "↩️ Zurück"
   name: "👋 Name"

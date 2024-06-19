@@ -46,7 +46,7 @@ public class SQLSetter {
     }
 
     public void resetStreak(String id) {
-        mariaDB.setValue("UPDATE stats SET streak = 0 WHERE userid = ?", getter.getId(id));
+        mariaDB.setValue("UPDATE stats SET streak = 1 WHERE userid = ?", getter.getId(id));
     }
 
     public void setLastVideo(String id) {

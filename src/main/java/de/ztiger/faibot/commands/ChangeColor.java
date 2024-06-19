@@ -40,7 +40,7 @@ public class ChangeColor {
     public static void colorEmbed(ButtonInteractionEvent event, boolean isName) {
         String type = isName ? "NAME" : "STATS";
 
-        List<ActionRow> rows = createColorActionRows(type);
+        List<ActionRow> rows = createColorActionRows(type, getter.getInventory(event.getMember().getId()));
         List<ItemComponent> lastRowComponents = rows.get(rows.size() - 1).getComponents();
 
         Button reset = Button.danger(type + "reset", getLang(KEY + "reset"));
@@ -75,11 +75,6 @@ public class ChangeColor {
 
     public static void handleColor(ButtonInteractionEvent event, boolean isName) {
         String color = event.getButton().getId().replace(isName ? "NAME" : "STATS", "");
-
-        if (!getter.getInventory(event.getMember().getId()).contains(color)) {
-            event.reply(getLang("color.locked")).setEphemeral(true).queue();
-            return;
-        }
 
         if (isName) setNameColor(event, color);
         else {

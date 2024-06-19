@@ -56,15 +56,12 @@ public class Colors {
         }
     }
 
-    public static List<ActionRow> createColorActionRows(String ID) {
-        return IntStream.range(0, (colorButtons.size() + 4) / 5).mapToObj(i -> {
-            List<Button> buttons = IntStream.range(0, 5)
-                    .mapToObj(j -> i * 5 + j)
-                    .filter(index -> index < colorButtons.size())
-                    .map(index -> colorButtons.get(index).withId(ID + colorButtons.get(index).getId()))
-                    .collect(Collectors.toList());
-            return ActionRow.of(buttons);
-        }).collect(Collectors.toList());
+    public static List<ActionRow> createColorActionRows(String ID, List<String> items) {
+        return IntStream.range(0, (colorButtons.size() + 4) / 5)
+                .mapToObj(i -> ActionRow.of(colorButtons.subList(i * 5, Math.min(i * 5 + 5, colorButtons.size())).stream()
+                        .map(button -> (ID.equals("BUY") == items.contains(button.getId()))
+                                ? button.asDisabled()
+                                : button.withId(ID + button.getId())).collect(Collectors.toList()))).collect(Collectors.toList());
     }
 
     public static List<String> getTranslations() {

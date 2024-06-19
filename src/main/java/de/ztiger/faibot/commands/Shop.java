@@ -35,15 +35,7 @@ public class Shop {
     }
 
     public static List<ActionRow> getActionRows(String id) {
-        List<String> colors = getter.getInventory(id);
-        List<ActionRow> rows = createColorActionRows("BUY");
-
-        rows.forEach(row -> row.getButtons().forEach(button -> {
-            if (colors.contains(button.getId().substring(3)))
-                row.getComponents().set(row.getButtons().indexOf(button), button.asDisabled());
-        }));
-
-        return rows;
+        return createColorActionRows("BUY", getter.getInventory(id));
     }
 
     private static MessageEmbed getShopEmbed() {
