@@ -22,8 +22,8 @@ public class Shop {
 
     private static final String KEY = "shop.";
 
-    private static final Button cancel = Button.danger("BUYcancel", "✕ Abbrechen");
-    private static final Button confirm = Button.success("BUYconfirm", "✓ Bestätigen");
+    private static final Button cancel = Button.danger("BUYcancel", getLang(KEY + "cancel"));
+    private static final Button confirm = Button.success("BUYconfirm", getLang(KEY + "confirm"));
     private static final HashMap<Member, String> shopCache = new HashMap<>();
 
     public static void sendShopEmbed(SlashCommandInteractionEvent event) {
@@ -34,13 +34,13 @@ public class Shop {
         event.editMessageEmbeds(getShopEmbed()).setComponents(getActionRows(event.getMember().getId())).queue();
     }
 
-    public static List<ActionRow> getActionRows(String ID) {
-        List<String> colors = getter.getInventory(ID);
-        List<ActionRow> rows = createColorActionRows();
+    public static List<ActionRow> getActionRows(String id) {
+        List<String> colors = getter.getInventory(id);
+        List<ActionRow> rows = createColorActionRows("BUY");
 
         rows.forEach(row -> row.getButtons().forEach(button -> {
-            if (colors.contains(button.getId())) row.getComponents().set(row.getButtons().indexOf(button), button.asDisabled());
-            else row.getComponents().set(row.getButtons().indexOf(button), button.withId("BUY" + button.getId()));
+            if (colors.contains(button.getId().substring(3)))
+                row.getComponents().set(row.getButtons().indexOf(button), button.asDisabled());
         }));
 
         return rows;
@@ -67,7 +67,7 @@ public class Shop {
         String color = shopCache.get(event.getMember());
 
         setter.removePoints(event.getMember().getId(), colorPrice);
-        setter.addInventory(event.getMember().getId(), shopCache.get(event.getMember()));
+        setter.addInventory(event.getMember().getId(), color);
 
         shopCache.remove(event.getMember());
 

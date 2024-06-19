@@ -24,7 +24,6 @@ public class MessageEdit extends ListenerAdapter {
             Message message = event.getMessage();
 
             Map<String, String> contents = Map.of("msgLink", message.getJumpUrl(), "oldMessage", get(message).getContentRaw(), "newMessage", message.getContentRaw(), "uID", message.getAuthor().getId(), "mID", message.getId(), "author_name", message.getAuthor().getEffectiveName(), "author_icon", message.getAuthor().getAvatarUrl());
-
             add(event.getMessage());
 
             logChannel.sendMessageEmbeds(getEmbed("messageEdit", contents, Color.YELLOW)).queue();

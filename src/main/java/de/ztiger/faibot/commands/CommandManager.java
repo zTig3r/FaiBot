@@ -47,18 +47,25 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        switch (event.getButton().getId()) {
+        String id = event.getButton().getId();
+
+        switch (id) {
             case "nameColor" -> colorEmbed(event, true);
             case "statsColor", "cancel" -> colorEmbed(event, false);
             case "back" -> sendColorEmbed(event);
-            case "apply" -> applyColor(event);
+            case "apply" -> applyStatsColor(event);
             case "next" -> next(event);
             case "return" -> back(event);
             case "BUYcancel" -> sendShopEmbed(event);
             case "BUYconfirm" -> handleBuy(event);
             default -> {
-                if(event.getButton().getId().startsWith("BUY")) handleShopEmbed(event);
-                else changeColor(event);
+                if (id.startsWith("BUY")) handleShopEmbed(event);
+                else {
+                    boolean isName = id.startsWith("NAME");
+
+                    if (id.contains("reset")) handleReset(event, isName);
+                    else handleColor(event, isName);
+                }
             }
         }
     }

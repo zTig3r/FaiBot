@@ -24,7 +24,6 @@ public class MessageDelete extends ListenerAdapter {
             Message message = get(event.getMessageId(), event.getChannel().getId());
 
             Map<String, String> contents = Map.of("channel", message.getChannel().getAsMention(), "message", message.getContentRaw(), "uID", message.getAuthor().getId(), "mID", message.getId(), "author_name", message.getAuthor().getEffectiveName(), "author_icon", message.getAuthor().getAvatarUrl());
-
             remove(message);
 
             logChannel.sendMessageEmbeds(getEmbed("messageDelete", contents, Color.RED)).queue();

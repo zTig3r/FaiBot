@@ -40,14 +40,14 @@ public class EmbedCreator {
             for (Map.Entry<String, String> entry : replacements.entrySet()) {
                 values.replaceAll(s -> s.replace("{" + entry.getKey() + "}", entry.getValue()));
 
-                if(entry.getKey().startsWith("field")) values.add(values.size() -1 ,"n:" + entry.getValue());
+                if (entry.getKey().startsWith("field")) values.add(values.size() - 1, "n:" + entry.getValue());
             }
 
             if (replacements.keySet().stream().anyMatch(key -> key.startsWith("author")))
                 builder.setAuthor(replacements.get("author_name"), null, replacements.get("author_icon"));
         }
 
-        if(!values.get(0).isEmpty()) builder.setTitle(values.get(0));
+        if (!values.get(0).isEmpty()) builder.setTitle(values.get(0));
         builder.setColor(color);
 
         for (String content : values.subList(1, values.size())) {

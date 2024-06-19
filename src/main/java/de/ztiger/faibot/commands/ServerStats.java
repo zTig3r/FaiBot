@@ -17,7 +17,7 @@ public class ServerStats {
     public static void setupStats(SlashCommandInteractionEvent event) {
         String name = getLang(KEY + "title");
 
-        if(!GUILD.getCategoriesByName(name, true).isEmpty()) {
+        if (!GUILD.getCategoriesByName(name, true).isEmpty()) {
             event.reply(getLang(KEY + "error")).setEphemeral(true).queue();
             return;
         }

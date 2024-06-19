@@ -92,7 +92,7 @@ public class BotReady extends ListenerAdapter {
     private static void checkUsersDB() {
         for (Member member : GUILD.getMembers()) {
             String id = member.getUser().getId();
-            if(getter.getId(id) == 0) setter.addUser(id);
+            if (getter.getId(id) == 0) setter.addUser(id);
         }
     }
 }

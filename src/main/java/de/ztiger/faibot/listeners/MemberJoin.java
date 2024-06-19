@@ -29,7 +29,7 @@ public class MemberJoin extends ListenerAdapter {
 
         Map<String, String> contents = Map.of("tag", user.getAsMention(), "name", user.getEffectiveName(), "age", ageString, "id", user.getId(), "img", user.getAvatarUrl());
 
-        if(!getter.userExists(user.getId())) setter.addUser(event.getUser().getId());
+        if (!getter.userExists(user.getId())) setter.addUser(event.getUser().getId());
 
         welcomeChannel.sendMessage(format("welcomeMessage", Map.of("user", user.getAsMention()))).queue();
         logChannel.sendMessageEmbeds(getEmbed("memberJoin", contents, Color.GREEN)).queue();

@@ -32,7 +32,7 @@ public class Daily {
 
         int amount = ThreadLocalRandom.current().nextInt(1, 100);
 
-        if(!now.minusDays(1).equals(last)) setter.resetStreak(id);
+        if (!now.minusDays(1).equals(last)) setter.resetStreak(id);
         else setter.increaseStreak(id);
 
         setter.setLastReward(id, now.toString());

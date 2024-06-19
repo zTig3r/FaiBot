@@ -25,6 +25,7 @@ import java.util.Timer;
 import static de.ztiger.faibot.FaiBot.getter;
 import static de.ztiger.faibot.FaiBot.logger;
 import static de.ztiger.faibot.utils.Colors.colors;
+import static de.ztiger.faibot.utils.Lang.getLang;
 import static de.ztiger.faibot.utils.XP.calcXP;
 import static de.ztiger.faibot.utils.XP.getLastLevelsXP;
 
@@ -34,6 +35,15 @@ public class Stats {
     private final static int minX = -900;
     private final static int maxX = 0;
 
+    private static final Font small = new Font("Tw Cen MT", Font.PLAIN, 40);
+    private static final Font normal = new Font("Tw Cen MT", Font.PLAIN, 50);
+    private static final Font smallC = new Font("Century Gothic", Font.PLAIN, 40);
+    private static final Font normalC = new Font("Century Gothic", Font.BOLD, 50);
+    private static final Font bigC = new Font("Century Gothic", Font.BOLD, 60);
+
+    private static final Button apply = Button.success("apply", getLang("stats.apply"));
+    private static final Button cancel = Button.danger("cancel", getLang("stats.cancel"));
+
     public static void sendStats(SlashCommandInteractionEvent event) {
         Member member = event.getOption("user") != null ? event.getOption("user").getAsMember() : event.getMember();
 
@@ -41,9 +51,6 @@ public class Stats {
     }
 
     public static void sendPreview(ButtonInteractionEvent event, String color) {
-        Button apply = Button.primary("apply", "✅ Anwenden");
-        Button cancel = Button.secondary("cancel", "❌ Abbrechen");
-
         event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
     }
 
@@ -75,12 +82,6 @@ public class Stats {
             contents.drawImage(userBar, barX, 0, userBar.getWidth(), userBar.getHeight(), null);
             contents.drawImage(ImageIO.read(new URL(member.getUser().getAvatarUrl())), 15, 15, 283, 283, null);
             contents.drawImage(overlay, 0, 0, null);
-
-            Font small = new Font("Tw Cen MT", Font.PLAIN, 40);
-            Font normal = new Font("Tw Cen MT", Font.PLAIN, 50);
-            Font smallC = new Font("Century Gothic", Font.PLAIN, 40);
-            Font normalC = new Font("Century Gothic", Font.BOLD, 50);
-            Font bigC = new Font("Century Gothic", Font.BOLD, 60);
 
             AttributedString rankString = new AttributedString("PLATZ " + rank);
             rankString.addAttribute(TextAttribute.FONT, small, 0, 5);

@@ -17,12 +17,12 @@ public class Inventory {
 
     public static void sendInventory(SlashCommandInteractionEvent event) {
         Map<String, String> contents = new HashMap<>();
-        List<String> memberColors = new ArrayList<>(getter.getInventory(event.getMember().getId()));
+        List<String> items = new ArrayList<>(getter.getInventory(event.getMember().getId()));
 
-        if (memberColors.isEmpty()) contents.put("field", getLang("inventory.noItems"));
-        else memberColors.forEach(color -> {
-            String c = colors.get(color).translation;
-            contents.put("field" + c, c);
+        if (items.isEmpty()) contents.put("field", getLang("inventory.noItems"));
+        else items.forEach(item -> {
+            String itemT = colors.get(item).translation;
+            contents.put("field" + itemT, itemT);
         });
 
         event.replyEmbeds(getEmbed("inventory", contents)).setEphemeral(true).queue();

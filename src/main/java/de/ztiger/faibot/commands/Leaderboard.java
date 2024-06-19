@@ -39,7 +39,7 @@ public class Leaderboard {
     public static void back(ButtonInteractionEvent event) {
         int page = getPage(event);
 
-        event.editMessageEmbeds(createLeaderboardEmbed(page - 2)).setActionRow((page - 1 == 1) ? back.asDisabled() : back , next).queue();
+        event.editMessageEmbeds(createLeaderboardEmbed(page - 2)).setActionRow((page - 1 == 1) ? back.asDisabled() : back, next).queue();
     }
 
     private static MessageEmbed createLeaderboardEmbed(int page) {
