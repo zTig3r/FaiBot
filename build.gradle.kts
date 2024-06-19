@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.ztiger"
-version = "2.0-alpha"
+version = "2.0"
 
 repositories {
     mavenCentral()
