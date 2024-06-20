@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
@@ -45,7 +45,7 @@ public class Leaderboard {
     private static MessageEmbed createLeaderboardEmbed(int page) {
         int i = page * 10;
 
-        Map<String, String> contents = new HashMap<>();
+        LinkedHashMap<String, String> contents = new LinkedHashMap<>();
 
         contents.put("page", String.valueOf(page + 1));
 

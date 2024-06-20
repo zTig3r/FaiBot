@@ -25,11 +25,11 @@ public class EmbedCreator {
     }
 
     public static MessageEmbed getEmbed(String type, Map<String, String> replacements) {
-        return embeds.computeIfAbsent(type + "_" + replacements, s -> createEmbed(s, replacements, nixo));
+        return createEmbed(type, replacements, nixo);
     }
 
     public static MessageEmbed getEmbed(String type, Map<String, String> replacements, Color color) {
-        return embeds.computeIfAbsent(type + "_" + replacements, s -> createEmbed(s, replacements, color));
+        return createEmbed(type, replacements, color);
     }
 
     private static MessageEmbed createEmbed(String type, Map<String, String> replacements, Color color) {

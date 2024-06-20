@@ -26,6 +26,10 @@ daily:
     - "bl:Belohnung;{amount} Punkte"
     - "Streak: {streak}"
 
+error:
+    - ""
+    - "n:{msg}"
+
 inventory:
     - "Inventar"
     - "d:Hier siehst du alle Items, die du besitzt:"

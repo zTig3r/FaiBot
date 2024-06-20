@@ -4,6 +4,7 @@ import org.simpleyaml.configuration.file.FileConfiguration;
 import org.simpleyaml.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +22,16 @@ public class ConfigManager {
         setup();
     }
 
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("ConstantConditions, ResultOfMethodCallIgnored")
     private void setup() {
         configList.forEach(filename -> {
             try {
-                configs.put(filename, YamlConfiguration.loadConfiguration(new File(ConfigManager.class.getClassLoader().getResource(filename + ".yml").toURI())));
+                if(!new File("./configs").exists()) new File("./configs").mkdir();
+
+                File configFile = new File("./configs/" + filename + ".yml");
+                if(!configFile.exists()) Files.copy(ConfigManager.class.getClassLoader().getResourceAsStream(filename + ".yml"), configFile.toPath());
+
+                configs.put(filename, YamlConfiguration.loadConfiguration(configFile));
             } catch (Exception e) {
                 logger.error("Error while loading config file {}: {}", filename, e.getMessage());
             }

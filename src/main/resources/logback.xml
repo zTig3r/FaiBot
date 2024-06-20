@@ -18,8 +18,15 @@
         </encoder>
     </appender>
 
+    <appender name="ERROR_NOTIFY" class="de.ztiger.faibot.utils.ErrorNotify">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
     <root level="info">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="ERROR_NOTIFY" />
     </root>
 </configuration>
