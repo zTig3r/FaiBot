@@ -18,7 +18,7 @@ public class MessageEdit extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        if (event.getChannel().equals(logChannel)) return;
+        if (event.getChannel().equals(logChannel) || event.getAuthor().isBot()) return;
 
         try {
             Message message = event.getMessage();
