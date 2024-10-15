@@ -2,7 +2,6 @@ package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.FaiBot;
 import de.ztiger.faibot.utils.YoutubeHandler;
-import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
@@ -25,7 +24,6 @@ import static de.ztiger.faibot.utils.Lang.getLang;
 @SuppressWarnings("ConstantConditions")
 public class BotReady extends ListenerAdapter {
 
-    public static final Dotenv config = Dotenv.configure().load();
     public static Guild GUILD;
 
     @Override
@@ -51,6 +49,8 @@ public class BotReady extends ListenerAdapter {
         cmds.add(Commands.slash("starttwitch", "Sende eine Live-Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
         cmds.add(Commands.slash("endtwitch", "Beende die Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
         cmds.add(Commands.slash("checkyoutube", "Sende eine Benachrichtigung, wenn ein neues Video hochgeladen wird").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
+        cmds.add(Commands.slash("setstreamelements", "Setzt den Streamelements-JWT-Token").addOptions(new OptionData(OptionType.STRING, "token", "Streamelements-JWT-Token").setRequired(true)).setDefaultPermissions(DefaultMemberPermissions.DISABLED));
+        cmds.add(Commands.slash("settwitch", "Setzt den Twitch-OAUTH-Token").addOptions(new OptionData(OptionType.STRING, "token", "Twitch-OAUTH-Token").setRequired(true)).setDefaultPermissions(DefaultMemberPermissions.DISABLED));
 
         GUILD.updateCommands().addCommands(cmds).queue();
 
@@ -92,7 +92,7 @@ public class BotReady extends ListenerAdapter {
     private static void checkUsersDB() {
         for (Member member : GUILD.getMembers()) {
             String id = member.getUser().getId();
-            if (getter.getId(id) == 0) setter.addUser(id);
+            if (getter.getId(id) == -1) setter.addUser(id);
         }
     }
 }

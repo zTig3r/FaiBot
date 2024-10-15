@@ -4,6 +4,7 @@ import org.simpleyaml.configuration.file.FileConfiguration;
 import org.simpleyaml.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,5 +41,13 @@ public class ConfigManager {
 
     public FileConfiguration getConfig(String name) {
         return configs.get(name);
+    }
+
+    public void saveConfig(String filename) {
+        try {
+            configs.get(filename).save(new File("./configs/", filename + ".yml"));
+        } catch (IOException e) {
+            logger.error("Error while saving config file {}: {}", filename, e.getMessage());
+        }
     }
 }

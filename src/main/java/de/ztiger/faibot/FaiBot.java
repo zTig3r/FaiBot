@@ -1,6 +1,7 @@
 package de.ztiger.faibot;
 
 import de.ztiger.faibot.commands.CommandManager;
+import de.ztiger.faibot.db.*;
 import de.ztiger.faibot.listeners.*;
 import de.ztiger.faibot.utils.*;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -20,7 +21,7 @@ import java.io.File;
 import java.sql.SQLException;
 
 import static de.ztiger.faibot.utils.Colors.setupColors;
-import static de.ztiger.faibot.utils.TableCreator.createTables;
+import static de.ztiger.faibot.db.TableCreator.createTables;
 
 @SuppressWarnings({"InstantiationOfUtilityClass"})
 public class FaiBot {
@@ -33,6 +34,7 @@ public class FaiBot {
     public static MariaDB mariaDB;
     public static SQLGetter getter;
     public static SQLSetter setter;
+    public static SEHandler seHandler;
 
     public static ConfigManager cfgm;
 
@@ -68,6 +70,7 @@ public class FaiBot {
         }
 
         new TwitchHandler();
+        seHandler = new SEHandler();
 
         setupColors();
     }
@@ -84,7 +87,6 @@ public class FaiBot {
                 .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE, CacheFlag.CLIENT_STATUS, CacheFlag.ACTIVITY, CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS, CacheFlag.EMOJI)
                 .build();
     }
-
 
     public static ShardManager getShardManager() {
         return shardManager;

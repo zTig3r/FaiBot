@@ -1,4 +1,4 @@
-package de.ztiger.faibot.utils;
+package de.ztiger.faibot.db;
 
 import static de.ztiger.faibot.FaiBot.mariaDB;
 

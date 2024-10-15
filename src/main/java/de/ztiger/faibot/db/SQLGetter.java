@@ -1,4 +1,4 @@
-package de.ztiger.faibot.utils;
+package de.ztiger.faibot.db;
 
 import net.dv8tion.jda.api.entities.Member;
 
@@ -13,7 +13,9 @@ import static de.ztiger.faibot.FaiBot.*;
 public class SQLGetter {
 
     public int getId(String id) {
-        return (int) mariaDB.getValue("SELECT userid FROM users WHERE dcid = ?", id);
+        Object value = mariaDB.getValue("SELECT userid FROM users WHERE dcid = ?", id);
+
+        return (value != null) ? Integer.parseInt(value.toString()) : -1;
     }
 
     public String getMemberById(int id) {

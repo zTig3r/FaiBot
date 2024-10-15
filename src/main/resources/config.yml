@@ -1,2 +1,7 @@
 colorPrice: 750
 language: de_DE
+amount: 2
+channel: tiger56789
+channelID:
+jwt:
+oauth:
