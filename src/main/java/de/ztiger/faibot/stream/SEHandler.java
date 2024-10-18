@@ -22,6 +22,7 @@ public class SEHandler {
     private static final List<String> recentChatters = new ArrayList<>();
 
     private static final FileConfiguration config = cfgm.getConfig("config");
+    private static final String CHANNEL = config.getString("channel");
 
     public SEHandler() {
         if (config.getString("oauth") == null || config.getString("jwt") == null) {
@@ -38,10 +39,11 @@ public class SEHandler {
                 .withDefaultAuthToken(credential)
                 .build();
 
-        client.getClientHelper().enableStreamEventListener(config.getString("channel"));
+        client.getClientHelper().enableStreamEventListener(CHANNEL);
 
         client.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
-            if (!isLive) return;
+            String name = event.getUser().getName();
+            if (!isLive || name.equals(CHANNEL)) return;
             recentChatters.add(event.getUser().getName());
         });
 

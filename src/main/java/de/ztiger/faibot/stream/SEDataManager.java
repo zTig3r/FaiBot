@@ -37,7 +37,7 @@ public class SEDataManager {
                 watchtimeMap.put(watchtimeUser.getString("username"), watchtimeUser.getInt("minutes"));
             }
 
-            for (int i = 0; i < topPoints.length(); i++) {
+            for (int i = 0; i < topPoints.length() -1; i++) {
                 JSONObject user = topPoints.getJSONObject(i);
                 String username = user.getString("username");
                 int watchTime = watchtimeMap.getOrDefault(username, 0);
@@ -58,7 +58,7 @@ public class SEDataManager {
             JSONArray userArray = new JSONObject(getSEData("/top")).getJSONArray("users");
             List<String> lowPoints = new ArrayList<>();
 
-            for (int i = 0; i <= userArray.length(); i++) {
+            for (int i = 0; i <= userArray.length() -1; i++) {
                 JSONObject user = userArray.getJSONObject(i);
 
                 if (user.getInt("points") < 100) lowPoints.add(user.getString("username"));
