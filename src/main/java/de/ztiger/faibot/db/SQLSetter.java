@@ -52,4 +52,8 @@ public class SQLSetter {
     public void setLastVideo(String id) {
         mariaDB.setValue("INSERT INTO cache (content, typ) VALUES (?, ?) ON DUPLICATE KEY UPDATE content = ?", id, "lastVideo", id);
     }
+
+    public void setTwitchData(String name, int time, int points) {
+        mariaDB.setValue("INSERT INTO twitch_data (username, minutes, points) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE minutes = ?, points = ?", name, time, points, time, points);
+    }
 }

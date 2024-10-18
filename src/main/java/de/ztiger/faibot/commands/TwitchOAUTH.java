@@ -1,6 +1,6 @@
 package de.ztiger.faibot.commands;
 
-import de.ztiger.faibot.utils.SEHandler;
+import de.ztiger.faibot.stream.SEHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.simpleyaml.configuration.file.FileConfiguration;
 

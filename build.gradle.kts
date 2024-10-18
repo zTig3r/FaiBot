@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.ztiger"
-version = "2.5"
+version = "2.6"
 
 repositories {
     mavenCentral()
@@ -29,7 +29,6 @@ tasks.withType(JavaCompile::class.java) {
     options.encoding = "UTF-8"
 }
 
-
 tasks {
     shadowJar {
         archiveClassifier.set("")
@@ -39,7 +38,6 @@ tasks {
 
     }
 }
-
 
 tasks.test {
     useJUnitPlatform()

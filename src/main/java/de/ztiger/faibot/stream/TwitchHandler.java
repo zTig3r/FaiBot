@@ -1,4 +1,4 @@
-package de.ztiger.faibot.utils;
+package de.ztiger.faibot.stream;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.SEHandler.*;
+import static de.ztiger.faibot.stream.SEHandler.*;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class TwitchHandler {

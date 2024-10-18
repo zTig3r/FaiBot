@@ -3,6 +3,8 @@ package de.ztiger.faibot;
 import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.db.*;
 import de.ztiger.faibot.listeners.*;
+import de.ztiger.faibot.stream.SEHandler;
+import de.ztiger.faibot.stream.TwitchHandler;
 import de.ztiger.faibot.utils.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;

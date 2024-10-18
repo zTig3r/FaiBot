@@ -18,8 +18,8 @@ import static de.ztiger.faibot.commands.Stats.sendStats;
 import static de.ztiger.faibot.commands.SEJWT.setStreamelementsToken;
 import static de.ztiger.faibot.commands.TwitchOAUTH.setTwitchOAUTH;
 import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.utils.TwitchHandler.triggerLive;
-import static de.ztiger.faibot.utils.TwitchHandler.triggerOff;
+import static de.ztiger.faibot.stream.TwitchHandler.triggerLive;
+import static de.ztiger.faibot.stream.TwitchHandler.triggerOff;
 import static de.ztiger.faibot.utils.YoutubeHandler.triggerVideoCheck;
 
 @SuppressWarnings("ConstantConditions")
