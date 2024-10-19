@@ -6,10 +6,7 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import org.simpleyaml.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.stream.SEDataManager.*;
@@ -19,7 +16,7 @@ public class SEHandler {
     private static Timer timer;
     private static Boolean isLive = false;
 
-    private static final List<String> recentChatters = new ArrayList<>();
+    private static final Set<String> recentChatters = new HashSet<>();
 
     private static final FileConfiguration config = cfgm.getConfig("config");
     private static final String CHANNEL = config.getString("channel");
@@ -57,6 +54,7 @@ public class SEHandler {
             @Override
             public void run() {
                 addPoints(recentChatters, config.getInt("amount"));
+                recentChatters.clear();
                 fixLowPoints();
             }
         }, 600000, 600000);

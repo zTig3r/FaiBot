@@ -9,10 +9,7 @@ import org.json.JSONObject;
 import org.simpleyaml.configuration.file.FileConfiguration;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.ztiger.faibot.FaiBot.*;
@@ -56,7 +53,7 @@ public class SEDataManager {
     public static void fixLowPoints() {
         try {
             JSONArray userArray = new JSONObject(getSEData("/top")).getJSONArray("users");
-            List<String> lowPoints = new ArrayList<>();
+            Set<String> lowPoints = new HashSet<>();
 
             for (int i = 0; i <= userArray.length() -1; i++) {
                 JSONObject user = userArray.getJSONObject(i);
@@ -70,7 +67,7 @@ public class SEDataManager {
         }
     }
 
-    public static void addPoints(List<String> names, int amount) {
+    public static void addPoints(Set<String> names, int amount) {
         if (names.isEmpty()) return;
 
         String requestBody = "{\"users\": [" +
