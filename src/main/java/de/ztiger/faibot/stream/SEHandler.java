@@ -20,6 +20,7 @@ public class SEHandler {
 
     private static final FileConfiguration config = cfgm.getConfig("config");
     private static final String CHANNEL = config.getString("channel");
+    private static final List<String> BLACKLIST = config.getStringList("blacklist");
 
     public SEHandler() {
         if (config.getString("oauth") == null || config.getString("jwt") == null) {
@@ -40,8 +41,9 @@ public class SEHandler {
 
         client.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
             String name = event.getUser().getName();
-            if (!isLive || name.equals(CHANNEL)) return;
-            recentChatters.add(event.getUser().getName());
+            if (!isLive || BLACKLIST.contains(name)) return;
+            recentChatters.add(name);
+            logger.info("test");
         });
 
         logger.info("SEHandler initialized");
