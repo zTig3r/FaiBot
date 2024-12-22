@@ -1,4 +1,4 @@
-package de.ztiger.faibot.stream;
+package de.ztiger.faibot.utils;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
@@ -17,7 +17,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.stream.SEHandler.*;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class TwitchHandler {
@@ -76,7 +75,6 @@ public class TwitchHandler {
 
     private static void streamStart() {
         logger.info("TwitchHandler: Stream is now live");
-        startSE();
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -91,7 +89,6 @@ public class TwitchHandler {
 
     private static void streamEnd() {
         logger.info("TwitchHandler: Stream is now offline");
-        stopSE();
 
         String id = client.getHelix().getUsers(null, null, List.of(CHANNEL)).execute().getUsers().get(0).getId();
         VideoList list = client.getHelix().

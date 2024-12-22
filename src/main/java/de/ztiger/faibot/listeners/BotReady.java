@@ -49,8 +49,6 @@ public class BotReady extends ListenerAdapter {
         cmds.add(Commands.slash("starttwitch", "Sende eine Live-Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
         cmds.add(Commands.slash("endtwitch", "Beende die Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
         cmds.add(Commands.slash("checkyoutube", "Sende eine Benachrichtigung, wenn ein neues Video hochgeladen wird").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
-        cmds.add(Commands.slash("setstreamelements", "Setzt den Streamelements-JWT-Token").addOptions(new OptionData(OptionType.STRING, "token", "Streamelements-JWT-Token").setRequired(true)).setDefaultPermissions(DefaultMemberPermissions.DISABLED));
-        cmds.add(Commands.slash("settwitch", "Setzt den Twitch-OAUTH-Token").addOptions(new OptionData(OptionType.STRING, "token", "Twitch-OAUTH-Token").setRequired(true)).setDefaultPermissions(DefaultMemberPermissions.DISABLED));
 
         GUILD.updateCommands().addCommands(cmds).queue();
 

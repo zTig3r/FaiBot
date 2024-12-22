@@ -15,11 +15,9 @@ import static de.ztiger.faibot.commands.Leaderboard.*;
 import static de.ztiger.faibot.commands.ServerStats.setupStats;
 import static de.ztiger.faibot.commands.Shop.*;
 import static de.ztiger.faibot.commands.Stats.sendStats;
-import static de.ztiger.faibot.commands.SEJWT.setStreamelementsToken;
-import static de.ztiger.faibot.commands.TwitchOAUTH.setTwitchOAUTH;
 import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.stream.TwitchHandler.triggerLive;
-import static de.ztiger.faibot.stream.TwitchHandler.triggerOff;
+import static de.ztiger.faibot.utils.TwitchHandler.triggerLive;
+import static de.ztiger.faibot.utils.TwitchHandler.triggerOff;
 import static de.ztiger.faibot.utils.YoutubeHandler.triggerVideoCheck;
 
 @SuppressWarnings("ConstantConditions")
@@ -44,8 +42,6 @@ public class CommandManager extends ListenerAdapter {
             case "starttwitch" -> triggerLive(event);
             case "endtwitch" -> triggerOff(event);
             case "checkyoutube" -> triggerVideoCheck(event);
-            case "setstreamelements" -> setStreamelementsToken(event);
-            case "settwitch" -> setTwitchOAUTH(event);
         }
     }
 
