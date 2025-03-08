@@ -1,10 +1,10 @@
 plugins {
     id("java")
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "de.ztiger"
-version = "2.7"
+version = "3.0"
 
 repositories {
     mavenCentral()
@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation("com.github.twitch4j:twitch4j:1.21.0")
-    implementation("net.dv8tion:JDA:5.0.0-beta.24") {
+    implementation("net.dv8tion:JDA:5.3.0") {
         exclude(module="opus-java")
     }
     implementation ("ch.qos.logback:logback-classic:1.5.10")
@@ -35,7 +35,6 @@ tasks {
         manifest {
             attributes["Main-Class"] = "de.ztiger.faibot.FaiBot" // Set your main class name
         }
-
     }
 }
 

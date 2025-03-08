@@ -30,7 +30,7 @@ public class FaiBot {
     public static final Logger logger = LoggerFactory.getLogger(FaiBot.class);
     public static Dotenv config;
     private static ShardManager shardManager;
-    public static TextChannel logChannel, recommendationsChannel, welcomeChannel, botChannel;
+    public static TextChannel logChannel, recommendationsChannel, welcomeChannel, botChannel, reactionChannel;
     public static NewsChannel twitchChannel, youtubeChannel;
     public static MariaDB mariaDB;
     public static SQLGetter getter;
@@ -79,7 +79,7 @@ public class FaiBot {
         shardManager = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"))
                 .setAutoReconnect(true)
                 .addEventListeners(new CommandManager(), new MessageReceived(), new MemberLeave(), new MessageDelete(), new MessageEdit(), new MemberJoin(), new BotReady())
-                .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
+                .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
                 .setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.ALL)

@@ -35,6 +35,7 @@ public class BotReady extends ListenerAdapter {
         botChannel = event.getJDA().getTextChannelById(config.get("BOT"));
         twitchChannel = event.getJDA().getNewsChannelById(config.get("TWITCH"));
         youtubeChannel = event.getJDA().getNewsChannelById(config.get("YOUTUBE"));
+        reactionChannel = event.getJDA().getTextChannelById(config.get("REACTION"));
 
         List<CommandData> cmds = new ArrayList<>();
 

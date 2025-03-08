@@ -26,8 +26,7 @@ public class MessageReceived extends ListenerAdapter {
 
         add(message);
 
-        if (channel.equals(recommendationsChannel)) {
-            if (!message.getContentRaw().contains("V:")) return;
+        if ((channel.equals(recommendationsChannel) && message.getContentRaw().contains("V:") || channel.equals(reactionChannel))) {
             message.addReaction(Emoji.fromUnicode("✅")).queue();
             message.addReaction(Emoji.fromUnicode("❌")).queue();
         }
