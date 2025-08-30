@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faibot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: faibot
+  template:
+    metadata:
+      labels:
+        app: faibot
+    spec:
+      containers:
+        - name: faibot
+          image: ghcr.io/ztig3r/faibot:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+          - name: env-file
+            mountPath: /app/.env
+            subPath: .env
+      # Create .env file and add it with: kubectl create secret generic faibot-env --from-file=.env
+      volumes:
+        - name: env-file
+          secret:
+            secretName: faibot-env
+      imagePullSecrets:
+        - name: regcred

@@ -1,0 +1,28 @@
+# Gradle build outputs
+build/
+out/
+
+# Gradle wrapper caches
+.gradle/
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
