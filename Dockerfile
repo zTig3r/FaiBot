@@ -7,6 +7,9 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle gradle
 
+# Make gradlew executable
+RUN chmod +x ./gradlew
+
 # Download dependencies only
 RUN ./gradlew --no-daemon build -x test || true
 
