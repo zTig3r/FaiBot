@@ -1,13 +1,9 @@
 package de.ztiger.faibot.commands;
 
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.Map;
-
-import static de.ztiger.faibot.FaiBot.botChannel;
 import static de.ztiger.faibot.commands.ChangeColor.*;
 import static de.ztiger.faibot.commands.Daily.sendDailyReward;
 import static de.ztiger.faibot.commands.Inventory.sendInventory;
@@ -15,7 +11,6 @@ import static de.ztiger.faibot.commands.Leaderboard.*;
 import static de.ztiger.faibot.commands.ServerStats.setupStats;
 import static de.ztiger.faibot.commands.Shop.*;
 import static de.ztiger.faibot.commands.Stats.sendStats;
-import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.TwitchHandler.triggerLive;
 import static de.ztiger.faibot.utils.TwitchHandler.triggerOff;
 import static de.ztiger.faibot.utils.YoutubeHandler.triggerVideoCheck;
@@ -25,11 +20,6 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (!event.getChannel().equals(botChannel) && !event.getMember().hasPermission(Permission.MANAGE_SERVER)) {
-            event.reply(format("wrongChannel", Map.of("channel", botChannel.getAsMention()))).setEphemeral(true).queue();
-            return;
-        }
-
         switch (event.getName()) {
             case "stats" -> sendStats(event);
             case "color" -> sendColorEmbed(event);

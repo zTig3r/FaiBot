@@ -11,7 +11,6 @@ public class MariaDB {
     private final String url = FaiBot.config.get("DB_URL");
     private final String username = FaiBot.config.get("DB_USER");
     private final String password = FaiBot.config.get("DB_PASSWORD");
-    private final String database = FaiBot.config.get("DB_NAME");
 
     private Connection connection;
 
@@ -25,7 +24,7 @@ public class MariaDB {
 
     public void connect() throws ClassNotFoundException, SQLException {
         if (!isConnected())
-            connection = DriverManager.getConnection("jdbc:mariadb://" + url + "/" + database + "?user=" + username + "&password=" + password);
+            connection = DriverManager.getConnection(url, username, password);
     }
 
     public Connection getConnection() {
