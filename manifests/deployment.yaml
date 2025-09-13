@@ -12,7 +12,6 @@ spec:
       labels:
         app: faibot
     spec:
-      hostNetwork: true
       containers:
         - name: faibot
           image: ghcr.io/ztig3r/faibot:latest
