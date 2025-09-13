@@ -27,5 +27,3 @@ spec:
         - name: env-file
           secret:
             secretName: faibot-env
-      imagePullSecrets:
-        - name: regcred
