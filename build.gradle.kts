@@ -23,6 +23,7 @@ dependencies {
     implementation ("com.vaadin.external.google:android-json:0.0.20131108.vaadin1")
     implementation ("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation ("org.apache.httpcomponents:httpclient:4.5.14")
+    implementation ("com.sparkjava:spark-core:2.9.4")
 }
 
 tasks.withType(JavaCompile::class.java) {
