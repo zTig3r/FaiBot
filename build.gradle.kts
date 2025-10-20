@@ -16,7 +16,7 @@ dependencies {
     implementation("net.dv8tion:JDA:5.3.0") {
         exclude(module="opus-java")
     }
-    implementation ("ch.qos.logback:logback-classic:1.5.13")
+    implementation ("ch.qos.logback:logback-classic:1.5.19")
     implementation ("org.mariadb.jdbc:mariadb-java-client:3.4.1")
     implementation ("org.slf4j:slf4j-api:2.0.12")
     implementation ("io.github.cdimascio:dotenv-java:3.0.0")
@@ -36,6 +36,7 @@ tasks {
         manifest {
             attributes["Main-Class"] = "de.ztiger.faibot.FaiBot" // Set your main class name
         }
+        minimize()
     }
 }
 
