@@ -6,8 +6,6 @@ import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.helix.domain.*;
-import io.github.xanthic.cache.core.CacheApiSettings;
-import io.github.xanthic.cache.provider.caffeine.CaffeineProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -30,8 +28,6 @@ public class TwitchHandler {
     private static Timer timer;
 
     public TwitchHandler() {
-        CacheApiSettings.getInstance().setDefaultCacheProvider(new CaffeineProvider());
-
         client = TwitchClientBuilder.builder()
                 .withClientId(config.get("CLIENT_ID"))
                 .withClientSecret(config.get("CLIENT_SECRET"))
