@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.ztiger"
-version = "3.0.2"
+version = "3.0.3"
 
 repositories {
     mavenCentral()
@@ -13,7 +13,6 @@ repositories {
 
 dependencies {
     implementation("com.github.twitch4j:twitch4j:1.25.0")
-    implementation("io.github.xanthic.cache:cache-provider-caffeine:0.7.1")
     implementation("net.dv8tion:JDA:5.3.0") {
         exclude(module="opus-java")
     }
@@ -37,7 +36,6 @@ tasks {
         manifest {
             attributes["Main-Class"] = "de.ztiger.faibot.FaiBot"
         }
-        minimize()
     }
 }
 
