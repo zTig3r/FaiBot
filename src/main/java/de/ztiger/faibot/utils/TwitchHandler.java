@@ -6,6 +6,8 @@ import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.helix.domain.*;
+import io.github.xanthic.cache.core.CacheApiSettings;
+import io.github.xanthic.cache.provider.caffeine.CaffeineProvider;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -28,13 +30,15 @@ public class TwitchHandler {
     private static Timer timer;
 
     public TwitchHandler() {
+        CacheApiSettings.getInstance().setDefaultCacheProvider(new CaffeineProvider());
+
         client = TwitchClientBuilder.builder()
                 .withClientId(config.get("CLIENT_ID"))
                 .withClientSecret(config.get("CLIENT_SECRET"))
                 .withEnableHelix(true)
                 .build();
 
-        User user = client.getHelix().getUsers(null, null, List.of(CHANNEL)).execute().getUsers().get(0);
+        User user = client.getHelix().getUsers(null, null, List.of(CHANNEL)).execute().getUsers().getFirst();
         offlineImage = user.getOfflineImageUrl();
         profileImage = user.getProfileImageUrl();
 
@@ -90,11 +94,11 @@ public class TwitchHandler {
     private static void streamEnd() {
         logger.info("TwitchHandler: Stream is now offline");
 
-        String id = client.getHelix().getUsers(null, null, List.of(CHANNEL)).execute().getUsers().get(0).getId();
+        String id = client.getHelix().getUsers(null, null, List.of(CHANNEL)).execute().getUsers().getFirst().getId();
         VideoList list = client.getHelix().
                 getVideos(null, null, id, null, null, null, null, Video.Type.ARCHIVE, null, null, null).execute();
 
-        String timestamp = list.getVideos().get(0).getDuration();
+        String timestamp = list.getVideos().getFirst().getDuration();
         if (!timestamp.contains("h")) timestamp = "0h" + timestamp;
         String[] split = timestamp.split("[hms]");
 

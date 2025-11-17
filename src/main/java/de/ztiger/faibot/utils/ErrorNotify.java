@@ -15,8 +15,13 @@ public class ErrorNotify extends AppenderBase<ILoggingEvent> {
 
     private static final List<String> errors = new ArrayList<>();
 
+    // Send no errors in development environment (ENV=dev)
+    private static final boolean IS_DEV = "dev".equalsIgnoreCase(System.getenv("ENV"));
+
     @Override
-    protected void append(ILoggingEvent eventObject) {
+        protected void append(ILoggingEvent eventObject) {
+        if (IS_DEV) return;
+
         String message = eventObject.getFormattedMessage();
         if (errors.contains(message)) return;
 
