@@ -37,18 +37,6 @@ public class SQLSetter {
         mariaDB.setValue("UPDATE users SET cardColor = ? WHERE dcid = ?", color, id);
     }
 
-    public void setLastReward(String id, String time) {
-        mariaDB.setValue("UPDATE users SET lastReward = ? WHERE dcid = ?", time, id);
-    }
-
-    public void increaseStreak(String id) {
-        mariaDB.setValue("UPDATE stats SET streak = streak + 1 WHERE userid = ?", getter.getId(id));
-    }
-
-    public void resetStreak(String id) {
-        mariaDB.setValue("UPDATE stats SET streak = 1 WHERE userid = ?", getter.getId(id));
-    }
-
     public void setLastVideo(String id) {
         mariaDB.setValue("INSERT INTO cache (content, typ) VALUES (?, ?) ON DUPLICATE KEY UPDATE content = ?", id, "lastVideo", id);
     }

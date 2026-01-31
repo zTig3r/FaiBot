@@ -38,10 +38,6 @@ public class SQLGetter {
         return (int) mariaDB.getValue("SELECT messages FROM stats WHERE userid = ?", getId(id));
     }
 
-    public int getStreak(String id) {
-        return (int) mariaDB.getValue("SELECT streak FROM stats WHERE userid = ?", getId(id));
-    }
-
     public List<String> getInventory(String id) {
         List<String> items = new ArrayList<>();
 
@@ -82,10 +78,6 @@ public class SQLGetter {
 
     public int getRank(String id) {
         return (int) mariaDB.getValue("SELECT FIND_IN_SET(xp, (SELECT GROUP_CONCAT(DISTINCT xp ORDER BY xp DESC) FROM stats)) AS 'rank', userid, xp FROM stats WHERE userid = ? ORDER BY xp DESC", getId(id));
-    }
-
-    public String getLastReward(String id) {
-        return (String) mariaDB.getValue("SELECT lastReward FROM users WHERE dcid = ?", id);
     }
 
     public String getLastVideo() {

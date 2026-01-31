@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import static de.ztiger.faibot.commands.ChangeColor.*;
-import static de.ztiger.faibot.commands.Daily.sendDailyReward;
 import static de.ztiger.faibot.commands.Inventory.sendInventory;
 import static de.ztiger.faibot.commands.Leaderboard.*;
 import static de.ztiger.faibot.commands.ServerStats.setupStats;
@@ -24,7 +23,6 @@ public class CommandManager extends ListenerAdapter {
             case "stats" -> sendStats(event);
             case "color" -> sendColorEmbed(event);
             case "leaderboard" -> sendLeaderboardEmbed(event);
-            case "daily" -> sendDailyReward(event);
             case "inventory" -> sendInventory(event);
             case "shop" -> sendShopEmbed(event);
 
