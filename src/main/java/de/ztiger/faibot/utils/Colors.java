@@ -1,8 +1,8 @@
 package de.ztiger.faibot.utils;
 
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.simpleyaml.configuration.file.FileConfiguration;
 
 import java.awt.*;
@@ -59,9 +59,9 @@ public class Colors {
     public static List<ActionRow> createColorActionRows(String ID, List<String> items) {
         return IntStream.range(0, (colorButtons.size() + 4) / 5)
                 .mapToObj(i -> ActionRow.of(colorButtons.subList(i * 5, Math.min(i * 5 + 5, colorButtons.size())).stream()
-                        .map(button -> (ID.equals("BUY") == items.contains(button.getId()))
+                        .map(button -> (ID.equals("BUY") == items.contains(button.getCustomId()))
                                 ? button.asDisabled()
-                                : button.withId(ID + button.getId())).collect(Collectors.toList()))).collect(Collectors.toList());
+                                : button.withId(ID + button.getCustomId())).collect(Collectors.toList()))).collect(Collectors.toList());
     }
 
     public static List<String> getTranslations() {

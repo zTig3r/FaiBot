@@ -1,11 +1,11 @@
 package de.ztiger.faibot.commands;
 
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +74,7 @@ public class ChangeColor {
     }
 
     public static void handleColor(ButtonInteractionEvent event, boolean isName) {
-        String color = event.getButton().getId().replace(isName ? "NAME" : "STATS", "");
+        String color = event.getButton().getCustomId().replace(isName ? "NAME" : "STATS", "");
 
         if (isName) setNameColor(event, color);
         else {

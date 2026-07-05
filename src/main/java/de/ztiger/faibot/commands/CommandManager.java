@@ -35,7 +35,7 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        String id = event.getButton().getId();
+        String id = event.getButton().getCustomId();
 
         switch (id) {
             case "nameColor" -> colorEmbed(event, true);
