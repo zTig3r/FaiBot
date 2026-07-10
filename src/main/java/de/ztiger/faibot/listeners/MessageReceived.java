@@ -12,7 +12,6 @@ import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.MessageCachingService.add;
 import static de.ztiger.faibot.utils.XP.*;
 
-@SuppressWarnings("ConstantConditions")
 public class MessageReceived extends ListenerAdapter {
 
     @Override

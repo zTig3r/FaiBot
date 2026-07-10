@@ -2,59 +2,81 @@ package de.ztiger.faibot.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-import static de.ztiger.faibot.commands.ChangeColor.*;
-import static de.ztiger.faibot.commands.Inventory.sendInventory;
-import static de.ztiger.faibot.commands.Leaderboard.*;
-import static de.ztiger.faibot.commands.ServerStats.setupStats;
-import static de.ztiger.faibot.commands.Shop.*;
-import static de.ztiger.faibot.commands.Stats.sendStats;
-import static de.ztiger.faibot.utils.TwitchHandler.triggerLive;
-import static de.ztiger.faibot.utils.TwitchHandler.triggerOff;
-import static de.ztiger.faibot.utils.YoutubeHandler.triggerVideoCheck;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-@SuppressWarnings("ConstantConditions")
 public class CommandManager extends ListenerAdapter {
+
+    private final Map<String, ICommand> commands = new HashMap<>();
+
+    public CommandManager() {
+        register(new ChangeColor());
+        register(new Inventory());
+        register(new Leaderboard());
+        register(new Shop());
+        register(new Stats());
+
+        register(new Nixos());
+        register(new ServerStats());
+        register(new Twitch());
+        register(new Youtube());
+    }
+
+    private void register(ICommand cmd) {
+        commands.put(cmd.getCommandData().getName(), cmd);
+    }
+
+    public List<CommandData> getCommandDataList() {
+        return commands.values().stream().map(ICommand::getCommandData).collect(Collectors.toList());
+    }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        switch (event.getName()) {
-            case "stats" -> sendStats(event);
-            case "color" -> sendColorEmbed(event);
-            case "leaderboard" -> sendLeaderboardEmbed(event);
-            case "inventory" -> sendInventory(event);
-            case "shop" -> sendShopEmbed(event);
+        ICommand cmd = commands.get(event.getName());
+        if (cmd == null) return;
 
-            case "setupstats" -> setupStats(event);
-            case "starttwitch" -> triggerLive(event);
-            case "endtwitch" -> triggerOff(event);
-            case "checkyoutube" -> triggerVideoCheck(event);
-        }
+        cmd.executeSlash(event);
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         String id = event.getButton().getCustomId();
 
-        switch (id) {
-            case "nameColor" -> colorEmbed(event, true);
-            case "statsColor", "cancel" -> colorEmbed(event, false);
-            case "back" -> sendColorEmbed(event);
-            case "apply" -> applyStatsColor(event);
-            case "next" -> next(event);
-            case "return" -> back(event);
-            case "BUYcancel" -> sendShopEmbed(event);
-            case "BUYconfirm" -> handleBuy(event);
-            default -> {
-                if (id.startsWith("BUY")) handleShopEmbed(event);
-                else {
-                    boolean isName = id.startsWith("NAME");
-
-                    if (id.contains("reset")) handleReset(event, isName);
-                    else handleColor(event, isName);
-                }
+        if (id.contains(":")) {
+            String prefix = id.split(":")[0];
+            ICommand cmd = commands.get(prefix);
+            if (cmd != null) {
+                cmd.executeButton(event);
+                return;
             }
+        }
+
+        for (ICommand cmd : commands.values()) {
+            cmd.executeButton(event);
+        }
+    }
+
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        String id = event.getComponentId();
+
+        if (id.contains(":")) {
+            String prefix = id.split(":")[0];
+            ICommand cmd = commands.get(prefix);
+            if (cmd != null) {
+                cmd.executeSelect(event);
+                return;
+            }
+        }
+
+        for (ICommand cmd : commands.values()) {
+            cmd.executeSelect(event);
         }
     }
 }

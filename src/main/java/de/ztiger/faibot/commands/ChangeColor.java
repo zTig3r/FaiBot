@@ -2,11 +2,15 @@ package de.ztiger.faibot.commands;
 
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +23,7 @@ import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-@SuppressWarnings("ConstantConditions")
-public class ChangeColor {
+public class ChangeColor implements ICommand {
 
     private static final String KEY = "color.";
     private static final HashMap<Member, String> colorCache = new HashMap<>();
@@ -29,38 +32,52 @@ public class ChangeColor {
     private static final Button nameColor = Button.primary("nameColor", getLang(KEY + "name"));
     private static final Button statsColor = Button.primary("statsColor", getLang(KEY + "stats"));
 
-    public static void sendColorEmbed(SlashCommandInteractionEvent event) {
-        event.replyEmbeds(getEmbed("changeColorMenu")).addActionRow(nameColor, statsColor).setEphemeral(true).queue();
+
+    @Override
+    public CommandData getCommandData() {
+        return Commands.slash("color", "Ändere deine Farben");
+    }
+
+    @Override
+    public void executeSlash(SlashCommandInteractionEvent event) {
+        event.replyComponents(ActionRow.of(nameColor, statsColor)).setEmbeds(getEmbed("changeColorMenu")).setEphemeral(true).queue();
+    }
+
+    @Override
+    public void executeButton(ButtonInteractionEvent event) {
+        String id = event.getButton().getCustomId();
+
+        switch(id) {
+            case "back" -> sendColorEmbed(event);
+            case "nameColor" -> colorEmbed(event, true);
+            case "statsColor" -> colorEmbed(event, false);
+            case "apply" -> applyStatsColor(event);
+        }
+    }
+
+    @Override
+    public void executeSelect(StringSelectInteractionEvent event) {
+        handleColor(event, event.getValues().get(0).startsWith("NAME"));
     }
 
     public static void sendColorEmbed(ButtonInteractionEvent event) {
-        event.editMessageEmbeds(getEmbed("changeColorMenu")).setActionRow(nameColor, statsColor).queue();
+        event.editComponents(ActionRow.of(nameColor, statsColor)).setEmbeds(getEmbed("changeColorMenu")).queue();
     }
 
     public static void colorEmbed(ButtonInteractionEvent event, boolean isName) {
         String type = isName ? "NAME" : "STATS";
 
-        List<ActionRow> rows = createColorActionRows(type, getter.getInventory(event.getMember().getId()));
-        List<ItemComponent> lastRowComponents = rows.get(rows.size() - 1).getComponents();
+        List<ActionRow> rows = new ArrayList<>();
 
         Button reset = Button.danger(type + "reset", getLang(KEY + "reset"));
 
-        switch (lastRowComponents.size()) {
-            case 1, 2, 3 -> {
-                lastRowComponents.add(reset);
-                lastRowComponents.add(back);
-            }
-            case 4 -> {
-                lastRowComponents.add(reset);
-                rows.add(ActionRow.of(back));
-            }
-            case 5 -> rows.add(ActionRow.of(reset, back));
-        }
+        rows.add(ActionRow.of(StringSelectMenu.create("choose-color").addOptions(getColorOptions(type, getter.getInventory(event.getMember().getId()))).build()));
+        rows.add(ActionRow.of(reset, back));
 
         event.editMessageEmbeds(getEmbed("changeColorSelect", Map.of("type", isName ? getLang("color.type.name") : getLang("color.type.stats")))).setComponents(rows).setAttachments().queue();
     }
 
-    public static void handleReset(ButtonInteractionEvent event, boolean isName) {
+    public static void handleReset(StringSelectInteractionEvent event, boolean isName) {
         Member member = event.getMember();
 
         if (isName) resetNameColor(member);
@@ -73,8 +90,8 @@ public class ChangeColor {
         event.editMessage(format("color.successReset", Map.of("type", isName ? getLang(key + "name") : getLang(key + "stats")))).setEmbeds().setAttachments().setComponents().queue();
     }
 
-    public static void handleColor(ButtonInteractionEvent event, boolean isName) {
-        String color = event.getButton().getCustomId().replace(isName ? "NAME" : "STATS", "");
+    public static void handleColor(StringSelectInteractionEvent event, boolean isName) {
+        String color = event.getValues().get(0).replace(isName ? "NAME" : "STATS", "");
 
         if (isName) setNameColor(event, color);
         else {
@@ -93,7 +110,7 @@ public class ChangeColor {
         colorCache.remove(member);
     }
 
-    private static void setNameColor(ButtonInteractionEvent event, String color) {
+    private static void setNameColor(StringSelectInteractionEvent event, String color) {
         Member member = event.getMember();
         String newRole = colors.get(color).translation;
 

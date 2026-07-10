@@ -13,7 +13,6 @@ import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.MessageCachingService.get;
 import static de.ztiger.faibot.utils.MessageCachingService.remove;
 
-@SuppressWarnings("ConstantConditions")
 public class MessageDelete extends ListenerAdapter {
 
     @Override

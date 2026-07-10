@@ -18,7 +18,6 @@ import java.util.TimerTask;
 
 import static de.ztiger.faibot.FaiBot.*;
 
-@SuppressWarnings("FieldMayBeFinal")
 public class TwitchHandler {
 
     private static final String CHANNEL = cfgm.getConfig("config").getString("channel");

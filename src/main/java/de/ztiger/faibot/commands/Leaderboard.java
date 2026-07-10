@@ -1,10 +1,13 @@
 package de.ztiger.faibot.commands;
 
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,8 +17,7 @@ import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-@SuppressWarnings("ConstantConditions")
-public class Leaderboard {
+public class Leaderboard implements ICommand {
 
     private static final String KEY = "leaderboard.";
 
@@ -24,22 +26,28 @@ public class Leaderboard {
 
     private static int maxPage = 0;
 
-    public static void sendLeaderboardEmbed(SlashCommandInteractionEvent event) {
+    @Override
+    public CommandData getCommandData() {
+        return Commands.slash("leaderboard", "Zeigt das Leaderboard an");
+    }
+
+    @Override
+    public void executeSlash(SlashCommandInteractionEvent event) {
         maxPage = (int) Math.ceil((double) getShardManager().getGuildById(config.get("GUILD")).getMembers().size() / 10);
 
-        event.replyEmbeds(createLeaderboardEmbed(0)).setActionRow(back.asDisabled(), (maxPage > 1) ? next : next.asDisabled()).setEphemeral(true).queue();
+        event.replyComponents(ActionRow.of(back.asDisabled(), (maxPage > 1) ? next : next.asDisabled())).setEmbeds(createLeaderboardEmbed(0)).setEphemeral(true).queue();
     }
 
-    public static void next(ButtonInteractionEvent event) {
+    @Override
+    public void executeButton(ButtonInteractionEvent event) {
+        String id = event.getButton().getCustomId();
         int page = getPage(event);
 
-        event.editMessageEmbeds(createLeaderboardEmbed(page)).setActionRow(back, (page == maxPage) ? next.asDisabled() : next).queue();
-    }
-
-    public static void back(ButtonInteractionEvent event) {
-        int page = getPage(event);
-
-        event.editMessageEmbeds(createLeaderboardEmbed(page - 2)).setActionRow((page - 1 == 1) ? back.asDisabled() : back, next).queue();
+        if (id.equals("next")) {
+            event.editComponents(ActionRow.of((page == 1) ? back.asDisabled() : back, (page == maxPage - 1) ? next.asDisabled() : next)).setEmbeds(createLeaderboardEmbed(page)).queue();
+        } else if (id.equals("return")) {
+            event.editComponents(ActionRow.of((page - 1 == 1) ? back.asDisabled() : back, next)).setEmbeds(createLeaderboardEmbed(page - 2)).queue();
+        }
     }
 
     private static MessageEmbed createLeaderboardEmbed(int page) {

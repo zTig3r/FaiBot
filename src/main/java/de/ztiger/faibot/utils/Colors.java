@@ -1,7 +1,7 @@
 package de.ztiger.faibot.utils;
 
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.selections.SelectOption;
 import net.dv8tion.jda.api.entities.Role;
 import org.simpleyaml.configuration.file.FileConfiguration;
 
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static de.ztiger.faibot.FaiBot.cfgm;
 import static de.ztiger.faibot.FaiBot.logger;
@@ -22,7 +21,7 @@ public class Colors {
 
     public static final Color nixo = new Color(0x94c6f3);
 
-    private static List<Button> colorButtons = new ArrayList<>();
+    private static List<SelectOption> colorOptions = new ArrayList<>();
 
     public static void setupColors() {
         try {
@@ -30,7 +29,7 @@ public class Colors {
 
             colorFile.getKeys(false).forEach(color -> colors.put(color, new ColorInfo(colorFile.getString(color + ".translation"), colorFile.getString(color + ".emoji"), colorFile.getString(color + ".hex"))));
 
-            colorButtons = colors.entrySet().stream().map(entry -> Button.secondary(entry.getKey(), entry.getValue().emoji + " " + entry.getValue().translation)).collect(Collectors.toList());
+            colorOptions = colors.entrySet().stream().map(entry -> SelectOption.of(entry.getValue().emoji + " " + entry.getValue().translation, entry.getKey())).collect(Collectors.toList());
 
             colors.values().forEach(info -> {
                 List<Role> roles = GUILD.getRolesByName(info.translation, true);
@@ -56,12 +55,17 @@ public class Colors {
         }
     }
 
-    public static List<ActionRow> createColorActionRows(String ID, List<String> items) {
-        return IntStream.range(0, (colorButtons.size() + 4) / 5)
+    public static List<SelectOption> getColorOptions(String ID, List<String> items) {
+
+        return colorOptions.stream().filter(option -> (ID.equals("BUY") == items.contains(option.getValue()))).collect(Collectors.toList());
+
+
+       /* return IntStream.range(0, (colorButtons.size() + 4) / 5)
                 .mapToObj(i -> ActionRow.of(colorButtons.subList(i * 5, Math.min(i * 5 + 5, colorButtons.size())).stream()
                         .map(button -> (ID.equals("BUY") == items.contains(button.getCustomId()))
                                 ? button.asDisabled()
                                 : button.withId(ID + button.getCustomId())).collect(Collectors.toList()))).collect(Collectors.toList());
+*/
     }
 
     public static List<String> getTranslations() {

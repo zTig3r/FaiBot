@@ -1,6 +1,8 @@
 package de.ztiger.faibot.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,10 +14,15 @@ import static de.ztiger.faibot.utils.Colors.colors;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-@SuppressWarnings("ConstantConditions")
-public class Inventory {
+public class Inventory implements ICommand {
 
-    public static void sendInventory(SlashCommandInteractionEvent event) {
+    @Override
+    public CommandData getCommandData() {
+        return Commands.slash("inventory", "Zeigt dein Inventar an");
+    }
+
+    @Override
+    public void executeSlash(SlashCommandInteractionEvent event) {
         Map<String, String> contents = new HashMap<>();
         List<String> items = new ArrayList<>(getter.getInventory(event.getMember().getId()));
 

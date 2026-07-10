@@ -1,6 +1,7 @@
 package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.FaiBot;
+import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.utils.YoutubeHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,7 +22,6 @@ import java.util.TimerTask;
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-@SuppressWarnings("ConstantConditions")
 public class BotReady extends ListenerAdapter {
 
     public static Guild GUILD;
@@ -37,21 +37,8 @@ public class BotReady extends ListenerAdapter {
         youtubeChannel = event.getJDA().getNewsChannelById(config.get("YOUTUBE"));
         reactionChannel = event.getJDA().getTextChannelById(config.get("REACTION"));
 
-        List<CommandData> cmds = new ArrayList<>();
-
-        cmds.add(Commands.slash("stats", "Erhalte Statistiken von dir oder anderen auf dem Server").addOptions(new OptionData(OptionType.USER, "user", "Erhalte Statistiken von einem bestimmten Benutzer").setRequired(false)));
-        cmds.add(Commands.slash("color", "Ändere deine Farben"));
-        cmds.add(Commands.slash("leaderboard", "Zeigt das Leaderboard an"));
-        cmds.add(Commands.slash("daily", "Erhalte deine tägliche Belohnung"));
-        cmds.add(Commands.slash("inventory", "Zeigt dein Inventar an"));
-        cmds.add(Commands.slash("shop", "Zeigt den Shop an"));
-
-        cmds.add(Commands.slash("setupstats", "Erstelle die Server Stats").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
-        cmds.add(Commands.slash("starttwitch", "Sende eine Live-Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
-        cmds.add(Commands.slash("endtwitch", "Beende die Benachrichtigung").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
-        cmds.add(Commands.slash("checkyoutube", "Sende eine Benachrichtigung, wenn ein neues Video hochgeladen wird").setDefaultPermissions(DefaultMemberPermissions.DISABLED));
-
-        GUILD.updateCommands().addCommands(cmds).queue();
+        CommandManager commandManager = new CommandManager();
+        GUILD.updateCommands().addCommands(commandManager.getCommandDataList()).queue();
 
         String name = getLang("serverstats.title");
         Timer timer = new Timer();

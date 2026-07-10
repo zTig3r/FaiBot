@@ -26,7 +26,6 @@ import static de.ztiger.faibot.db.TableCreator.createTables;
 import static spark.Spark.get;
 import static spark.Spark.port;
 
-@SuppressWarnings({"InstantiationOfUtilityClass"})
 public class FaiBot {
 
     public static final Logger logger = LoggerFactory.getLogger(FaiBot.class);

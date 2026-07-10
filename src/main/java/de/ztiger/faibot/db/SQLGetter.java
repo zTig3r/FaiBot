@@ -9,7 +9,6 @@ import java.util.List;
 
 import static de.ztiger.faibot.FaiBot.*;
 
-@SuppressWarnings("ConstantConditions")
 public class SQLGetter {
 
     public int getId(String id) {

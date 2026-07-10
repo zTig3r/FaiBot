@@ -1,6 +1,9 @@
 package de.ztiger.faibot.commands;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.Map;
 
@@ -9,12 +12,17 @@ import static de.ztiger.faibot.listeners.BotReady.GUILD;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-public class ServerStats {
+public class ServerStats implements ICommand {
 
     private static final String KEY = "serverstats.";
 
-    @SuppressWarnings("ConstantConditions")
-    public static void setupStats(SlashCommandInteractionEvent event) {
+    @Override
+    public CommandData getCommandData() {
+       return Commands.slash("setupstats", "Erstelle die Server Stats").setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+    }
+
+    @Override
+    public void executeSlash(SlashCommandInteractionEvent event) {
         String name = getLang(KEY + "title");
 
         if (!GUILD.getCategoriesByName(name, true).isEmpty()) {

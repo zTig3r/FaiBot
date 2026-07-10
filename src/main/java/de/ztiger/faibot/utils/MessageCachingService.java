@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Message;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-@SuppressWarnings("SuspiciousMethodCalls")
 public class MessageCachingService {
 
     private static final HashMap<String, LinkedHashMap<String, Message>> cache = new HashMap<>();

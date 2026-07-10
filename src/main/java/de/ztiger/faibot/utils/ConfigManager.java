@@ -23,7 +23,6 @@ public class ConfigManager {
         setup();
     }
 
-    @SuppressWarnings("ConstantConditions, ResultOfMethodCallIgnored")
     private void setup() {
         configList.forEach(filename -> {
             try {

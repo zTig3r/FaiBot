@@ -24,7 +24,6 @@ public class XP {
         return 5 * (level * level) + (50 * level) + 100;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static void checkLevelUp(Member member) {
         int level = getter.getLevel(member.getId());
         int xpForNextLevel = calcXP(level);
