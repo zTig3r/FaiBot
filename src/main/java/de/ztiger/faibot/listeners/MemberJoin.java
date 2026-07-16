@@ -17,7 +17,6 @@ import static de.ztiger.faibot.utils.Lang.format;
 public class MemberJoin extends ListenerAdapter {
 
     @Override
-    @SuppressWarnings("ConstantConditions")
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         User user = event.getUser();
 

@@ -1,21 +1,13 @@
 package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.FaiBot;
-import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.utils.YoutubeHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,8 +29,12 @@ public class BotReady extends ListenerAdapter {
         youtubeChannel = event.getJDA().getNewsChannelById(config.get("YOUTUBE"));
         reactionChannel = event.getJDA().getTextChannelById(config.get("REACTION"));
 
-        CommandManager commandManager = new CommandManager();
-        GUILD.updateCommands().addCommands(commandManager.getCommandDataList()).queue();
+        CommandListener commandListener = new CommandListener();
+        GUILD.updateCommands().addCommands(commandListener.getCommandDataList()).queue();
+
+        ComponentListener componentListener = new ComponentListener();
+        event.getJDA().addEventListener(commandListener);
+        event.getJDA().addEventListener(componentListener);
 
         String name = getLang("serverstats.title");
         Timer timer = new Timer();

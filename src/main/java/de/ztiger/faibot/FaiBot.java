@@ -1,6 +1,5 @@
 package de.ztiger.faibot;
 
-import de.ztiger.faibot.commands.CommandManager;
 import de.ztiger.faibot.db.*;
 import de.ztiger.faibot.listeners.*;
 import de.ztiger.faibot.utils.TwitchHandler;
@@ -84,7 +83,7 @@ public class FaiBot {
         config = Dotenv.configure().load();
         shardManager = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"))
                 .setAutoReconnect(true)
-                .addEventListeners(new CommandManager(), new MessageReceived(), new MemberLeave(), new MessageDelete(), new MessageEdit(), new MemberJoin(), new BotReady())
+                .addEventListeners(new MessageReceived(), new MemberLeave(), new MessageDelete(), new MessageEdit(), new MemberJoin(), new BotReady())
                 .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
                 .setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)

@@ -1,5 +1,7 @@
-package de.ztiger.faibot.commands;
+package de.ztiger.faibot.interactions.leaderboard;
 
+import de.ztiger.faibot.interactions.ICommand;
+import de.ztiger.faibot.interactions.components.IButtonHandler;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
@@ -17,8 +19,9 @@ import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-public class Leaderboard implements ICommand {
+public class LeaderboardCmd implements ICommand, IButtonHandler {
 
+    private static final String PREFIX = "leaderboard";
     private static final String KEY = "leaderboard.";
 
     private static final Button next = Button.secondary("next", getLang(KEY + "next"));
@@ -32,6 +35,11 @@ public class Leaderboard implements ICommand {
     }
 
     @Override
+    public String getComponentPrefix() {
+        return PREFIX;
+    }
+
+    @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
         maxPage = (int) Math.ceil((double) getShardManager().getGuildById(config.get("GUILD")).getMembers().size() / 10);
 
@@ -39,15 +47,22 @@ public class Leaderboard implements ICommand {
     }
 
     @Override
-    public void executeButton(ButtonInteractionEvent event) {
-        String id = event.getButton().getCustomId();
+    public void handleButton(ButtonInteractionEvent event, String action, String payload) {
         int page = getPage(event);
 
-        if (id.equals("next")) {
-            event.editComponents(ActionRow.of((page == 1) ? back.asDisabled() : back, (page == maxPage - 1) ? next.asDisabled() : next)).setEmbeds(createLeaderboardEmbed(page)).queue();
-        } else if (id.equals("return")) {
-            event.editComponents(ActionRow.of((page - 1 == 1) ? back.asDisabled() : back, next)).setEmbeds(createLeaderboardEmbed(page - 2)).queue();
+        switch (action) {
+            case "next" -> handleNext(event, page);
+            case "return" -> handleReturn(event, page);
+            default -> logger.warn("Unknown leaderboard action: {}", action);
         }
+    }
+
+    private void handleNext(ButtonInteractionEvent event, int page) {
+        event.editComponents(ActionRow.of((page == 1) ? back.asDisabled() : back, (page == maxPage - 1) ? next.asDisabled() : next)).setEmbeds(createLeaderboardEmbed(page)).queue();
+    }
+
+    private void handleReturn(ButtonInteractionEvent event, int page) {
+        event.editComponents(ActionRow.of((page == 1) ? back.asDisabled() : back, (page == maxPage - 1) ? next.asDisabled() : next)).setEmbeds(createLeaderboardEmbed(page)).queue();
     }
 
     private static MessageEmbed createLeaderboardEmbed(int page) {

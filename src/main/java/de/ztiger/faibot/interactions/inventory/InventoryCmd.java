@@ -1,5 +1,6 @@
-package de.ztiger.faibot.commands;
+package de.ztiger.faibot.interactions.inventory;
 
+import de.ztiger.faibot.interactions.ICommand;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -14,7 +15,7 @@ import static de.ztiger.faibot.utils.Colors.colors;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-public class Inventory implements ICommand {
+public class InventoryCmd implements ICommand {
 
     @Override
     public CommandData getCommandData() {

@@ -1,15 +1,6 @@
-package de.ztiger.faibot.commands;
+package de.ztiger.faibot.interactions.stats;
 
-import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.utils.FileUpload;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -29,12 +20,10 @@ import java.util.Timer;
 
 import static de.ztiger.faibot.FaiBot.getter;
 import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.utils.Colors.colors;
-import static de.ztiger.faibot.utils.Lang.getLang;
 import static de.ztiger.faibot.utils.XP.calcXP;
 import static de.ztiger.faibot.utils.XP.getLastLevelsXP;
 
-public class Stats implements ICommand {
+public class StatsHelper {
 
     private final static int minX = -900;
     private final static int maxX = 0;
@@ -45,32 +34,13 @@ public class Stats implements ICommand {
     private static final Font normalC = new Font("Century Gothic", Font.BOLD, 50);
     private static final Font bigC = new Font("Century Gothic", Font.BOLD, 60);
 
-    private static final Button apply = Button.success("apply", getLang("stats.apply"));
-    private static final Button cancel = Button.danger("cancel", getLang("stats.cancel"));
 
-    @Override
-    public CommandData getCommandData() {
-        return Commands.slash("stats", "Erhalte Statistiken von dir oder anderen auf dem Server")
-                .addOptions(new OptionData(OptionType.USER, "user", "Erhalte Statistiken von einem bestimmten Benutzer").setRequired(false));
-    }
-
-    @Override
-    public void executeSlash(SlashCommandInteractionEvent event) {
-        Member member = event.getOption("user") != null ? event.getOption("user").getAsMember() : event.getMember();
-
-        event.replyFiles(FileUpload.fromData(createStatsImage(member, convertColor(getter.getCardColor(member.getId()))))).queue();
-    }
-
-    public static void sendPreview(StringSelectInteractionEvent event, String color) {
-        //event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setActionRow(apply, cancel).setEmbeds().queue();
-    }
-
-    private static File createStatsImage(Member member, Color color) {
+    public static File createStatsImage(Member member, Color color) {
         String userCardPath = "data/" + member.getId() + ".png";
 
         try {
-            BufferedImage userBar = colorImage(ImageIO.read(Stats.class.getResourceAsStream("/xpbar.png")), color);
-            BufferedImage overlay = ImageIO.read(Stats.class.getResourceAsStream("/overlay.png"));
+            BufferedImage userBar = colorImage(ImageIO.read(StatsCmd.class.getResourceAsStream("/xpbar.png")), color);
+            BufferedImage overlay = ImageIO.read(StatsCmd.class.getResourceAsStream("/overlay.png"));
 
             int level = getter.getLevel(member.getId());
             int xpForNextLevel = calcXP(level);
@@ -191,9 +161,5 @@ public class Stats implements ICommand {
             }
         }
         return image;
-    }
-
-    private static Color convertColor(String color) {
-        return Color.decode((color.contains("#") ? "#94c6f3" : colors.get(color).hex));
     }
 }

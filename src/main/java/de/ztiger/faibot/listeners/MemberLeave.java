@@ -13,7 +13,6 @@ import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 public class MemberLeave extends ListenerAdapter {
 
     @Override
-    @SuppressWarnings("ConstantConditions")
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         User user = event.getUser();
 

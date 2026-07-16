@@ -1,5 +1,6 @@
-package de.ztiger.faibot.commands;
+package de.ztiger.faibot.interactions.serverstats;
 
+import de.ztiger.faibot.interactions.ICommand;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -12,7 +13,7 @@ import static de.ztiger.faibot.listeners.BotReady.GUILD;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-public class ServerStats implements ICommand {
+public class ServerStatsCmd implements ICommand {
 
     private static final String KEY = "serverstats.";
 
