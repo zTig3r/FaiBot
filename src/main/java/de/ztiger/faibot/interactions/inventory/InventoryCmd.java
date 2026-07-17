@@ -1,6 +1,7 @@
 package de.ztiger.faibot.interactions.inventory;
 
 import de.ztiger.faibot.interactions.ICommand;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -24,9 +25,12 @@ public class InventoryCmd implements ICommand {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        Map<String, String> contents = new HashMap<>();
-        List<String> items = new ArrayList<>(getter.getInventory(event.getMember().getId()));
+        Member member = event.getMember();
+        if (member == null) return;
 
+        List<String> items = new ArrayList<>(getter.getInventory(member.getId()));
+
+        Map<String, String> contents = new HashMap<>();
         if (items.isEmpty()) contents.put("field", getLang("inventory.noItems"));
         else items.forEach(item -> {
             String itemT = colors.get(item).translation;

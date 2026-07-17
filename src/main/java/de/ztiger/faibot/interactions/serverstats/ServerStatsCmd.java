@@ -34,16 +34,16 @@ public class ServerStatsCmd implements ICommand {
         GUILD.createCategory(name).complete();
 
         int members = GUILD.getMemberCount();
-        int bots = GUILD.getMembersWithRoles(GUILD.getRolesByName("Bots", true).get(0)).size();
+        int bots = GUILD.getMembersWithRoles(GUILD.getRolesByName("Bots", true).getFirst()).size();
 
         GUILD.createVoiceChannel(format(KEY + "all", Map.of("members", members + "")))
-                .setParent(GUILD.getCategoriesByName(name, true).get(0))
+                .setParent(GUILD.getCategoriesByName(name, true).getFirst())
                 .queue();
         GUILD.createVoiceChannel(format(KEY + "members", Map.of("members", members - bots + "")))
-                .setParent(GUILD.getCategoriesByName(name, true).get(0))
+                .setParent(GUILD.getCategoriesByName(name, true).getFirst())
                 .queue();
         GUILD.createVoiceChannel(format(KEY + "bots", Map.of("bots", bots + "")))
-                .setParent(GUILD.getCategoriesByName(name, true).get(0))
+                .setParent(GUILD.getCategoriesByName(name, true).getFirst())
                 .queue();
 
         logger.info("Created Server Stats category");

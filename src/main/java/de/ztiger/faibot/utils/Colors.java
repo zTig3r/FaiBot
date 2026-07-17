@@ -1,6 +1,5 @@
 package de.ztiger.faibot.utils;
 
-import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.selections.SelectOption;
 import net.dv8tion.jda.api.entities.Role;
 import org.simpleyaml.configuration.file.FileConfiguration;
@@ -36,7 +35,7 @@ public class Colors {
                 int colorRGB = Color.decode(info.hex).getRGB();
 
                 if (roles.isEmpty()) GUILD.createRole().setName(info.translation).setColor(colorRGB).queue();
-                else if (roles.get(0).getColorRaw() != colorRGB) roles.get(0).getManager().setColor(colorRGB).queue();
+                else if (roles.getFirst().getColorRaw() != colorRGB) roles.getFirst().getManager().setColor(colorRGB).queue();
             });
         } catch (Exception e) {
             logger.error("Error while loading colors file: {}", e.getMessage());
@@ -60,6 +59,7 @@ public class Colors {
         return colorOptions.stream().filter(option -> (ID.equals("BUY") == items.contains(option.getValue()))).collect(Collectors.toList());
 
 
+
        /* return IntStream.range(0, (colorButtons.size() + 4) / 5)
                 .mapToObj(i -> ActionRow.of(colorButtons.subList(i * 5, Math.min(i * 5 + 5, colorButtons.size())).stream()
                         .map(button -> (ID.equals("BUY") == items.contains(button.getCustomId()))
@@ -70,5 +70,9 @@ public class Colors {
 
     public static List<String> getTranslations() {
         return colors.values().stream().map(colorInfo -> colorInfo.translation).collect(Collectors.toList());
+    }
+
+    public static Color convertColor(String color) {
+        return Color.decode((color.contains("#") ? "#94c6f3" : colors.get(color).hex));
     }
 }

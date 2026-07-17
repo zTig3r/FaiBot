@@ -29,6 +29,7 @@ public class CommandListener extends ListenerAdapter {
         register(new ShopCmd());
         register(new StatsCmd());
 
+        // --- Admin Commands ---
         register(new NixosCmd());
         register(new ServerStatsCmd());
         register(new TwitchCmd());

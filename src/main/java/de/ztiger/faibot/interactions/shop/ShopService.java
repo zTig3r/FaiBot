@@ -10,8 +10,8 @@ import static de.ztiger.faibot.utils.Colors.colors;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-public class ShopManager {
-    private static final Logger logger = LoggerFactory.getLogger(ShopManager.class);
+public class ShopService {
+    private static final Logger logger = LoggerFactory.getLogger(ShopService.class);
     private static final String KEY = "shop.";
 
     public static String processColorPurchase(Member member, String color, int price) {

@@ -18,6 +18,7 @@ import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
+import static de.ztiger.faibot.listeners.BotReady.GUILD;
 
 public class LeaderboardCmd implements ICommand, IButtonHandler {
 
@@ -41,7 +42,7 @@ public class LeaderboardCmd implements ICommand, IButtonHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        maxPage = (int) Math.ceil((double) getShardManager().getGuildById(config.get("GUILD")).getMembers().size() / 10);
+        maxPage = (int) Math.ceil((double) GUILD.getMembers().size() / 10);
 
         event.replyComponents(ActionRow.of(back.asDisabled(), (maxPage > 1) ? next : next.asDisabled())).setEmbeds(createLeaderboardEmbed(0)).setEphemeral(true).queue();
     }

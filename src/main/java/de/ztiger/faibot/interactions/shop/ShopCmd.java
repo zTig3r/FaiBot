@@ -61,7 +61,7 @@ public class ShopCmd implements ICommand, IButtonHandler {
     public void handleBuy(ButtonInteractionEvent event, String color) {
         int price = getColorPrice();
 
-        String outcomeMessage = ShopManager.processColorPurchase(event.getMember(), color, price);
+        String outcomeMessage = ShopService.processColorPurchase(event.getMember(), color, price);
 
         if (outcomeMessage.equals(getLang(KEY + "error"))) {
             event.reply(outcomeMessage).setEphemeral(true).queue();

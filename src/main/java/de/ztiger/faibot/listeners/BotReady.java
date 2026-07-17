@@ -1,6 +1,5 @@
 package de.ztiger.faibot.listeners;
 
-import de.ztiger.faibot.FaiBot;
 import de.ztiger.faibot.utils.YoutubeHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -41,16 +40,14 @@ public class BotReady extends ListenerAdapter {
         TimerTask hourlyTask = new TimerTask() {
             @Override
             public void run() {
-                Guild guild = FaiBot.getShardManager().getGuildById(config.get("GUILD"));
+                Category category = GUILD.getCategoriesByName(name, true).getFirst();
 
-                Category category = guild.getCategoriesByName(name, true).get(0);
-
-                if (category.getVoiceChannels().get(0).getName().contains(String.valueOf(guild.getMemberCount())))
+                if (category.getVoiceChannels().get(0).getName().contains(String.valueOf(GUILD.getMemberCount())))
                     return;
 
-                category.getVoiceChannels().get(0).getManager().setName("All Members: " + guild.getMemberCount()).queue();
-                category.getVoiceChannels().get(1).getManager().setName("Members: " + (guild.getMembers().size() - 1)).queue();
-                category.getVoiceChannels().get(2).getManager().setName("Bots: " + guild.getMembersWithRoles(guild.getRolesByName("Bots", true).get(0)).size()).queue();
+                category.getVoiceChannels().get(0).getManager().setName("All Members: " + GUILD.getMemberCount()).queue();
+                category.getVoiceChannels().get(1).getManager().setName("Members: " + (GUILD.getMembers().size() - 1)).queue();
+                category.getVoiceChannels().get(2).getManager().setName("Bots: " + GUILD.getMembersWithRoles(GUILD.getRolesByName("Bots", true).getFirst()).size()).queue();
 
                 logger.info("Updated Server Stats");
             }

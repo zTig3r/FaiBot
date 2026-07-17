@@ -2,6 +2,7 @@ package de.ztiger.faibot.interactions.color;
 
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
+import de.ztiger.faibot.interactions.components.ISelectHandler;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
@@ -11,20 +12,18 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.FileUpload;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.interactions.stats.StatsCmd.sendPreview;
-import static de.ztiger.faibot.listeners.BotReady.GUILD;
+import static de.ztiger.faibot.interactions.stats.StatsHelper.createStatsImage;
 import static de.ztiger.faibot.utils.Colors.*;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
-public class ColorCmd implements ICommand, IButtonHandler {
+public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
 
     private static final String PREFIX = "color";
     private static final String KEY = "color.";
@@ -34,6 +33,8 @@ public class ColorCmd implements ICommand, IButtonHandler {
     private static final String ACTION_MENU_STATS = "menu_stats";
     private static final String ACTION_RESET = "reset";
     private static final String ACTION_CONFIRM = "confirm";
+
+    private final ColorService colorService = new ColorService();
 
     @Override
     public CommandData getCommandData() {
@@ -53,65 +54,68 @@ public class ColorCmd implements ICommand, IButtonHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        Button nameColorBtn = Button.primary(buildId(ACTION_MENU_NAME, null), getLang(KEY + "name"));
-        Button statsColorBtn = Button.primary(buildId(ACTION_MENU_STATS, null), getLang(KEY + "stats"));
-
-        event.replyComponents(ActionRow.of(nameColorBtn, statsColorBtn))
-                .setEmbeds(getEmbed("changeColorMenu"))
-                .setEphemeral(true)
-                .queue();
+        event.replyComponents(getMainMenuButtons()).setEmbeds(getEmbed("changeColorMenu")).setEphemeral(true).queue();
     }
 
     @Override
     public void handleButton(ButtonInteractionEvent event, String action, String payload) {
         switch (action) {
-            case ACTION_BACK       -> sendMainColorMenu(event);
-            case ACTION_MENU_NAME  -> sendSubMenuEmbed(event, true);
+            case ACTION_BACK -> sendMainColorMenu(event);
+            case ACTION_MENU_NAME -> sendSubMenuEmbed(event, true);
             case ACTION_MENU_STATS -> sendSubMenuEmbed(event, false);
-            case ACTION_RESET      -> handleReset(event, payload);
-            case ACTION_CONFIRM    -> applyStatsColor(event, payload);
+            case ACTION_RESET -> handleReset(event, payload);
+            case ACTION_CONFIRM -> applyStatsColor(event, payload);
             default -> logger.warn("Unknown color button action: {}", action);
         }
     }
 
-    public static void sendMainColorMenu(ButtonInteractionEvent event) {
-        Button nameColorBtn = Button.primary(buildId(ACTION_MENU_NAME, null), getLang(KEY + "name"));
-        Button statsColorBtn = Button.primary(buildId(ACTION_MENU_STATS, null), getLang(KEY + "stats"));
 
-        event.editComponents(ActionRow.of(nameColorBtn, statsColorBtn))
-                .setEmbeds(getEmbed("changeColorMenu"))
-                .queue();
+    @Override
+    public void executeSelect(StringSelectInteractionEvent event) {
+        String[] parts = event.getComponentId().split(":");
+        if (parts.length < 3) return;
+
+        String subAction = parts[1];
+        String typeStr = parts[2];
+
+        if ("select".equalsIgnoreCase(subAction)) {
+            handleSelectMenu(event, subAction, typeStr);
+        }
     }
 
-    public static void sendSubMenuEmbed(ButtonInteractionEvent event, boolean isName) {
+    private void sendMainColorMenu(ButtonInteractionEvent event) {
+        event.editComponents(getMainMenuButtons()).setEmbeds(getEmbed("changeColorMenu")).queue();
+    }
+
+    public void sendSubMenuEmbed(ButtonInteractionEvent event, boolean isName) {
         String typeStr = isName ? "NAME" : "STATS";
-        List<ActionRow> rows = new ArrayList<>();
 
         Button reset = Button.danger(buildId(ACTION_RESET, typeStr), getLang(KEY + "reset"));
         Button back = Button.secondary(buildId(ACTION_BACK, null), getLang(KEY + "back"));
 
         String selectMenuId = PREFIX + ":select:" + typeStr;
-
-        rows.add(ActionRow.of(StringSelectMenu.create(selectMenuId)
+        StringSelectMenu menu = StringSelectMenu.create(selectMenuId)
                 .addOptions(getColorOptions(typeStr, getter.getInventory(event.getMember().getId())))
-                .build()));
-        rows.add(ActionRow.of(reset, back));
+                .build();
 
-        String displayType = isName ? getLang("color.type.name") : getLang("color.type.stats");
+        String displayType = getLang(isName ? "color.type.name" : "color.type.stats");
+
         event.editMessageEmbeds(getEmbed("changeColorSelect", Map.of("type", displayType)))
-                .setComponents(rows)
+                .setComponents(ActionRow.of(menu), ActionRow.of(reset, back))
                 .setAttachments()
                 .queue();
     }
 
-    public static void handleReset(ButtonInteractionEvent event, String type) {
+    public void handleReset(ButtonInteractionEvent event, String type) {
         Member member = event.getMember();
         boolean isName = "NAME".equalsIgnoreCase(type);
 
+        if (member == null) return;
+
         if (isName) {
-            resetNameColor(member);
+            colorService.removeCurrentNameColors(member);
         } else {
-            setter.setCardColor(member.getId(), "#94c6f3");
+            colorService.resetStatsColor(member.getId());
         }
 
         logger.info("Resetting {} color for {}", type.toLowerCase(), member.getEffectiveName());
@@ -120,65 +124,47 @@ public class ColorCmd implements ICommand, IButtonHandler {
         String displayType = isName ? getLang(key + "name") : getLang(key + "stats");
 
         event.editMessage(format("color.successReset", Map.of("type", displayType)))
-                .setEmbeds()
-                .setAttachments()
-                .setComponents()
-                .queue();
+                .setEmbeds().setAttachments().setComponents().queue();
     }
 
-    public static void handleSelectMenu(StringSelectInteractionEvent event, String subAction, String typeStr) {
+    public void handleSelectMenu(StringSelectInteractionEvent event, String subAction, String typeStr) {
         boolean isName = "NAME".equalsIgnoreCase(typeStr);
-        String rawValue = event.getValues().get(0);
+        String rawValue = event.getValues().getFirst();
         String color = rawValue.replace(typeStr, "");
 
         if (isName) {
-            setNameColor(event, color);
-        } else {
-            sendPreview(event, color);
+            colorService.applyNameColor(event.getMember(), color);
 
-            // Note: Inside your StatsCmd.sendPreview method, when you attach the
-            // "Confirm" button, make sure its custom ID is built using:
-            // ColorCmd.buildId("confirm", color) -> outputs "color:confirm:colorValue"
+            String newRole = colors.get(color).translation;
+            logger.info("Setting name color for {} to {}", event.getUser().getName(), color);
+
+            event.editMessage(format("color.success", Map.of("type", getLang("color.type.name"), "color", newRole)))
+                    .setEmbeds().setComponents().queue();
+        } else {
+            Button confirm = Button.success(buildId(ACTION_CONFIRM, color), getLang("stats.apply"));
+            Button back = Button.danger(buildId(ACTION_MENU_STATS, null), getLang("stats.cancel"));
+
+            event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setComponents(ActionRow.of(confirm, back)).setEmbeds().queue();
         }
     }
 
-    public static void applyStatsColor(ButtonInteractionEvent event, String color) {
+    public void applyStatsColor(ButtonInteractionEvent event, String color) {
         Member member = event.getMember();
-        setter.setCardColor(member.getId(), color);
+
+        colorService.updateStatsColor(member.getId(), color);
 
         logger.info("Setting stats color for {} to {}", member.getEffectiveName(), color);
 
         String translatedColor = colors.containsKey(color) ? colors.get(color).translation : color;
 
-        event.editMessage(format("color.success", Map.of(
-                        "type", getLang("color.type.stats"),
-                        "color", translatedColor
-                )))
-                .setAttachments()
-                .setComponents()
-                .queue();
+        event.editMessage(format("color.success", Map.of("type", getLang("color.type.stats"), "color", translatedColor)))
+                .setAttachments().setComponents().queue();
     }
 
-    private static void setNameColor(StringSelectInteractionEvent event, String color) {
-        Member member = event.getMember();
-        String newRole = colors.get(color).translation;
-
-        resetNameColor(member);
-
-        event.getGuild().addRoleToMember(member, event.getGuild().getRolesByName(newRole, true).get(0)).queue();
-
-        logger.info("Setting name color for {} to {}", member.getUser().getName(), color);
-        event.editMessage(format("color.success", Map.of("type", getLang("color.type.name"), "color", newRole)))
-                .setEmbeds()
-                .setComponents()
-                .queue();
-    }
-
-    private static void resetNameColor(Member member) {
-        List<String> translations = getTranslations();
-
-        member.getRoles().stream()
-                .filter(role -> translations.contains(role.getName()))
-                .forEach(role -> GUILD.removeRoleFromMember(member, role).queue());
+    private ActionRow getMainMenuButtons() {
+        return ActionRow.of(
+                Button.primary(buildId(ACTION_MENU_NAME, null), getLang(KEY + "name")),
+                Button.primary(buildId(ACTION_MENU_STATS, null), getLang(KEY + "stats"))
+        );
     }
 }
