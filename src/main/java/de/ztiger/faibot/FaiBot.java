@@ -1,12 +1,10 @@
 package de.ztiger.faibot;
 
+import de.ztiger.faibot.config.ConfigManager;
 import de.ztiger.faibot.db.*;
 import de.ztiger.faibot.listeners.*;
 import de.ztiger.faibot.utils.TwitchHandler;
-import de.ztiger.faibot.utils.*;
 import io.github.cdimascio.dotenv.Dotenv;
-import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -28,10 +26,8 @@ import static spark.Spark.port;
 public class FaiBot {
 
     public static final Logger logger = LoggerFactory.getLogger(FaiBot.class);
-    public static Dotenv config;
+    public static Dotenv env;
     private static ShardManager shardManager;
-    public static TextChannel logChannel, recommendationsChannel, welcomeChannel, botChannel, reactionChannel;
-    public static NewsChannel twitchChannel, youtubeChannel;
     public static MariaDB mariaDB;
     public static SQLGetter getter;
     public static SQLSetter setter;
@@ -39,6 +35,7 @@ public class FaiBot {
     public static ConfigManager cfgm;
 
     public static void main(String[] args) {
+        env = Dotenv.configure().load();
         cfgm = new ConfigManager();
 
         try {
@@ -80,8 +77,7 @@ public class FaiBot {
     }
 
     private FaiBot() throws LoginException {
-        config = Dotenv.configure().load();
-        shardManager = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"))
+        shardManager = DefaultShardManagerBuilder.createDefault(env.get("TOKEN"))
                 .setAutoReconnect(true)
                 .addEventListeners(new MessageReceived(), new MemberLeave(), new MessageDelete(), new MessageEdit(), new MemberJoin(), new BotReady())
                 .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)

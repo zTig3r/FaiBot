@@ -1,5 +1,6 @@
 package de.ztiger.faibot.utils;
 
+import de.ztiger.faibot.config.BotChannel;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.awt.*;
@@ -8,7 +9,6 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.FaiBot.botChannel;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
@@ -36,7 +36,7 @@ public class XP {
             Map<String, String> contents = Map.of("user", member.getAsMention(), "level", String.valueOf(level), "author_name", getLang("xp.levelUp"), "author_icon", member.getUser().getAvatarUrl());
 
             logger.info("{} reached level {}!", member.getEffectiveName(), level);
-            botChannel.sendMessageEmbeds(getEmbed("levelUp", contents, Color.GREEN)).queue();
+            ChannelProvider.sendEmbed(BotChannel.BOT, getEmbed("levelUp", contents, Color.GREEN));
         }
     }
 

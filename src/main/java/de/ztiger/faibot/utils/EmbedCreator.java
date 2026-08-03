@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static de.ztiger.faibot.FaiBot.cfgm;
+import static de.ztiger.faibot.config.ConfigHelper.getEmbedsConfig;
 import static de.ztiger.faibot.utils.Colors.nixo;
 
 public class EmbedCreator {
@@ -33,7 +33,7 @@ public class EmbedCreator {
     }
 
     private static MessageEmbed createEmbed(String type, Map<String, String> replacements, Color color) {
-        LinkedList<String> values = new LinkedList<>(cfgm.getConfig("embeds").getStringList(type.split("_")[0]));
+        LinkedList<String> values = new LinkedList<>(getEmbedsConfig().getStringList(type.split("_")[0]));
         EmbedBuilder builder = new EmbedBuilder();
 
         if (replacements != null) {
@@ -47,7 +47,7 @@ public class EmbedCreator {
                 builder.setAuthor(replacements.get("author_name"), null, replacements.get("author_icon"));
         }
 
-        if (!values.get(0).isEmpty()) builder.setTitle(values.get(0));
+        if (!values.getFirst().isEmpty()) builder.setTitle(values.getFirst());
         builder.setColor(color);
 
         for (String content : values.subList(1, values.size())) {

@@ -10,9 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static de.ztiger.faibot.FaiBot.cfgm;
 import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.listeners.BotReady.GUILD;
+import static de.ztiger.faibot.config.ConfigHelper.getColorsConfig;
 
 public class Colors {
 
@@ -24,19 +23,21 @@ public class Colors {
 
     public static void setupColors() {
         try {
-            FileConfiguration colorFile = cfgm.getConfig("colors");
+            FileConfiguration colorFile = getColorsConfig();
 
             colorFile.getKeys(false).forEach(color -> colors.put(color, new ColorInfo(colorFile.getString(color + ".translation"), colorFile.getString(color + ".emoji"), colorFile.getString(color + ".hex"))));
 
             colorOptions = colors.entrySet().stream().map(entry -> SelectOption.of(entry.getValue().emoji + " " + entry.getValue().translation, entry.getKey())).collect(Collectors.toList());
 
-            colors.values().forEach(info -> {
-                List<Role> roles = GUILD.getRolesByName(info.translation, true);
+            GuildProvider.getMainGuild().ifPresent(guild -> colors.values().forEach(info -> {
+                List<Role> roles = guild.getRolesByName(info.translation, true);
                 int colorRGB = Color.decode(info.hex).getRGB();
 
-                if (roles.isEmpty()) GUILD.createRole().setName(info.translation).setColor(colorRGB).queue();
-                else if (roles.getFirst().getColorRaw() != colorRGB) roles.getFirst().getManager().setColor(colorRGB).queue();
-            });
+                if (roles.isEmpty()) guild.createRole().setName(info.translation).setColor(colorRGB).queue();
+                else if (roles.getFirst().getColorRaw() != colorRGB)
+                    roles.getFirst().getManager().setColor(colorRGB).queue();
+            }));
+
         } catch (Exception e) {
             logger.error("Error while loading colors file: {}", e.getMessage());
         }

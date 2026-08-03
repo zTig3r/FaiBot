@@ -1,5 +1,7 @@
 package de.ztiger.faibot.listeners;
 
+import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.utils.ChannelProvider;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -21,16 +23,16 @@ public class MessageReceived extends ListenerAdapter {
         Message message = event.getMessage();
         Channel channel = event.getChannel();
 
-        if (channel.equals(logChannel)) return;
+        if (ChannelProvider.isChannel(channel, BotChannel.LOG)) return;
 
         add(message);
 
-        if ((channel.equals(recommendationsChannel) && message.getContentRaw().contains("V:") || channel.equals(reactionChannel))) {
+        if (ChannelProvider.isChannel(channel, BotChannel.RECOMMENDATIONS) && message.getContentRaw().contains("V:") || ChannelProvider.isChannel(channel, BotChannel.REACTION)) {
             message.addReaction(Emoji.fromUnicode("✅")).queue();
             message.addReaction(Emoji.fromUnicode("❌")).queue();
         }
 
-        if (channel.equals(botChannel)) return;
+        if (ChannelProvider.isChannel(channel, BotChannel.BOT)) return;
 
         String id = event.getMember().getId();
 

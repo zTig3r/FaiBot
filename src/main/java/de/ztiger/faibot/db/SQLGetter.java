@@ -66,7 +66,7 @@ public class SQLGetter {
             ps.setInt(2, 10);
             ResultSet rs = ps.executeQuery();
             while (rs.next())
-                members.add(getShardManager().getGuildById(config.get("GUILD")).getMemberById(getMemberById(rs.getInt("userid"))));
+                members.add(getShardManager().getGuildById(env.get("GUILD")).getMemberById(getMemberById(rs.getInt("userid"))));
 
         } catch (Exception e) {
             logger.error(e.getMessage());

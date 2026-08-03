@@ -1,11 +1,11 @@
 package de.ztiger.faibot.interactions.color;
 
+import de.ztiger.faibot.utils.GuildProvider;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.util.List;
 
 import static de.ztiger.faibot.FaiBot.setter;
-import static de.ztiger.faibot.listeners.BotReady.GUILD;
 import static de.ztiger.faibot.utils.Colors.colors;
 import static de.ztiger.faibot.utils.Colors.getTranslations;
 
@@ -22,9 +22,10 @@ public class ColorService {
 
     public void removeCurrentNameColors(Member member) {
         List<String> translations = getTranslations();
-        member.getRoles().stream()
+
+        GuildProvider.getMainGuild().ifPresent(guild -> member.getRoles().stream()
                 .filter(role -> translations.contains(role.getName()))
-                .forEach(role -> GUILD.removeRoleFromMember(member, role).queue());
+                .forEach(role -> guild.removeRoleFromMember(member, role).queue()));
     }
 
     public void resetStatsColor(String memberId) {

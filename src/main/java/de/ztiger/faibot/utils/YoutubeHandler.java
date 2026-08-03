@@ -1,5 +1,6 @@
 package de.ztiger.faibot.utils;
 
+import de.ztiger.faibot.config.BotChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,9 +14,10 @@ import java.time.Duration;
 
 import static de.ztiger.faibot.FaiBot.*;
 
+// TODO: Put strings into configs
 public class YoutubeHandler {
     public static void checkVideo() {
-        JSONObject json = readFromUrl("https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=UU2YqG8Bc1RAncad0AFKuhtA&key=" + config.get("YOUTUBE_KEY") + "&maxResults=1&order=date&type=video");
+        JSONObject json = readFromUrl("https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=UU2YqG8Bc1RAncad0AFKuhtA&key=" + env.get("YOUTUBE_KEY") + "&maxResults=1&order=date&type=video");
         if(json == null) return;
 
         try {
@@ -25,7 +27,7 @@ public class YoutubeHandler {
             if (lastVideo == null || lastVideo.equals(videoId)) return;
             setter.setLastVideo(videoId);
 
-            JSONObject videoInfo = readFromUrl("https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&naxResults=1&id=" + videoId + "&key=" + config.get("YOUTUBE_KEY"));
+            JSONObject videoInfo = readFromUrl("https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&naxResults=1&id=" + videoId + "&key=" + env.get("YOUTUBE_KEY"));
             if (videoInfo == null) return;
 
             String duration = videoInfo.getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails").getString("duration");
@@ -60,7 +62,7 @@ public class YoutubeHandler {
     }
 
     private static void sendVideoEmbed(String videoId) {
-        youtubeChannel.sendMessage("@everyone Neues Video von **Izi Fit:** \n\rhttps://youtu.be/" + videoId).queue();
+        ChannelProvider.sendMessage(BotChannel.YOUTUBE, "@everyone Neues Video von **Izi Fit:** \n\rhttps://youtu.be/" + videoId);
         logger.info("New video posted: {}", videoId);
     }
 

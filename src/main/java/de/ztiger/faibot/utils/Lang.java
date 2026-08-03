@@ -1,19 +1,20 @@
 package de.ztiger.faibot.utils;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static de.ztiger.faibot.FaiBot.cfgm;
 import static de.ztiger.faibot.FaiBot.logger;
+import static de.ztiger.faibot.config.ConfigHelper.getLanguageConfig;
 
 public class Lang {
 
-    private static final HashMap<String, String> cache = new HashMap<>();
+    private static final Map<String, String> cache = new ConcurrentHashMap<>();
 
     public static String getLang(String key) {
         return cache.computeIfAbsent(key, k -> {
             try {
-                return cfgm.getConfig(cfgm.getConfig("config").getString("language")).getString(k);
+                String value = getLanguageConfig().getString(k);
+                return (value != null) ? value : k;
             } catch (Exception e) {
                 logger.error("Error while loading language file: {}", e.getMessage());
                 return k;
@@ -29,5 +30,10 @@ public class Lang {
         }
 
         return lang;
+    }
+
+    // TODO: Implement in some way for config reloading
+    public static void clearCache() {
+        cache.clear();
     }
 }

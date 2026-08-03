@@ -8,9 +8,9 @@ import static de.ztiger.faibot.FaiBot.logger;
 
 public class MariaDB {
 
-    private final String url = FaiBot.config.get("DB_URL");
-    private final String username = FaiBot.config.get("DB_USER");
-    private final String password = FaiBot.config.get("DB_PASSWORD");
+    private final String url = FaiBot.env.get("DB_URL");
+    private final String username = FaiBot.env.get("DB_USER");
+    private final String password = FaiBot.env.get("DB_PASSWORD");
 
     private Connection connection;
 

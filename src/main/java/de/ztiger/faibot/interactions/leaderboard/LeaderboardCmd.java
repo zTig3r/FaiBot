@@ -2,6 +2,7 @@ package de.ztiger.faibot.interactions.leaderboard;
 
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
+import de.ztiger.faibot.utils.GuildProvider;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
@@ -18,7 +19,6 @@ import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.format;
 import static de.ztiger.faibot.utils.Lang.getLang;
-import static de.ztiger.faibot.listeners.BotReady.GUILD;
 
 public class LeaderboardCmd implements ICommand, IButtonHandler {
 
@@ -42,7 +42,7 @@ public class LeaderboardCmd implements ICommand, IButtonHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        maxPage = (int) Math.ceil((double) GUILD.getMembers().size() / 10);
+        GuildProvider.getMainGuild().ifPresent(guild -> maxPage = (int) Math.ceil((double) guild.getMembers().size() / 10));
 
         event.replyComponents(ActionRow.of(back.asDisabled(), (maxPage > 1) ? next : next.asDisabled())).setEmbeds(createLeaderboardEmbed(0)).setEphemeral(true).queue();
     }
@@ -84,6 +84,6 @@ public class LeaderboardCmd implements ICommand, IButtonHandler {
     }
 
     private static int getPage(ButtonInteractionEvent event) {
-        return Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText().replaceAll("[^0-9]", ""));
+        return Integer.parseInt(event.getMessage().getEmbeds().getFirst().getFooter().getText().replaceAll("[^0-9]", ""));
     }
 }

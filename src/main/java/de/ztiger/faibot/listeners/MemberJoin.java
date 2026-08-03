@@ -1,5 +1,7 @@
 package de.ztiger.faibot.listeners;
 
+import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.utils.ChannelProvider;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -30,7 +32,7 @@ public class MemberJoin extends ListenerAdapter {
 
         if (!getter.userExists(user.getId())) setter.addUser(event.getUser().getId());
 
-        welcomeChannel.sendMessage(format("welcomeMessage", Map.of("user", user.getAsMention()))).queue();
-        logChannel.sendMessageEmbeds(getEmbed("memberJoin", contents, Color.GREEN)).queue();
+        ChannelProvider.sendMessage(BotChannel.WELCOME, format("welcomeMessage", Map.of("user", user.getAsMention())));
+        ChannelProvider.sendEmbed(BotChannel.LOG, getEmbed("memberJoin", contents, Color.GREEN));
     }
 }

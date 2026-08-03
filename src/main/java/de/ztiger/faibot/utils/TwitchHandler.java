@@ -6,6 +6,7 @@ import com.github.twitch4j.events.ChannelChangeGameEvent;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.helix.domain.*;
+import de.ztiger.faibot.config.BotChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -17,10 +18,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static de.ztiger.faibot.FaiBot.*;
+import static de.ztiger.faibot.config.ConfigHelper.getAppConfig;
+
+// TODO: Put all the strings in configs
 
 public class TwitchHandler {
 
-    private static final String CHANNEL = cfgm.getConfig("config").getString("channel");
+    private static final String CHANNEL = getAppConfig().getString("twitch-channel");
     private static String messageID, offlineImage, profileImage;
     private static TwitchClient client;
 
@@ -28,8 +32,8 @@ public class TwitchHandler {
 
     public TwitchHandler() {
         client = TwitchClientBuilder.builder()
-                .withClientId(config.get("CLIENT_ID"))
-                .withClientSecret(config.get("CLIENT_SECRET"))
+                .withClientId(env.get("CLIENT_ID"))
+                .withClientSecret(env.get("CLIENT_SECRET"))
                 .withEnableHelix(true)
                 .build();
 
@@ -69,7 +73,7 @@ public class TwitchHandler {
     }
 
     private static void updateEmbed() {
-        twitchChannel.editMessageEmbedsById(messageID).setEmbeds(createEmbed()).queue();
+        ChannelProvider.editMessageEmbed(BotChannel.TWITCH, messageID, createEmbed());
     }
 
     private static void streamStart() {
@@ -83,7 +87,8 @@ public class TwitchHandler {
             }
         }, 300000, 1800000);
 
-        twitchChannel.sendMessage("Hey @everyone, Fienix und Izio sind nun Live. Schaut gerne mal vorbei ^^").setEmbeds(createEmbed()).queue((message) -> messageID = message.getId());
+        ChannelProvider.sendMessageWithEmbed(BotChannel.TWITCH, "Hey @everyone, Fienix und Izio sind nun Live. Schaut gerne mal vorbei ^^", createEmbed(),
+                id -> messageID = id);
     }
 
     private static void streamEnd() {
@@ -105,7 +110,7 @@ public class TwitchHandler {
                 .setColor(Color.decode("#6441a4"))
                 .build();
 
-        twitchChannel.editMessageById(messageID, " ").setEmbeds(embed).queue();
+        ChannelProvider.editMessageWithEmbed(BotChannel.TWITCH, messageID, " ", embed);
         timer.cancel();
         timer = null;
     }

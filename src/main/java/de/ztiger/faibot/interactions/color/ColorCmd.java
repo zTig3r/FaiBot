@@ -46,12 +46,6 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
         return PREFIX;
     }
 
-    private static String buildId(String action, String payload) {
-        return payload == null || payload.isEmpty()
-                ? PREFIX + ":" + action
-                : PREFIX + ":" + action + ":" + payload;
-    }
-
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
         event.replyComponents(getMainMenuButtons()).setEmbeds(getEmbed("changeColorMenu")).setEphemeral(true).queue();
@@ -91,7 +85,7 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
         String typeStr = isName ? "NAME" : "STATS";
 
         Button reset = Button.danger(buildId(ACTION_RESET, typeStr), getLang(KEY + "reset"));
-        Button back = Button.secondary(buildId(ACTION_BACK, null), getLang(KEY + "back"));
+        Button back = Button.secondary(buildId(ACTION_BACK), getLang(KEY + "back"));
 
         String selectMenuId = PREFIX + ":select:" + typeStr;
         StringSelectMenu menu = StringSelectMenu.create(selectMenuId)
@@ -142,7 +136,7 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
                     .setEmbeds().setComponents().queue();
         } else {
             Button confirm = Button.success(buildId(ACTION_CONFIRM, color), getLang("stats.apply"));
-            Button back = Button.danger(buildId(ACTION_MENU_STATS, null), getLang("stats.cancel"));
+            Button back = Button.danger(buildId(ACTION_MENU_STATS), getLang("stats.cancel"));
 
             event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setComponents(ActionRow.of(confirm, back)).setEmbeds().queue();
         }
@@ -163,8 +157,8 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
 
     private ActionRow getMainMenuButtons() {
         return ActionRow.of(
-                Button.primary(buildId(ACTION_MENU_NAME, null), getLang(KEY + "name")),
-                Button.primary(buildId(ACTION_MENU_STATS, null), getLang(KEY + "stats"))
+                Button.primary(buildId(ACTION_MENU_NAME), getLang(KEY + "name")),
+                Button.primary(buildId(ACTION_MENU_STATS), getLang(KEY + "stats"))
         );
     }
 }

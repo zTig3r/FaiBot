@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.ztiger.faibot.FaiBot.cfgm;
 import static de.ztiger.faibot.FaiBot.logger;
+import static de.ztiger.faibot.config.ConfigHelper.getColorPrice;
 import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 import static de.ztiger.faibot.utils.Lang.getLang;
 
@@ -36,12 +36,6 @@ public class ShopCmd implements ICommand, IButtonHandler {
     @Override
     public String getComponentPrefix() {
         return PREFIX;
-    }
-
-    private static String buildId(String action, String payload) {
-        return payload == null || payload.isEmpty()
-                ? PREFIX + ":" + action
-                : PREFIX + ":" + action + ":" + payload;
     }
 
     @Override
@@ -70,7 +64,7 @@ public class ShopCmd implements ICommand, IButtonHandler {
         }
     }
 
-    public static void handleShopSelection(StringSelectInteractionEvent event) {
+    public void handleShopSelection(StringSelectInteractionEvent event) {
         String selectedColor = event.getValues().get(0);
 
         Button confirmBtn = Button.success(buildId(ACTION_CONFIRM, selectedColor), getLang("shop.confirm"));
@@ -90,9 +84,5 @@ public class ShopCmd implements ICommand, IButtonHandler {
 
     private static MessageEmbed getShopEmbed() {
         return getEmbed("shop", Map.of("price", getColorPrice() + ""));
-    }
-
-    private static int getColorPrice() {
-        return cfgm.getConfig("config").getInt("colorPrice");
     }
 }
