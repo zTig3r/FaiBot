@@ -3,19 +3,20 @@ package de.ztiger.faibot.listeners;
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.General;
 import de.ztiger.faibot.localization.keys.Log;
-import de.ztiger.faibot.utils.BotEmbed;
 import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.utils.Localization;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.section.Section;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.thumbnail.Thumbnail;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-
-import static de.ztiger.faibot.FaiBot.*;
 
 public class MemberJoin extends ListenerAdapter {
 
@@ -27,20 +28,22 @@ public class MemberJoin extends ListenerAdapter {
         Period period = Period.between(LocalDate.parse(age, DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now());
         String ageString = Localization.formatPeriod(period);
 
-        if (!getter.userExists(user.getId())) setter.addUser(event.getUser().getId());
-
         ChannelProvider.sendMessage(BotChannel.WELCOME, Localization.format(General.WELCOME_MESSAGE, "user", user.getAsMention()));
-        ChannelProvider.sendEmbed(BotChannel.LOG, memberJoin(user.getAsMention(), user.getName(), ageString, user.getId(), user.getAvatarUrl()));
+
+        ChannelProvider.getChannel(BotChannel.LOG).ifPresent(channel -> {
+            channel.sendMessageComponents(memberJoin(user.getAsMention(), user.getName(), ageString, user.getId(), user.getEffectiveAvatarUrl())).useComponentsV2().queue();
+        });
     }
 
-    private static MessageEmbed memberJoin(String tag, String name, String age, String userId, String avatarUrl) {
-        return BotEmbed.success()
-                .title(Localization.get(Log.MemberJoin.TITLE))
-                .normalField(tag + " " + name)
-                .field(Localization.get(Log.MemberJoin.AGE), age)
-                .footer(Localization.format(Log.MemberJoin.FOOTER, "userId", userId))
-                .withTimestamp()
-                .thumbnail(avatarUrl)
-                .build();
+    private Container memberJoin(String tag, String name, String age, String userId, String avatarUrl) {
+        return Container.of(
+                Section.of(
+                        Thumbnail.fromUrl(avatarUrl),
+                        TextDisplay.of(Localization.get(Log.Member.Join.TITLE)),
+                        TextDisplay.of(tag + " " + name),
+                        TextDisplay.of(Localization.format(Log.Member.Join.AGE, "age", age))
+                ),
+                TextDisplay.of(Localization.format(Log.Member.FOOTER, "userId", userId))
+        ).withAccentColor(Color.GREEN);
     }
 }

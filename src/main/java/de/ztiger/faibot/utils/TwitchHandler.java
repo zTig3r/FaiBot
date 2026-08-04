@@ -18,15 +18,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.config.ConfigHelper.getAppConfig;
 import static de.ztiger.faibot.config.ConfigHelper.getColor;
 import static de.ztiger.faibot.utils.Localization.get;
+import static de.ztiger.faibot.FaiBot.cfgm;
+
 
 // TODO: Put all the strings in configs
 
 public class TwitchHandler {
 
-    private static final String CHANNEL = getAppConfig().getString("twitch-channel");
+    private static final String CHANNEL = cfgm.getConfig().getString("twitch-channel");
     private static String messageID, offlineImage, profileImage;
     private static TwitchClient client;
 

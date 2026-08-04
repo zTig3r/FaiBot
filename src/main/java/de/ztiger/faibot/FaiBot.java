@@ -18,7 +18,6 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.sql.SQLException;
 
-import static de.ztiger.faibot.utils.Colors.setupColors;
 import static de.ztiger.faibot.db.TableCreator.createTables;
 import static spark.Spark.get;
 import static spark.Spark.port;
@@ -67,8 +66,6 @@ public class FaiBot {
         }
 
         new TwitchHandler();
-
-        setupColors();
 
         // Health endpoint
         port(8090); // the port to expose

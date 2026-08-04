@@ -1,12 +1,8 @@
 package de.ztiger.faibot.listeners;
 
-import de.ztiger.faibot.interactions.color.ColorCmd;
-import de.ztiger.faibot.interactions.components.IButtonHandler;
-import de.ztiger.faibot.interactions.components.ISelectHandler;
-import de.ztiger.faibot.interactions.leaderboard.LeaderboardCmd;
-import de.ztiger.faibot.interactions.shop.ShopCmd;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import de.ztiger.faibot.interactions.components.IModalHandler;
+import de.ztiger.faibot.interactions.idea.IdeaCmd;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.HashMap;
@@ -14,60 +10,21 @@ import java.util.Map;
 
 public class ComponentListener extends ListenerAdapter {
 
-    private final Map<String, IButtonHandler> buttonHandlers = new HashMap<>();
-    private final Map<String, ISelectHandler> selectHandlers = new HashMap<>();
+    private final Map<String, IModalHandler> modalHandlers = new HashMap<>();
 
     public ComponentListener() {
-        registerButtonHandler(new ColorCmd());
-        registerButtonHandler(new LeaderboardCmd());
-        registerButtonHandler(new ShopCmd());
-
-        registerSelectHandler(new ColorCmd());
+        registerModalHandler(new IdeaCmd());
     }
 
-    public void registerButtonHandler(IButtonHandler handler) {
-        buttonHandlers.put(handler.getComponentPrefix().toLowerCase(), handler);
-    }
-
-    public void registerSelectHandler(ISelectHandler handler) {
-        selectHandlers.put(handler.getComponentPrefix().toLowerCase(), handler);
+    public void registerModalHandler(IModalHandler handler) {
+        modalHandlers.put(handler.getModalId().toLowerCase(), handler);
     }
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
-        String customId = event.getButton().getCustomId();
-        if (customId == null) return;
-
-        String[] parts = customId.split(":");
-        if (parts.length < 2) return;
-
-        String prefix = parts[0].toLowerCase();
-        String action = parts[1];
-        String payload = "";
-
-        if (parts.length == 3) payload = parts[2];
-
-        IButtonHandler handler = buttonHandlers.get(prefix);
+    public void onModalInteraction(ModalInteractionEvent event) {
+        IModalHandler handler = modalHandlers.get(event.getModalId().toLowerCase());
         if (handler != null) {
-            handler.handleButton(event, action, payload);
-        }
-    }
-
-    @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        String id = event.getComponentId();
-
-        if (id.contains(":")) {
-            String prefix = id.split(":")[0];
-            ISelectHandler cmd = selectHandlers.get(prefix);
-            if (cmd != null) {
-                cmd.executeSelect(event);
-                return;
-            }
-        }
-
-        for (ISelectHandler cmd : selectHandlers.values()) {
-            cmd.executeSelect(event);
+            handler.modalInteraction(event);
         }
     }
 }

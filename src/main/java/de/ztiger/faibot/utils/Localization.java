@@ -47,7 +47,7 @@ public class Localization {
         return message;
     }
 
-    public static String formatPeriod(Period period) {
+    public static String formatPeriod( Period period) {
         List<String> parts = new ArrayList<>();
         addPart(parts, period.getYears(), Time.YEAR, Time.YEARS);
         addPart(parts, period.getMonths(), Time.MONTH, Time.MONTHS);

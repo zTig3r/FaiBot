@@ -5,8 +5,10 @@ import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.AppenderBase;
 import de.ztiger.faibot.config.BotChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,26 +29,25 @@ public class ErrorNotify extends AppenderBase<ILoggingEvent> {
 
         errors.add(message);
 
-        String stackTrace = null;
+        String stackTrace;
         IThrowableProxy throwableProxy = eventObject.getThrowableProxy();
         if (throwableProxy != null) {
             stackTrace = ThrowableProxyUtil.asString(throwableProxy);
+        } else {
+            stackTrace = null;
         }
 
-        ChannelProvider.sendEmbed(BotChannel.LOG, errorEmbed(message, stackTrace));
+
+        ChannelProvider.getChannel(BotChannel.LOG).ifPresent(channel -> {
+            channel.sendMessageComponents(error(message, stackTrace)).useComponentsV2().queue();
+        });
     }
 
-    private static MessageEmbed errorEmbed(String message, String stackTrace) {
-        BotEmbed embed = BotEmbed.error()
-                .normalField(message)
-                .withTimestamp();
+    private Container error(String message, String stackTrace) {
+        return Container.of(
+                TextDisplay.of(message),
+                TextDisplay.of(stackTrace != null ? "```java\n" + stackTrace.substring(0, 350) + "\n... [truncated]```" : "No stack trace available")
+        ).withAccentColor(Color.RED);
 
-        if (stackTrace != null && !stackTrace.isBlank()) {
-            stackTrace = stackTrace.substring(0, 350) + "\n... [truncated]";
-
-            embed.field("Stack Trace", "```java\n" + stackTrace + "\n```", false);
-        }
-
-        return embed.build();
     }
 }

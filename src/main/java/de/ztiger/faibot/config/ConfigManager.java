@@ -13,14 +13,14 @@ import static de.ztiger.faibot.FaiBot.logger;
 
 public class ConfigManager {
 
-    private final Map<ConfigType, FileConfiguration> configs = new EnumMap<>(ConfigType.class);
+    private FileConfiguration config = new YamlConfiguration();
     private final Map<String, FileConfiguration> langConfigs = new HashMap<>();
     private final Path configDir;
 
     public ConfigManager() {
         this.configDir = resolveConfigDirectory();
         logger.info("Using configuration directory: {}", configDir.toAbsolutePath());
-        setup();
+        config = loadYamlFile("config");
     }
 
     private Path resolveConfigDirectory() {
@@ -29,14 +29,8 @@ public class ConfigManager {
         return Paths.get(configPath);
     }
 
-    private void setup() {
-        for (ConfigType type : ConfigType.values()) {
-            configs.put(type, loadYamlFile(type.getFileName()));
-        }
-    }
-
-    public FileConfiguration getConfig(ConfigType type) {
-        return configs.get(type);
+    public FileConfiguration getConfig() {
+        return config;
     }
 
     public FileConfiguration getLanguageConfig(String langCode) {

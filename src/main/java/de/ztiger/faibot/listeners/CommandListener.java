@@ -1,13 +1,9 @@
 package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.interactions.ICommand;
-import de.ztiger.faibot.interactions.color.ColorCmd;
-import de.ztiger.faibot.interactions.inventory.InventoryCmd;
-import de.ztiger.faibot.interactions.leaderboard.LeaderboardCmd;
+import de.ztiger.faibot.interactions.idea.IdeaCmd;
 import de.ztiger.faibot.interactions.nixos.NixosCmd;
 import de.ztiger.faibot.interactions.serverstats.ServerStatsCmd;
-import de.ztiger.faibot.interactions.shop.ShopCmd;
-import de.ztiger.faibot.interactions.stats.StatsCmd;
 import de.ztiger.faibot.interactions.twitch.TwitchCmd;
 import de.ztiger.faibot.interactions.youtube.YoutubeCmd;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -23,11 +19,8 @@ public class CommandListener extends ListenerAdapter {
     private final Map<String, ICommand> commands = new HashMap<>();
 
     public CommandListener() {
-        register(new ColorCmd());
-        register(new InventoryCmd());
-        register(new LeaderboardCmd());
-        register(new ShopCmd());
-        register(new StatsCmd());
+        // TODO: Add recommendation commands
+        register(new IdeaCmd());
 
         // --- Admin Commands ---
         register(new NixosCmd());
