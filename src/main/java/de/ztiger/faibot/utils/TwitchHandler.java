@@ -19,6 +19,8 @@ import java.util.TimerTask;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.config.ConfigHelper.getAppConfig;
+import static de.ztiger.faibot.config.ConfigHelper.getColor;
+import static de.ztiger.faibot.utils.Localization.get;
 
 // TODO: Put all the strings in configs
 
@@ -56,19 +58,19 @@ public class TwitchHandler {
     }
 
     private static MessageEmbed createEmbed() {
-        Stream stream = client.getHelix().getStreams(null, null, null, null, null, null, null, List.of("fienix_and_izio")).execute().getStreams().stream().findFirst().orElse(null);
+        Stream stream = client.getHelix().getStreams(null, null, null, null, null, null, null, List.of(CHANNEL)).execute().getStreams().stream().findFirst().orElse(null);
         if (stream == null) return null;
 
-        String previewURL = "https://static-cdn.jtvnw.net/previews-ttv/live_user_fienix_and_izio-1280x720.jpg";
+        String previewURL = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + CHANNEL + "-1280x720.jpg";
         return new EmbedBuilder()
-                .setAuthor("fienix_and_izio", null, profileImage)
+                .setAuthor(CHANNEL, null, profileImage)
                 .setThumbnail(profileImage)
-                .setTitle(stream.getTitle(), "https://www.twitch.tv/fienix_and_izio")
-                .addField("Aktuelles Spiel: ", stream.getGameName(), true)
-                .addField("Zuschauer: ", String.valueOf(stream.getViewerCount()), true)
-                .addField("Dauer: ", formatDuration(stream.getUptime()), true)
+                .setTitle(stream.getTitle(), "https://www.twitch.tv/" + CHANNEL)
+                .addField(get("twitch.game"), stream.getGameName(), true)
+                .addField(get("twitch.viewers"), String.valueOf(stream.getViewerCount()), true)
+                .addField(get("twitch.duration"), formatDuration(stream.getUptime()), true)
                 .setImage(previewURL + "?state=" + System.currentTimeMillis())
-                .setColor(Color.decode("#6441a4"))
+                .setColor(getColor("twitch"))
                 .build();
     }
 
@@ -87,7 +89,7 @@ public class TwitchHandler {
             }
         }, 300000, 1800000);
 
-        ChannelProvider.sendMessageWithEmbed(BotChannel.TWITCH, "Hey @everyone, Fienix und Izio sind nun Live. Schaut gerne mal vorbei ^^", createEmbed(),
+        ChannelProvider.sendMessageWithEmbed(BotChannel.TWITCH, get("twitch.live"), createEmbed(),
                 id -> messageID = id);
     }
 
@@ -103,9 +105,9 @@ public class TwitchHandler {
         String[] split = timestamp.split("[hms]");
 
         MessageEmbed embed = new EmbedBuilder()
-                .setAuthor("fienix_and_izio", null, profileImage)
+                .setAuthor(CHANNEL, null, profileImage)
                 .setThumbnail(profileImage)
-                .setDescription("Danke fürs Zuschauen! - Der Stream lief " + formatDuration(Duration.ofHours(Integer.parseInt(split[0])).plusMinutes(Integer.parseInt(split[1]))))
+                .setDescription(get("twitch.offline") + formatDuration(Duration.ofHours(Integer.parseInt(split[0])).plusMinutes(Integer.parseInt(split[1]))))
                 .setImage(offlineImage)
                 .setColor(Color.decode("#6441a4"))
                 .build();

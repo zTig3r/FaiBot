@@ -2,6 +2,8 @@ package de.ztiger.faibot.config;
 
 import org.simpleyaml.configuration.file.FileConfiguration;
 
+import java.awt.*;
+
 import static de.ztiger.faibot.FaiBot.cfgm;
 
 public class ConfigHelper {
@@ -14,29 +16,18 @@ public class ConfigHelper {
         return cfgm.getConfig(ConfigType.COLORS);
     }
 
-    public static FileConfiguration getEmbedsConfig() {
-        return cfgm.getConfig(ConfigType.EMBEDS);
-    }
-
     public static FileConfiguration getLanguageConfig() {
         String lang = getAppConfig().getString("language", "de_DE");
         return cfgm.getLanguageConfig(lang);
     }
 
     public static String getChannelId(String key) {
-        String path = "channels." + key;
-        if (!getAppConfig().contains(path)) {
-            path = "channel." + key;
-        }
-        return getAppConfig().getString(path);
+        return getAppConfig().getString("channel." + key);
     }
 
-    /*
-        public static List<String> getEmbedLines(String embedKey) {
-            return getEmbedsConfig().getStringList(embedKey);
-        }
-
-    */
+    public static Color getColor(String key) {
+        return Color.decode(getAppConfig().getString("color." + key));
+    }
 
     public static int getColorPrice() {
         return getAppConfig().getInt("colorPrice", 750);

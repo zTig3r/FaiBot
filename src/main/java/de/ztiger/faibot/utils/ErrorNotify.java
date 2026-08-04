@@ -1,15 +1,14 @@
 package de.ztiger.faibot.utils;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.AppenderBase;
 import de.ztiger.faibot.config.BotChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
 
 public class ErrorNotify extends AppenderBase<ILoggingEvent> {
 
@@ -19,13 +18,35 @@ public class ErrorNotify extends AppenderBase<ILoggingEvent> {
     private static final boolean IS_DEV = "dev".equalsIgnoreCase(System.getenv("ENV"));
 
     @Override
-        protected void append(ILoggingEvent eventObject) {
+    protected void append(ILoggingEvent eventObject) {
         if (IS_DEV) return;
 
         String message = eventObject.getFormattedMessage();
+
         if (errors.contains(message)) return;
 
         errors.add(message);
-        ChannelProvider.sendEmbed(BotChannel.LOG, getEmbed("error", Map.of("msg", message), Color.RED));
+
+        String stackTrace = null;
+        IThrowableProxy throwableProxy = eventObject.getThrowableProxy();
+        if (throwableProxy != null) {
+            stackTrace = ThrowableProxyUtil.asString(throwableProxy);
+        }
+
+        ChannelProvider.sendEmbed(BotChannel.LOG, errorEmbed(message, stackTrace));
+    }
+
+    private static MessageEmbed errorEmbed(String message, String stackTrace) {
+        BotEmbed embed = BotEmbed.error()
+                .normalField(message)
+                .withTimestamp();
+
+        if (stackTrace != null && !stackTrace.isBlank()) {
+            stackTrace = stackTrace.substring(0, 350) + "\n... [truncated]";
+
+            embed.field("Stack Trace", "```java\n" + stackTrace + "\n```", false);
+        }
+
+        return embed.build();
     }
 }

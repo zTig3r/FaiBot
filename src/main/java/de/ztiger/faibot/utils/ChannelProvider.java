@@ -34,9 +34,7 @@ public class ChannelProvider {
 
     public static void sendMessageWithEmbed(BotChannel channel, String text, MessageEmbed embed, Consumer<String> onSent) {
         getChannel(channel).ifPresent(c ->
-                c.sendMessage(text).setEmbeds(embed).queue(message -> {
-                    onSent.accept(message.getId());
-                })
+                c.sendMessage(text).setEmbeds(embed).queue(message -> onSent.accept(message.getId()))
         );
     }
 

@@ -2,7 +2,8 @@ package de.ztiger.faibot.interactions.leaderboard;
 
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
-import de.ztiger.faibot.utils.GuildProvider;
+import de.ztiger.faibot.localization.keys.Leaderboard;
+import de.ztiger.faibot.utils.Localization;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
@@ -12,21 +13,17 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.utils.Lang.getLang;
 
 public class LeaderboardCmd implements ICommand, IButtonHandler {
 
     private static final String PREFIX = "leaderboard";
-    private static final String KEY = "leaderboard.";
 
-    private static final Button next = Button.secondary("next", getLang(KEY + "next"));
-    private static final Button back = Button.secondary("return", getLang(KEY + "back"));
+    private static final Button next = Button.secondary("next", Localization.get(Leaderboard.Embed.NEXT));
+    private static final Button back = Button.secondary("return", Localization.get(Leaderboard.Embed.BACK));
 
     private static int maxPage = 0;
 
@@ -42,7 +39,7 @@ public class LeaderboardCmd implements ICommand, IButtonHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        GuildProvider.getMainGuild().ifPresent(guild -> maxPage = (int) Math.ceil((double) guild.getMembers().size() / 10));
+        maxPage = (int) Math.ceil(getter.getMembers() / 10.0);
 
         event.replyComponents(ActionRow.of(back.asDisabled(), (maxPage > 1) ? next : next.asDisabled())).setEmbeds(createLeaderboardEmbed(0)).setEphemeral(true).queue();
     }
@@ -69,18 +66,24 @@ public class LeaderboardCmd implements ICommand, IButtonHandler {
     private static MessageEmbed createLeaderboardEmbed(int page) {
         int i = page * 10;
 
-        LinkedHashMap<String, String> contents = new LinkedHashMap<>();
+        List<String> placements = new ArrayList<>();
 
-        contents.put("page", String.valueOf(page + 1));
+        logger.info(getter.getTopMembers(i).toString());
 
         for (Member m : getter.getTopMembers(i)) {
             if (m != null) {
-                contents.put("field" + i, format(KEY + "format", Map.of("position", i + 1, "name", m.getAsMention(), "level", getter.getLevel(m.getId()), "xp", getter.getXP(m.getId()), "points", getter.getPoints(m.getId()), "messages", getter.getMessages(m.getId()))));
+                placements.add(Localization.format(Leaderboard.Embed.FORMAT,
+                        "position", i + 1,
+                        "level", getter.getLevel(m.getId()),
+                        "xp", getter.getXP(m.getId()),
+                        "points", getter.getPoints(m.getId()),
+                        "messages", getter.getMessages(m.getId()),
+                        "name", m.getAsMention()));
                 i++;
             }
         }
 
-        return getEmbed("leaderboard", contents);
+        return LeaderboardEmbeds.leaderboard(placements, page + 1, maxPage);
     }
 
     private static int getPage(ButtonInteractionEvent event) {

@@ -3,6 +3,8 @@ package de.ztiger.faibot.interactions.color;
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
 import de.ztiger.faibot.interactions.components.ISelectHandler;
+import de.ztiger.faibot.localization.keys.Color;
+import de.ztiger.faibot.utils.Localization;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
@@ -19,9 +21,6 @@ import java.util.Map;
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.interactions.stats.StatsHelper.createStatsImage;
 import static de.ztiger.faibot.utils.Colors.*;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.utils.Lang.getLang;
 
 public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
 
@@ -48,7 +47,7 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        event.replyComponents(getMainMenuButtons()).setEmbeds(getEmbed("changeColorMenu")).setEphemeral(true).queue();
+        event.replyComponents(getMainMenuButtons()).setEmbeds(ColorEmbeds.changeColorMenu()).setEphemeral(true).queue();
     }
 
     @Override
@@ -62,7 +61,6 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
             default -> logger.warn("Unknown color button action: {}", action);
         }
     }
-
 
     @Override
     public void executeSelect(StringSelectInteractionEvent event) {
@@ -78,23 +76,23 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
     }
 
     private void sendMainColorMenu(ButtonInteractionEvent event) {
-        event.editComponents(getMainMenuButtons()).setEmbeds(getEmbed("changeColorMenu")).queue();
+        event.editComponents(getMainMenuButtons()).setEmbeds(ColorEmbeds.changeColorMenu()).queue();
     }
 
     public void sendSubMenuEmbed(ButtonInteractionEvent event, boolean isName) {
         String typeStr = isName ? "NAME" : "STATS";
 
-        Button reset = Button.danger(buildId(ACTION_RESET, typeStr), getLang(KEY + "reset"));
-        Button back = Button.secondary(buildId(ACTION_BACK), getLang(KEY + "back"));
+        Button reset = Button.danger(buildId(ACTION_RESET, typeStr), Localization.get(Color.RESET));
+        Button back = Button.secondary(buildId(ACTION_BACK), Localization.get(Color.BACK));
 
         String selectMenuId = PREFIX + ":select:" + typeStr;
         StringSelectMenu menu = StringSelectMenu.create(selectMenuId)
                 .addOptions(getColorOptions(typeStr, getter.getInventory(event.getMember().getId())))
                 .build();
 
-        String displayType = getLang(isName ? "color.type.name" : "color.type.stats");
+        String displayType = Localization.get(isName ? Color.Type.NAME : Color.Type.STATS);
 
-        event.editMessageEmbeds(getEmbed("changeColorSelect", Map.of("type", displayType)))
+        event.editMessageEmbeds(ColorEmbeds.changeColorSelect(displayType))
                 .setComponents(ActionRow.of(menu), ActionRow.of(reset, back))
                 .setAttachments()
                 .queue();
@@ -114,10 +112,9 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
 
         logger.info("Resetting {} color for {}", type.toLowerCase(), member.getEffectiveName());
 
-        String key = KEY + "type.";
-        String displayType = isName ? getLang(key + "name") : getLang(key + "stats");
+        String displayType = Localization.get(isName ? Color.Type.NAME : Color.Type.STATS);
 
-        event.editMessage(format("color.successReset", Map.of("type", displayType)))
+        event.editMessage(Localization.format("color.successReset", "type", displayType))
                 .setEmbeds().setAttachments().setComponents().queue();
     }
 
@@ -132,11 +129,11 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
             String newRole = colors.get(color).translation;
             logger.info("Setting name color for {} to {}", event.getUser().getName(), color);
 
-            event.editMessage(format("color.success", Map.of("type", getLang("color.type.name"), "color", newRole)))
+            event.editMessage(Localization.format("color.success", "type", Localization.get("color.type.name"), "color", newRole))
                     .setEmbeds().setComponents().queue();
         } else {
-            Button confirm = Button.success(buildId(ACTION_CONFIRM, color), getLang("stats.apply"));
-            Button back = Button.danger(buildId(ACTION_MENU_STATS), getLang("stats.cancel"));
+            Button confirm = Button.success(buildId(ACTION_CONFIRM, color), Localization.get("stats.apply"));
+            Button back = Button.danger(buildId(ACTION_MENU_STATS), Localization.get("stats.cancel"));
 
             event.editMessage("").setAttachments(FileUpload.fromData(createStatsImage(event.getMember(), convertColor(color)))).setComponents(ActionRow.of(confirm, back)).setEmbeds().queue();
         }
@@ -151,14 +148,14 @@ public class ColorCmd implements ICommand, IButtonHandler, ISelectHandler {
 
         String translatedColor = colors.containsKey(color) ? colors.get(color).translation : color;
 
-        event.editMessage(format("color.success", Map.of("type", getLang("color.type.stats"), "color", translatedColor)))
+        event.editMessage(Localization.format("color.success", Map.of("type", Localization.get("color.type.stats"), "color", translatedColor)))
                 .setAttachments().setComponents().queue();
     }
 
     private ActionRow getMainMenuButtons() {
         return ActionRow.of(
-                Button.primary(buildId(ACTION_MENU_NAME), getLang(KEY + "name")),
-                Button.primary(buildId(ACTION_MENU_STATS), getLang(KEY + "stats"))
+                Button.primary(buildId(ACTION_MENU_NAME), Localization.get(Color.NAME)),
+                Button.primary(buildId(ACTION_MENU_STATS), Localization.get(Color.STATS))
         );
     }
 }

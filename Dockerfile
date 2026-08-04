@@ -1,5 +1,8 @@
 # ---- Build Stage ----
-FROM gradle:9.0.0-jdk21-alpine AS build
+FROM gradle:9.6.1-jdk21-alpine AS build
+
+# Install Python and PyYAML
+RUN apk add --no-cache python3 pyyaml
 
 WORKDIR /app
 
@@ -13,8 +16,16 @@ RUN chmod +x ./gradlew
 # Download dependencies only
 RUN ./gradlew --no-daemon build -x test || true
 
+# Copy the generator script directory
+COPY scripts scripts
+
 # Copy source code
 COPY src src
+
+# Copy the checked-out k8s-deployments folder into the container
+COPY k8s-deployments /k8s-deployments
+
+ENV LOCALIZATION_YAML_PATH=/k8s-deployments/apps/faibot/config/de_DE.yml
 RUN ./gradlew --no-daemon shadowJar
 
 # ---- Runtime Stage ----

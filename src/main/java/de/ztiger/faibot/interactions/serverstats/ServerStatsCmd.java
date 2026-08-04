@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.utils.Lang.getLang;
+import static de.ztiger.faibot.utils.Localization.format;
+import static de.ztiger.faibot.utils.Localization.get;
 
 public class ServerStatsCmd implements ICommand {
 
@@ -24,10 +24,10 @@ public class ServerStatsCmd implements ICommand {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        String name = getLang(KEY + "title");
+        String name = get(KEY + "title");
         GuildProvider.getMainGuild().ifPresent(guild -> {
             if (!guild.getCategoriesByName(name, true).isEmpty()) {
-                event.reply(getLang(KEY + "error")).setEphemeral(true).queue();
+                event.reply(get(KEY + "error")).setEphemeral(true).queue();
                 return;
             }
 
@@ -47,7 +47,7 @@ public class ServerStatsCmd implements ICommand {
                     .queue();
 
             logger.info("Created Server Stats category");
-            event.reply(getLang(KEY + "success")).setEphemeral(true).queue();
+            event.reply(get(KEY + "success")).setEphemeral(true).queue();
         });
     }
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.Lang.getLang;
+import static de.ztiger.faibot.utils.Localization.get;
 
 public class BotReady extends ListenerAdapter {
 
@@ -43,7 +43,7 @@ public class BotReady extends ListenerAdapter {
 
     private void updateServerStats() {
         GuildProvider.getMainGuild().ifPresent(guild -> {
-            String categoryName = getLang("serverstats.title");
+            String categoryName = get("serverstats.title");
             List<Category> categories = guild.getCategoriesByName(categoryName, true);
 
             if (categories.isEmpty()) return;

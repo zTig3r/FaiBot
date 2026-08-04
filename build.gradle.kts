@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("com.gradleup.shadow") version "9.0.2"
+    id("idea")
 }
 
 group = "de.ztiger"
@@ -26,8 +27,41 @@ dependencies {
     implementation("com.sparkjava:spark-core:2.9.4")
 }
 
-tasks.withType(JavaCompile::class.java) {
+val generatedLocalizationDir = layout.buildDirectory.dir("generated/sources/localization/java")
+
+val localizationYamlPath: String = rootProject.file("../k8s-deployments/apps/faibot/config/de_DE.yml").absolutePath
+
+val targetPackage = "de.ztiger.faibot.localization.keys"
+
+val generateLocalizationClasses by tasks.registering(Exec::class) {
+    group = "build setup"
+    description = "Generates Java localization classes from external YAML"
+
+    val outputPackageDir = generatedLocalizationDir.get().dir(targetPackage.replace('.', '/'))
+
+    inputs.file(localizationYamlPath)
+    outputs.dir(outputPackageDir)
+
+    commandLine(
+        "python",
+        file("scripts/generate_localization_keys.py").absolutePath,
+        localizationYamlPath,
+        outputPackageDir.asFile.absolutePath,
+        targetPackage
+    )
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(generatedLocalizationDir)
+        }
+    }
+}
+
+tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
+    dependsOn(generateLocalizationClasses)
 }
 
 tasks {

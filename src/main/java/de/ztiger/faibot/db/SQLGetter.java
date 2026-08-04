@@ -75,6 +75,10 @@ public class SQLGetter {
         return members;
     }
 
+    public int getMembers() {
+        return Math.toIntExact((long) mariaDB.getValue("SELECT COUNT(*) FROM users"));
+    }
+
     public int getRank(String id) {
         return (int) mariaDB.getValue("SELECT FIND_IN_SET(xp, (SELECT GROUP_CONCAT(DISTINCT xp ORDER BY xp DESC) FROM stats)) AS 'rank', userid, xp FROM stats WHERE userid = ? ORDER BY xp DESC", getId(id));
     }

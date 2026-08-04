@@ -1,7 +1,9 @@
 package de.ztiger.faibot.utils;
 
 import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.localization.keys.Xp;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -9,8 +11,6 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.Lang.getLang;
 
 public class XP {
 
@@ -33,10 +33,8 @@ public class XP {
             setter.addLevel(member.getId());
             level++;
 
-            Map<String, String> contents = Map.of("user", member.getAsMention(), "level", String.valueOf(level), "author_name", getLang("xp.levelUp"), "author_icon", member.getUser().getAvatarUrl());
-
             logger.info("{} reached level {}!", member.getEffectiveName(), level);
-            ChannelProvider.sendEmbed(BotChannel.BOT, getEmbed("levelUp", contents, Color.GREEN));
+            ChannelProvider.sendEmbed(BotChannel.BOT, levelUpEmbed(member.getAsMention(), level, Localization.get(Xp.LEVEL_UP), member.getUser().getAvatarUrl()));
         }
     }
 
@@ -51,5 +49,12 @@ public class XP {
 
     public static void addUserTimer(Member member) {
         userTimer.put(member, System.currentTimeMillis());
+    }
+
+    private static MessageEmbed levelUpEmbed(String user, int level, String author, String avatarUrl) {
+        return BotEmbed.success()
+                .description(Localization.format(Xp.Embed.DESCRIPTION, Map.of("user", user, "level", level)))
+                .author(author, avatarUrl)
+                .build();
     }
 }

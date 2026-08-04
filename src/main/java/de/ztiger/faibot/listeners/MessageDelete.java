@@ -1,18 +1,17 @@
 package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.localization.keys.Log;
+import de.ztiger.faibot.utils.BotEmbed;
 import de.ztiger.faibot.utils.ChannelProvider;
+import de.ztiger.faibot.utils.Localization;
+import de.ztiger.faibot.utils.MessageCachingService;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.awt.*;
-import java.util.Map;
-
 import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.MessageCachingService.get;
-import static de.ztiger.faibot.utils.MessageCachingService.remove;
 
 public class MessageDelete extends ListenerAdapter {
 
@@ -22,14 +21,21 @@ public class MessageDelete extends ListenerAdapter {
         // if (event.getChannel() == logChannel) return;
 
         try {
-            Message message = get(event.getMessageId(), event.getChannel().getId());
+            Message message = MessageCachingService.get(event.getMessageId(), event.getChannel().getId());
+            MessageCachingService.remove(message);
 
-            Map<String, String> contents = Map.of("channel", message.getChannel().getAsMention(), "message", message.getContentRaw(), "uID", message.getAuthor().getId(), "mID", message.getId(), "author_name", message.getAuthor().getEffectiveName(), "author_icon", message.getAuthor().getAvatarUrl());
-            remove(message);
-
-            ChannelProvider.sendEmbed(BotChannel.LOG, getEmbed("messageDelete", contents, Color.RED));
+            ChannelProvider.sendEmbed(BotChannel.LOG, messageDelete(message.getChannel().getAsMention(), message.getContentRaw(), message.getAuthor().getId(), message.getId(), message.getAuthor().getEffectiveName(), message.getAuthor().getAvatarUrl()));
         } catch (Exception e) {
             logger.error("Error while processing message delete event", e);
         }
+    }
+
+    private static MessageEmbed messageDelete(String channel, String content, String userId, String messageId, String author, String avatarUrl) {
+        return BotEmbed.error()
+                .field(Localization.format(Log.MessageDelete.DESCRIPTION, "channel", channel), content)
+                .footer(Localization.format(Log.MessageDelete.FOOTER, "userId", userId, "messageId", messageId))
+                .author(author, avatarUrl)
+                .withTimestamp()
+                .build();
     }
 }

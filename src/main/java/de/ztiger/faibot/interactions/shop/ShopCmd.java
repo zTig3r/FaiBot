@@ -2,6 +2,8 @@ package de.ztiger.faibot.interactions.shop;
 
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
+import de.ztiger.faibot.localization.keys.Shop;
+import de.ztiger.faibot.utils.Localization;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -13,17 +15,13 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.logger;
 import static de.ztiger.faibot.config.ConfigHelper.getColorPrice;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.Lang.getLang;
 
 public class ShopCmd implements ICommand, IButtonHandler {
 
     private static final String PREFIX = "shop";
-    private static final String KEY = "shop.";
 
     private static final String ACTION_CONFIRM = "confirm";
     private static final String ACTION_CANCEL = "cancel";
@@ -57,7 +55,7 @@ public class ShopCmd implements ICommand, IButtonHandler {
 
         String outcomeMessage = ShopService.processColorPurchase(event.getMember(), color, price);
 
-        if (outcomeMessage.equals(getLang(KEY + "error"))) {
+        if (outcomeMessage.equals(Localization.get(Shop.ERROR))) {
             event.reply(outcomeMessage).setEphemeral(true).queue();
         } else {
             event.editMessage(outcomeMessage).setComponents().setEmbeds().queue();
@@ -65,13 +63,12 @@ public class ShopCmd implements ICommand, IButtonHandler {
     }
 
     public void handleShopSelection(StringSelectInteractionEvent event) {
-        String selectedColor = event.getValues().get(0);
+        String selectedColor = event.getValues().getFirst();
 
-        Button confirmBtn = Button.success(buildId(ACTION_CONFIRM, selectedColor), getLang("shop.confirm"));
-        Button cancelBtn = Button.danger(buildId(ACTION_CANCEL, null), getLang("shop.cancel"));
+        Button confirmBtn = Button.success(buildId(ACTION_CONFIRM, selectedColor), Localization.get(Shop.CONFIRM));
+        Button cancelBtn = Button.danger(buildId(ACTION_CANCEL, null), Localization.get(Shop.CANCEL));
 
-        event.editMessageEmbeds(getEmbed("shopConfirm", Map.of("color", selectedColor, "price",
-                getColorPrice() + ""))).setComponents(ActionRow.of(confirmBtn, cancelBtn)).queue();
+        event.editMessageEmbeds(ShopEmbeds.confirmPurchase(selectedColor, getColorPrice())).setComponents(ActionRow.of(confirmBtn, cancelBtn)).queue();
     }
 
     public static void sendShopEmbed(ButtonInteractionEvent event) {
@@ -83,6 +80,6 @@ public class ShopCmd implements ICommand, IButtonHandler {
     }
 
     private static MessageEmbed getShopEmbed() {
-        return getEmbed("shop", Map.of("price", getColorPrice() + ""));
+        return ShopEmbeds.shopEmbed(getColorPrice());
     }
 }

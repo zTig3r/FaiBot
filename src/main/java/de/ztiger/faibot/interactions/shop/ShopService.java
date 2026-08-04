@@ -7,8 +7,8 @@ import java.util.Map;
 
 import static de.ztiger.faibot.FaiBot.*;
 import static de.ztiger.faibot.utils.Colors.colors;
-import static de.ztiger.faibot.utils.Lang.format;
-import static de.ztiger.faibot.utils.Lang.getLang;
+import static de.ztiger.faibot.utils.Localization.format;
+import static de.ztiger.faibot.utils.Localization.get;
 
 public class ShopService {
     private static final Logger logger = LoggerFactory.getLogger(ShopService.class);
@@ -18,7 +18,7 @@ public class ShopService {
         String userId = member.getId();
 
         if (getter.getPoints(userId) < price) {
-            return getLang(KEY + "error");
+            return get(KEY + "error");
         }
 
         setter.removePoints(userId, price);
