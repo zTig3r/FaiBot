@@ -23,7 +23,7 @@ public class MessageReceived extends ListenerAdapter {
 
         add(message);
 
-        if (ChannelProvider.isChannel(channel, BotChannel.RECOMMENDATIONS) && message.getContentRaw().contains("V:") || ChannelProvider.isChannel(channel, BotChannel.REACTION)) {
+        if (ChannelProvider.isChannel(channel, BotChannel.REACTION)) {
             message.addReaction(Emoji.fromUnicode("✅")).queue();
             message.addReaction(Emoji.fromUnicode("❌")).queue();
         }

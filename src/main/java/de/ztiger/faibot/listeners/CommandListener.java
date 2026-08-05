@@ -19,7 +19,6 @@ public class CommandListener extends ListenerAdapter {
     private final Map<String, ICommand> commands = new HashMap<>();
 
     public CommandListener() {
-        // TODO: Add recommendation commands
         register(new IdeaCmd());
 
         // --- Admin Commands ---

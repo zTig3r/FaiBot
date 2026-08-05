@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 
 public class MessageCachingService {
 
+    // TODO: Improve
+
     private static final HashMap<String, LinkedHashMap<String, Message>> cache = new HashMap<>();
 
     public static void add(Message message) {

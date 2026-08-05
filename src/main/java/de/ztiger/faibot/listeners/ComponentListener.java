@@ -2,6 +2,7 @@ package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.interactions.components.IModalHandler;
 import de.ztiger.faibot.interactions.idea.IdeaCmd;
+import de.ztiger.faibot.interactions.nixos.NixosCmd;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -14,6 +15,7 @@ public class ComponentListener extends ListenerAdapter {
 
     public ComponentListener() {
         registerModalHandler(new IdeaCmd());
+        registerModalHandler(new NixosCmd());
     }
 
     public void registerModalHandler(IModalHandler handler) {
