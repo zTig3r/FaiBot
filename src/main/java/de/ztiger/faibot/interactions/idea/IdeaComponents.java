@@ -2,6 +2,7 @@ package de.ztiger.faibot.interactions.idea;
 
 import de.ztiger.faibot.localization.keys.Idea;
 import de.ztiger.faibot.services.LocalizationService;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
@@ -13,13 +14,16 @@ import net.dv8tion.jda.api.utils.messages.MessagePollData;
 
 import java.time.Duration;
 
+@RequiredArgsConstructor
 public final class IdeaComponents {
+
+    private final LocalizationService i18n;
 
     public static final String COMPONENT_ID = "idea";
     public static final String FIELD_SUBJECT = "subject";
     public static final String FIELD_BODY = "body";
 
-    public static Modal ideaModal(LocalizationService i18n) {
+    public Modal ideaModal() {
         TextInput subject = TextInput.create(FIELD_SUBJECT, TextInputStyle.SHORT)
                 .setPlaceholder(i18n.get(Idea.Modal.Subject.PLACEHOLDER))
                 .setMaxLength(100)
@@ -40,7 +44,7 @@ public final class IdeaComponents {
                 .build();
     }
 
-    public static MessageCreateData createPollMessage(LocalizationService i18n, String authorMention, String subject, String body) {
+    public MessageCreateData createPollMessage(String authorMention, String subject, String body) {
         MessagePollData pollData = MessagePollData.builder(subject)
                 .addAnswer(i18n.get(Idea.Poll.ACCEPT), Emoji.fromUnicode("✅"))
                 .addAnswer(i18n.get(Idea.Poll.REJECT), Emoji.fromUnicode("❌"))

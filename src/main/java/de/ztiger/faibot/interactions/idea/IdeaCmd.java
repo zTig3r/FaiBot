@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 public class IdeaCmd implements ICommand, IModalHandler {
 
     private final ChannelProvider channelProvider;
+    private final IdeaComponents ideaComponents;
     private final LocalizationService i18n;
 
     @Override
@@ -31,7 +32,7 @@ public class IdeaCmd implements ICommand, IModalHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        event.replyModal(IdeaComponents.ideaModal(i18n)).queue();
+        event.replyModal(ideaComponents.ideaModal()).queue();
     }
 
     @Override
@@ -39,8 +40,7 @@ public class IdeaCmd implements ICommand, IModalHandler {
         String subject = event.getValue(IdeaComponents.FIELD_SUBJECT).getAsString();
         String body = event.getValue(IdeaComponents.FIELD_BODY).getAsString();
 
-        MessageCreateData pollMessage = IdeaComponents.createPollMessage(
-                i18n,
+        MessageCreateData pollMessage = ideaComponents.createPollMessage(
                 event.getUser().getAsMention(),
                 subject, body
         );

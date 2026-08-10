@@ -27,6 +27,7 @@ public class TwitchStreamHandler {
     private final String channelName;
     private final TwitchApiService twitchApiService;
     private final ChannelProvider channelProvider;
+    private final TwitchComponents twitchComponents;
     private final LocalizationService i18n;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -36,10 +37,11 @@ public class TwitchStreamHandler {
     private String profileImageUrl;
     private String currentUserId;
 
-    public TwitchStreamHandler(TwitchApiService twitchApiService, String channelName, ChannelProvider channelProvider, LocalizationService i18n) {
+    public TwitchStreamHandler(TwitchApiService twitchApiService, String channelName, ChannelProvider channelProvider, TwitchComponents twitchComponents, LocalizationService i18n) {
         this.twitchApiService = twitchApiService;
         this.channelName = channelName;
         this.channelProvider = channelProvider;
+        this.twitchComponents = twitchComponents;
         this.i18n = i18n;
 
         fetchChannelMetaData();
@@ -74,7 +76,7 @@ public class TwitchStreamHandler {
             int viewers = stream != null ? stream.getViewerCount() : 0;
             String duration = i18n.formatDuration(stream != null ? stream.getUptime() : Duration.ZERO);
 
-            return TwitchComponents.notification(i18n, previewURL, channelName, profileImageUrl, title, game, viewers, duration);
+            return twitchComponents.notification(previewURL, channelName, profileImageUrl, title, game, viewers, duration);
 
         } catch (Exception e) {
             logger.error("Error creating live stream embed", e);
@@ -112,7 +114,7 @@ public class TwitchStreamHandler {
                 ? twitchApiService.getLatestVodDuration(currentUserId)
                 : Duration.ZERO;
 
-        Container embed = TwitchComponents.endNotification(i18n, channelName, profileImageUrl, i18n.formatDuration(vodDuration));
+        Container embed = twitchComponents.endNotification(channelName, profileImageUrl, i18n.formatDuration(vodDuration));
 
         channelProvider.sendComponent(BotChannel.TWITCH, embed);
     }

@@ -40,6 +40,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
     private final PlacementService placementService;
     private final SeasonService seasonService;
     private final ChannelProvider channelProvider;
+    private final NixosComponents nixosComponents;
     private final LocalizationService i18n;
 
     private final Map<String, List<String>> winnerCache = new ConcurrentHashMap<>();
@@ -74,7 +75,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         }
 
         winnerCache.put(event.getUser().getId(), winnerNames);
-        event.replyModal(NixosComponents.nixoModal(i18n, winnerNames)).queue();
+        event.replyModal(nixosComponents.nixoModal(winnerNames)).queue();
     }
 
     @Override
@@ -98,7 +99,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
             if (seasonService.seasonExists(season)) {
                 pendingOverrideCache.put(event.getUser().getId(), new PendingSeasonData(season, localizedMonth, yearStr, winners, rawTop10, attachments));
 
-                event.getHook().sendMessageComponents(NixosComponents.confirmOverride(i18n, localizedMonth, yearStr)).useComponentsV2().setEphemeral(true).queue();
+                event.getHook().sendMessageComponents(nixosComponents.confirmOverride(localizedMonth, yearStr)).useComponentsV2().setEphemeral(true).queue();
                 return;
             }
         } catch (Exception e) {
@@ -158,7 +159,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
         channelProvider.sendComponentAndCreateThread(
                 BotChannel.NIXOS,
-                NixosComponents.winnerComponent(i18n, localizedMonth, yearStr, formattedTopList, winners, attachments),
+                nixosComponents.winnerComponent(localizedMonth, yearStr, formattedTopList, winners, attachments),
                 i18n.format(Nixos.Message.THREAD, "month", localizedMonth, "year", yearStr)
         );
 

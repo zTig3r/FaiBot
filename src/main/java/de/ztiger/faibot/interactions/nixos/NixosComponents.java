@@ -1,7 +1,10 @@
 package de.ztiger.faibot.interactions.nixos;
 
+import de.ztiger.faibot.config.BotColor;
+import de.ztiger.faibot.config.ConfigManager;
 import de.ztiger.faibot.localization.keys.Nixos;
 import de.ztiger.faibot.services.LocalizationService;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.attachmentupload.AttachmentUpload;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -18,6 +21,7 @@ import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.modals.Modal;
 
+import java.awt.*;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
@@ -25,7 +29,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+@RequiredArgsConstructor
 public class NixosComponents {
+
+    private final ConfigManager configManager;
+    private final LocalizationService i18n;
 
     public static final String COMPONENT_ID = "nixos";
     public static final String FIELD_MONTH = "month";
@@ -35,7 +43,7 @@ public class NixosComponents {
     public static final String CONFIRM_OVERRIDE = "confirm_override";
     public static final String CANCEL_OVERRIDE = "cancel_override";
 
-    public static Modal nixoModal(LocalizationService i18n, List<String> winners) {
+    public Modal nixoModal(List<String> winners) {
         YearMonth now = YearMonth.now();
 
         StringSelectMenu monthMenu = StringSelectMenu.create(FIELD_MONTH)
@@ -58,7 +66,7 @@ public class NixosComponents {
                 ).build();
     }
 
-    public static Container winnerComponent(LocalizationService i18n, String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages) {
+    public Container winnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages) {
         List<String> formattedWinners = IntStream.range(0, winners.size())
                 .mapToObj(i -> i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i))).toList();
 
@@ -73,16 +81,16 @@ public class NixosComponents {
                 TextDisplay.of(String.join("\n", formattedWinners)),
                 MediaGallery.of(winnerGalleryItems),
                 TextDisplay.of(i18n.get(Nixos.Message.FOOTER))
-        ).withAccentColor(0x9146FF);
+        ).withAccentColor(configManager.getColor(BotColor.DEFAULT));
     }
 
-    public static Container confirmOverride(LocalizationService i18n, String month, String year) {
+    public Container confirmOverride(String month, String year) {
         return Container.of(
                 TextDisplay.of(i18n.format(Nixos.Override.DESCRIPTION, "month", month, "year", year)),
                 ActionRow.of(
                         Button.primary(COMPONENT_ID + ":" + CONFIRM_OVERRIDE, i18n.get(Nixos.Override.CONFIRM)),
                         Button.secondary(COMPONENT_ID + ":" + CANCEL_OVERRIDE, i18n.get(Nixos.Override.CANCEL))
                 )
-        );
+        ).withAccentColor(Color.YELLOW);
     }
 }

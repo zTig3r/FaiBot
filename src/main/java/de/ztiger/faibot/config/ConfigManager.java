@@ -73,16 +73,16 @@ public class ConfigManager {
         return config.getString("channel." + key);
     }
 
-    public Color getColor(String key) {
-        String hex = config.getString("color." + key);
+    public Color getColor(BotColor color) {
+        String hex = config.getString("color." + color.getConfigKey());
         if (hex == null || hex.isBlank()) {
-            logger.warn("Color key 'color.{}' missing in config. Defaulting to white.", key);
+            logger.warn("Color key 'color.{}' missing in config. Defaulting to white.", color.getConfigKey());
             return Color.WHITE;
         }
         try {
             return Color.decode(hex);
         } catch (NumberFormatException e) {
-            logger.error("Invalid color format for key 'color.{}': {}", key, hex);
+            logger.error("Invalid color format for key 'color.{}': {}", color.getConfigKey(), hex);
             return Color.WHITE;
         }
     }
