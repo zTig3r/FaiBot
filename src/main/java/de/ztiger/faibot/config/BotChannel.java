@@ -1,10 +1,13 @@
 package de.ztiger.faibot.config;
 
+import lombok.Getter;
+
+@Getter
 public enum BotChannel {
     WELCOME("welcome"),
     LOG("log"),
     RECOMMENDATIONS("recommendations"),
-    BOT("bot"),
+    NIXOS("nixos"),
     TWITCH("twitch"),
     YOUTUBE("youtube"),
     REACTION("reaction");
@@ -13,9 +16,5 @@ public enum BotChannel {
 
     BotChannel(String configKey) {
         this.configKey = configKey;
-    }
-
-    public String getConfigKey() {
-        return configKey;
     }
 }

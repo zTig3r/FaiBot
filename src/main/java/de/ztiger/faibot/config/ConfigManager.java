@@ -1,23 +1,32 @@
 package de.ztiger.faibot.config;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import lombok.Getter;
 import org.simpleyaml.configuration.file.FileConfiguration;
 import org.simpleyaml.configuration.file.YamlConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static de.ztiger.faibot.FaiBot.env;
-import static de.ztiger.faibot.FaiBot.logger;
-
 public class ConfigManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
+
+    private final Dotenv env;
+
+    @Getter
     private FileConfiguration config = new YamlConfiguration();
+
     private final Map<String, FileConfiguration> langConfigs = new HashMap<>();
     private final Path configDir;
 
-    public ConfigManager() {
+    public ConfigManager(Dotenv env) {
+        this.env = env;
         this.configDir = resolveConfigDirectory();
         logger.info("Using configuration directory: {}", configDir.toAbsolutePath());
         config = loadYamlFile("config");
@@ -27,10 +36,6 @@ public class ConfigManager {
         String configPath = env.get("CONFIG_PATH");
         if (configPath == null || configPath.isBlank()) throw new RuntimeException("Config path is not defined.");
         return Paths.get(configPath);
-    }
-
-    public FileConfiguration getConfig() {
-        return config;
     }
 
     public FileConfiguration getLanguageConfig(String langCode) {
@@ -53,6 +58,32 @@ public class ConfigManager {
         } catch (Exception e) {
             logger.error("Error loading config file {}: {}", fileName, e.getMessage(), e);
             return new YamlConfiguration();
+        }
+    }
+
+    public String getLanguage() {
+        return config.getString("language", "de_DE");
+    }
+
+    public FileConfiguration getLanguageConfig() {
+        return getLanguageConfig(getLanguage());
+    }
+
+    public String getChannelId(String key) {
+        return config.getString("channel." + key);
+    }
+
+    public Color getColor(String key) {
+        String hex = config.getString("color." + key);
+        if (hex == null || hex.isBlank()) {
+            logger.warn("Color key 'color.{}' missing in config. Defaulting to white.", key);
+            return Color.WHITE;
+        }
+        try {
+            return Color.decode(hex);
+        } catch (NumberFormatException e) {
+            logger.error("Invalid color format for key 'color.{}': {}", key, hex);
+            return Color.WHITE;
         }
     }
 }

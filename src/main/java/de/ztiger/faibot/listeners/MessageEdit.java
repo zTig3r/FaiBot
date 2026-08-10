@@ -3,21 +3,29 @@ package de.ztiger.faibot.listeners;
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.Log;
 import de.ztiger.faibot.utils.ChannelProvider;
-import de.ztiger.faibot.utils.Localization;
+import de.ztiger.faibot.services.LocalizationService;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 
-import static de.ztiger.faibot.FaiBot.logger;
 import static de.ztiger.faibot.utils.MessageCachingService.add;
 import static de.ztiger.faibot.utils.MessageCachingService.get;
 
+@RequiredArgsConstructor
 public class MessageEdit extends ListenerAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageEdit.class);
+
+    private final ChannelProvider channelProvider;
+    private final LocalizationService i18n;
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
@@ -27,9 +35,7 @@ public class MessageEdit extends ListenerAdapter {
         try {
             Message message = event.getMessage();
 
-            ChannelProvider.getChannel(BotChannel.LOG).ifPresent(channel -> {
-                channel.sendMessageComponents(messageEdit(message.getJumpUrl(), get(message).getContentRaw(), message.getContentRaw(), message.getAuthor().getId(), message.getId(), message.getAuthor().getEffectiveName())).useComponentsV2().queue();
-            });
+            channelProvider.sendComponent(BotChannel.LOG, messageEdit(message.getJumpUrl(), get(message).getContentRaw(), message.getContentRaw(), message.getAuthor().getId(), message.getId(), message.getAuthor().getEffectiveName()));
 
             add(event.getMessage());
         } catch (Exception e) {
@@ -39,13 +45,13 @@ public class MessageEdit extends ListenerAdapter {
 
     private Container messageEdit(String messageLink, String oldMessage, String newMessage, String userId, String messageId, String author) {
         return Container.of(
-                TextDisplay.of(Localization.format(Log.Message.Edit.TITLE, "messageLink", messageLink)),
-                TextDisplay.of(Localization.format(Log.Message.SENDER, "user", author)),
-                TextDisplay.of(Localization.format(Log.Message.Edit.BEFORE, "message", oldMessage)),
+                TextDisplay.of(i18n.format(Log.Message.Edit.TITLE, "messageLink", messageLink)),
+                TextDisplay.of(i18n.format(Log.Message.SENDER, "user", author)),
+                TextDisplay.of(i18n.format(Log.Message.Edit.BEFORE, "message", oldMessage)),
                 Separator.createDivider(Separator.Spacing.SMALL),
-                TextDisplay.of(Localization.format(Log.Message.Edit.AFTER, "message", newMessage)),
+                TextDisplay.of(i18n.format(Log.Message.Edit.AFTER, "message", newMessage)),
                 Separator.createDivider(Separator.Spacing.SMALL),
-                TextDisplay.of(Localization.format(Log.Message.FOOTER, "userId", userId, "messageId", messageId))
+                TextDisplay.of(i18n.format(Log.Message.FOOTER, "userId", userId, "messageId", messageId))
         ).withAccentColor(Color.YELLOW);
     }
 }

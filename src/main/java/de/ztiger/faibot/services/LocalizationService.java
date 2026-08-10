@@ -1,24 +1,45 @@
-package de.ztiger.faibot.utils;
+package de.ztiger.faibot.services;
 
+import de.ztiger.faibot.config.ConfigManager;
 import de.ztiger.faibot.localization.keys.Time;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.config.ConfigHelper.getLanguageConfig;
+@RequiredArgsConstructor
+public class LocalizationService {
 
-public class Localization {
+    private static final Logger logger = LoggerFactory.getLogger(LocalizationService.class);
+
+    private final ConfigManager configManager;
 
     private static final Map<String, String> cache = new ConcurrentHashMap<>();
+    private static volatile Locale cachedLocale;
 
-    public static String get(String key) {
+    public Locale getLocale() {
+        if (cachedLocale == null) {
+            synchronized (LocalizationService.class) {
+                if (cachedLocale == null) {
+                    String langTag = configManager.getLanguage().replace('_', '-');
+
+                    cachedLocale = Locale.forLanguageTag(langTag);
+                }
+            }
+        }
+        return cachedLocale;
+    }
+    public String get(String key) {
         return cache.computeIfAbsent(key, k -> {
             try {
-                String value = getLanguageConfig().getString(k);
+                String value = configManager.getLanguageConfig().getString(k);
                 return (value != null) ? value : k;
             } catch (Exception e) {
                 logger.error("Error while loading language file: {}", e.getMessage());
@@ -27,7 +48,7 @@ public class Localization {
         });
     }
 
-    public static String format(String key, Object... args) {
+    public String format(String key, Object... args) {
         String message = get(key);
         if (args == null || args.length == 0) {
             return message;
@@ -47,7 +68,7 @@ public class Localization {
         return message;
     }
 
-    public static String formatPeriod( Period period) {
+    public String formatPeriod(Period period) {
         List<String> parts = new ArrayList<>();
         addPart(parts, period.getYears(), Time.YEAR, Time.YEARS);
         addPart(parts, period.getMonths(), Time.MONTH, Time.MONTHS);
@@ -56,7 +77,15 @@ public class Localization {
         return parts.isEmpty() ? format(Time.DAYS, "count", 0) : String.join(", ", parts);
     }
 
-    private static void addPart(List<String> parts, int count, String singularKey, String pluralKey) {
+    public String formatDuration(Duration duration) {
+        List<String> parts = new ArrayList<>();
+        addPart(parts ,duration.toHoursPart(), Time.HOUR, Time.HOURS);
+        addPart(parts, duration.toMinutesPart(), Time.MINUTE, Time.MINUTES);
+
+        return parts.isEmpty() ? " " : String.join(" ", parts);
+    }
+
+    private void addPart(List<String> parts, int count, String singularKey, String pluralKey) {
         if (count > 0) {
             parts.add(format(count == 1 ? singularKey : pluralKey, "count", count));
         }

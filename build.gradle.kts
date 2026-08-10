@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("com.gradleup.shadow") version "9.0.2"
     id("idea")
+    id ("io.freefair.lombok") version "9.0.0"
 }
 
 group = "de.ztiger"
@@ -25,6 +26,8 @@ dependencies {
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.6.2")
     implementation("com.sparkjava:spark-core:2.9.4")
+    implementation("com.j256.ormlite:ormlite-core:6.1")
+    implementation("com.j256.ormlite:ormlite-jdbc:6.1")
 }
 
 val generatedLocalizationDir = layout.buildDirectory.dir("generated/sources/localization/java")

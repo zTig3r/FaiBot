@@ -1,20 +1,23 @@
 package de.ztiger.faibot.utils;
 
-import de.ztiger.faibot.FaiBot;
+import de.ztiger.faibot.config.ConfigManager;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.util.Optional;
 
-import static de.ztiger.faibot.FaiBot.cfgm;
-
-
+@RequiredArgsConstructor
 public class GuildProvider {
 
-    public static Optional<Guild> getMainGuild() {
-        String guildId = cfgm.getConfig().getString("guild");
+    private final ShardManager shardManager;
+    private final ConfigManager configManager;
+
+    public Optional<Guild> getMainGuild() {
+        String guildId = configManager.getConfig().getString("guild");
 
         if (guildId == null || guildId.isEmpty()) return Optional.empty();
 
-        return Optional.ofNullable(FaiBot.getShardManager().getGuildById(guildId));
+        return Optional.ofNullable(shardManager.getGuildById(guildId));
     }
 }

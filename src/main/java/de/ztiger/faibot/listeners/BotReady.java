@@ -1,45 +1,41 @@
 package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.utils.GuildProvider;
-import de.ztiger.faibot.utils.YoutubeHandler;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.Localization.get;
-
+@RequiredArgsConstructor
 public class BotReady extends ListenerAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger(BotReady.class);
+
+    private final InteractionListener interactionListener;
+    private final GuildProvider guildProvider;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
     @Override
     public void onReady(ReadyEvent event) {
-        GuildProvider.getMainGuild().ifPresentOrElse(
-                guild -> {
-                    CommandListener commandListener = new CommandListener();
-                    guild.updateCommands().addCommands(commandListener.getCommandDataList()).queue();
-
-                    ComponentListener componentListener = new ComponentListener();
-                    event.getJDA().addEventListener(commandListener);
-                    event.getJDA().addEventListener(componentListener);
-                },
+        guildProvider.getMainGuild().ifPresentOrElse(
+                guild -> guild.updateCommands().addCommands(interactionListener.getCommandDataList()).queue(),
                 () -> logger.error("Main guild could not be found!")
         );
 
         scheduler.scheduleAtFixedRate(this::updateServerStats, 10, 3600, TimeUnit.SECONDS);
 
-        scheduler.scheduleAtFixedRate(YoutubeHandler::checkVideo, 10, 300, TimeUnit.SECONDS);
+    //    scheduler.scheduleAtFixedRate(YoutubeHandler::checkVideo, 10, 300, TimeUnit.SECONDS);
     }
 
     private void updateServerStats() {
-        GuildProvider.getMainGuild().ifPresent(guild -> {
-            String categoryName = get("serverstats.title");
+       /* guildProvider.getMainGuild().ifPresent(guild -> {
+            String categoryName = i18n.get("serverstats.title");
             List<Category> categories = guild.getCategoriesByName(categoryName, true);
 
             if (categories.isEmpty()) return;
@@ -59,6 +55,6 @@ public class BotReady extends ListenerAdapter {
             voiceChannels.get(2).getManager().setName("Bots: " + botMembers).queue();
 
             logger.info("Updated Server Stats");
-        });
+        });*/
     }
 }
