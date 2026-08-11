@@ -23,7 +23,7 @@ public final class IdeaComponents {
     public static final String FIELD_SUBJECT = "subject";
     public static final String FIELD_BODY = "body";
 
-    public Modal ideaModal() {
+    public Modal getIdeaModal() {
         TextInput subject = TextInput.create(FIELD_SUBJECT, TextInputStyle.SHORT)
                 .setPlaceholder(i18n.get(Idea.Modal.Subject.PLACEHOLDER))
                 .setMaxLength(100)
@@ -44,7 +44,7 @@ public final class IdeaComponents {
                 .build();
     }
 
-    public MessageCreateData createPollMessage(String authorMention, String subject, String body) {
+    public MessageCreateData getPollMessage(String authorMention, String subject, String body) {
         MessagePollData pollData = MessagePollData.builder(subject)
                 .addAnswer(i18n.get(Idea.Poll.ACCEPT), Emoji.fromUnicode("✅"))
                 .addAnswer(i18n.get(Idea.Poll.REJECT), Emoji.fromUnicode("❌"))

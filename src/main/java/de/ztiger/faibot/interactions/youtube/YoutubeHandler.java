@@ -4,11 +4,10 @@ import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.utils.ChannelProvider;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -18,10 +17,9 @@ import java.net.URL;
 import java.time.Duration;
 
 // TODO: Put strings into configs
+@Slf4j
 @RequiredArgsConstructor
 public class YoutubeHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(YoutubeHandler.class);
 
     private final ChannelProvider channelProvider;
     private final Dotenv env;
@@ -45,7 +43,7 @@ public class YoutubeHandler {
 
             sendVideoEmbed(videoId);
         } catch (JSONException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -65,7 +63,7 @@ public class YoutubeHandler {
 
             return new JSONObject(sb.toString());
         } catch (IOException | JSONException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
 
         return null;
@@ -73,7 +71,7 @@ public class YoutubeHandler {
 
     private void sendVideoEmbed(String videoId) {
         channelProvider.sendMessage(BotChannel.YOUTUBE, "@everyone Neues Video von **Izi Fit:** \n\rhttps://youtu.be/" + videoId);
-        logger.info("New video posted: {}", videoId);
+        log.info("New video posted: {}", videoId);
     }
 
     public void triggerVideoCheck(SlashCommandInteractionEvent event) {

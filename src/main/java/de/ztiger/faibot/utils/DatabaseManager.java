@@ -3,19 +3,18 @@ package de.ztiger.faibot.utils;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import de.ztiger.faibot.data.ExternalReference;
 import de.ztiger.faibot.data.Placement;
 import de.ztiger.faibot.data.Season;
 import de.ztiger.faibot.data.TwitchUser;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 
+@Slf4j
 public class DatabaseManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
 
     @Getter
     private ConnectionSource connectionSource;
@@ -30,6 +29,7 @@ public class DatabaseManager {
         TableUtils.createTableIfNotExists(connectionSource, Placement.class);
         TableUtils.createTableIfNotExists(connectionSource, Season.class);
         TableUtils.createTableIfNotExists(connectionSource, TwitchUser.class);
+        TableUtils.createTableIfNotExists(connectionSource, ExternalReference.class);
     }
 
     public void close() {
@@ -37,7 +37,7 @@ public class DatabaseManager {
             try {
                 connectionSource.close();
             } catch (Exception e) {
-                logger.error("Error closing database connection: ", e);
+                log.error("Error closing database connection: ", e);
             }
         }
     }

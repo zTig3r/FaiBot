@@ -2,6 +2,7 @@ package de.ztiger.faibot.utils;
 
 import de.ztiger.faibot.config.ConfigManager;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -10,7 +11,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GuildProvider {
 
-    private final ShardManager shardManager;
+    @Setter
+    private ShardManager shardManager;
+
     private final ConfigManager configManager;
 
     public Optional<Guild> getMainGuild() {

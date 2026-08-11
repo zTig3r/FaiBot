@@ -9,15 +9,12 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static de.ztiger.faibot.utils.MessageCachingService.add;
 
 @RequiredArgsConstructor
 public class MessageReceived extends ListenerAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageReceived.class);
 
     private final ChannelProvider channelProvider;
 

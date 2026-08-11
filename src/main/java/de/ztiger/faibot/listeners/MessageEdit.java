@@ -5,24 +5,22 @@ import de.ztiger.faibot.localization.keys.Log;
 import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 
 import static de.ztiger.faibot.utils.MessageCachingService.add;
 import static de.ztiger.faibot.utils.MessageCachingService.get;
 
+@Slf4j
 @RequiredArgsConstructor
 public class MessageEdit extends ListenerAdapter {
-
-    private static final Logger logger = LoggerFactory.getLogger(MessageEdit.class);
 
     private final ChannelProvider channelProvider;
     private final LocalizationService i18n;
@@ -39,7 +37,7 @@ public class MessageEdit extends ListenerAdapter {
 
             add(event.getMessage());
         } catch (Exception e) {
-            logger.error("Error while processing message edit event", e);
+            log.error("Error while processing message edit event", e);
         }
     }
 

@@ -2,19 +2,17 @@ package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.utils.GuildProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RequiredArgsConstructor
 public class BotReady extends ListenerAdapter {
-
-    private static final Logger logger = LoggerFactory.getLogger(BotReady.class);
 
     private final InteractionListener interactionListener;
     private final GuildProvider guildProvider;
@@ -25,7 +23,7 @@ public class BotReady extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         guildProvider.getMainGuild().ifPresentOrElse(
                 guild -> guild.updateCommands().addCommands(interactionListener.getCommandDataList()).queue(),
-                () -> logger.error("Main guild could not be found!")
+                () -> log.error("Main guild could not be found!")
         );
 
         scheduler.scheduleAtFixedRate(this::updateServerStats, 10, 3600, TimeUnit.SECONDS);

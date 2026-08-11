@@ -18,7 +18,7 @@ public class TwitchComponents {
     private final ConfigManager configManager;
     private final LocalizationService i18n;
 
-    public Container notification(String previewUrl, String profileUrl, String profilePictureUrl, String title, String game, int viewers, String duration) {
+    public Container getNotification(String previewUrl, String profileUrl, String profilePictureUrl, String title, String game, int viewers, String duration) {
         return Container.of(
                 Section.of(
                         Thumbnail.fromUrl(profilePictureUrl),
@@ -31,7 +31,7 @@ public class TwitchComponents {
         ).withAccentColor(configManager.getColor(BotColor.TWITCH));
     }
 
-    public Container endNotification(String profileUrl, String profilePictureUrl, String duration) {
+    public Container getEndNotification(String profileUrl, String profilePictureUrl, String duration) {
         return Container.of(
                 Section.of(
                         Thumbnail.fromUrl(profilePictureUrl),

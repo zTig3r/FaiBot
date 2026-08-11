@@ -13,7 +13,7 @@ public class Season {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField
+    @DatabaseField(columnName = "year_month")
     private String yearMonth;
 
     public YearMonth toYearMonth() {

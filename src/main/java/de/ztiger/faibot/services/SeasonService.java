@@ -13,13 +13,11 @@ public class SeasonService {
     private final Dao<Season, String> seasonDao;
 
     public boolean seasonExists(YearMonth yearMonth) throws SQLException {
-        return !seasonDao.queryForEq("yearMonth", yearMonth.toString()).isEmpty();
+        return !seasonDao.queryForEq("year_month", yearMonth.toString()).isEmpty();
     }
 
     public Season getOrCreateSeason(YearMonth yearMonth) throws SQLException {
-        Season season = seasonDao.queryForEq("yearMonth", yearMonth.toString()).stream()
-                .findFirst()
-                .orElse(null);
+        Season season = seasonDao.queryBuilder().where().eq("year_month", yearMonth.toString()).queryForFirst();
 
         if (season == null) {
             season = new Season(0, yearMonth.toString());

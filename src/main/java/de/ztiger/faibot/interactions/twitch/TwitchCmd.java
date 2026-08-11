@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 public class TwitchCmd implements ICommand {
 
     private static final String ACTION = "action";
+    private static final String START = "start";
+    private static final String STOP = "stop";
 
     private final TwitchStreamHandler twitchStreamHandler;
     private final LocalizationService i18n;
@@ -23,17 +25,16 @@ public class TwitchCmd implements ICommand {
     public CommandData getCommandData() {
         return Commands.slash("twitch", "Starte / Stoppe eine Live-Benachrichtigung")
                 .addOptions(new OptionData(OptionType.STRING, ACTION, "Live-Benachrichtigung starten / stoppen", true)
-                        .addChoice("start", "start")
-                        .addChoice("stop", "stop"))
+                        .addChoice("start", START)
+                        .addChoice("stop", STOP))
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED);
     }
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        if (event.getOption(ACTION).getAsString().equals("start")) {
+        if (event.getOption(ACTION).getAsString().equals(START)) {
             twitchStreamHandler.streamStart();
             event.reply(i18n.get(Twitch.Success.START)).setEphemeral(true).queue();
-
         } else {
             twitchStreamHandler.streamEnd();
             event.reply(i18n.get(Twitch.Success.STOP)).setEphemeral(true).queue();

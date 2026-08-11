@@ -8,17 +8,15 @@ import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.Video;
 import com.github.twitch4j.helix.domain.VideoList;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class TwitchApiService {
-
-    private static final Logger logger = LoggerFactory.getLogger(TwitchApiService.class);
 
     @Getter
     private final TwitchClient client;
@@ -43,7 +41,7 @@ public class TwitchApiService {
         try {
             return client.getHelix().getUsers(null, null, usernames).execute().getUsers();
         } catch (Exception e) {
-            logger.error("Failed to fetch Twitch users for list: {}", usernames, e);
+            log.error("Failed to fetch Twitch users for list: {}", usernames, e);
             return Collections.emptyList();
         }
     }
@@ -56,7 +54,7 @@ public class TwitchApiService {
 
             return streamList.getStreams().stream().findFirst();
         } catch (Exception e) {
-            logger.error("Failed to fetch stream status for {}", channelName, e);
+            log.error("Failed to fetch stream status for {}", channelName, e);
             return Optional.empty();
         }
     }
@@ -72,7 +70,7 @@ public class TwitchApiService {
                 return parseTwitchIsoDuration(rawDuration);
             }
         } catch (Exception e) {
-            logger.error("Failed to fetch VOD duration for userId {}", userId, e);
+            log.error("Failed to fetch VOD duration for userId {}", userId, e);
         }
         return Duration.ZERO;
     }
@@ -81,7 +79,7 @@ public class TwitchApiService {
         try {
             return Duration.parse("PT" + durationStr.toUpperCase());
         } catch (Exception e) {
-            logger.warn("Failed to parse duration string: {}", durationStr);
+            log.warn("Failed to parse duration string: {}", durationStr);
             return Duration.ZERO;
         }
     }

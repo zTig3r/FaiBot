@@ -4,19 +4,17 @@ import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.utils.GuildProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ServerStatsCmd implements ICommand {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServerStatsCmd.class);
 
     private final GuildProvider guildProvider;
     private final LocalizationService i18n;
@@ -54,7 +52,7 @@ public class ServerStatsCmd implements ICommand {
                     .setParent(guild.getCategoriesByName(name, true).getFirst())
                     .queue();
 
-            logger.info("Created Server Stats category");
+            log.info("Created Server Stats category");
             event.reply(i18n.get(KEY + "success")).setEphemeral(true).queue();
         });
     }

@@ -4,10 +4,14 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import de.ztiger.faibot.config.ConfigManager;
 import de.ztiger.faibot.data.*;
+import de.ztiger.faibot.interactions.halloffame.HallOfFameCmd;
+import de.ztiger.faibot.interactions.halloffame.HallOfFameComponents;
 import de.ztiger.faibot.interactions.idea.IdeaCmd;
 import de.ztiger.faibot.interactions.idea.IdeaComponents;
 import de.ztiger.faibot.interactions.nixos.NixosCmd;
 import de.ztiger.faibot.interactions.nixos.NixosComponents;
+import de.ztiger.faibot.interactions.points.PointsCmd;
+import de.ztiger.faibot.interactions.points.PointsComponents;
 import de.ztiger.faibot.interactions.serverstats.ServerStatsCmd;
 import de.ztiger.faibot.interactions.twitch.*;
 import de.ztiger.faibot.interactions.youtube.YoutubeCmd;
@@ -16,7 +20,12 @@ import de.ztiger.faibot.services.*;
 import de.ztiger.faibot.utils.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 @Getter
 public class AppContainer {
@@ -30,26 +39,28 @@ public class AppContainer {
     private final GuildProvider guildProvider;
     private final LocalizationService i18n;
 
+    private final ExternalReferenceService externalReferenceService;
     private final TwitchApiService twitchApiService;
     private final TwitchUserService twitchUserService;
     private final SeasonService seasonService;
-    private final PlacementService rankingService;
+    private final PlacementService placementService;
     private final TwitchStreamHandler twitchStreamHandler;
 
+    private final HallOfFameComponents hallOfFameComponents;
     private final IdeaComponents ideaComponents;
     private final NixosComponents nixosComponents;
+    private final PointsComponents pointsComponents;
     private final TwitchComponents twitchComponents;
 
     private final InteractionListener interactionListener;
 
-    public AppContainer(Dotenv env, ShardManager shardManager) throws Exception {
+    public AppContainer(Dotenv env) throws Exception {
         this.env = env;
-        this.shardManager = shardManager;
 
         // Core Utilities
         this.configManager = new ConfigManager(env);
-        this.channelProvider = new ChannelProvider(shardManager, configManager);
-        this.guildProvider = new GuildProvider(shardManager, configManager);
+        this.channelProvider = new ChannelProvider(configManager);
+        this.guildProvider = new GuildProvider(configManager);
         this.i18n = new LocalizationService(configManager);
 
         // Database & DAOs
@@ -57,33 +68,48 @@ public class AppContainer {
         Dao<TwitchUser, String> userDao = DaoManager.createDao(databaseManager.getConnectionSource(), TwitchUser.class);
         Dao<Season, String> seasonDao = DaoManager.createDao(databaseManager.getConnectionSource(), Season.class);
         Dao<Placement, Integer> placementDao = DaoManager.createDao(databaseManager.getConnectionSource(), Placement.class);
+        Dao<ExternalReference, Integer> externalReferenceDao = DaoManager.createDao(databaseManager.getConnectionSource(), ExternalReference.class);
 
         // Domain Services & Component Factories
+        this.externalReferenceService = new ExternalReferenceService(externalReferenceDao);
         this.twitchApiService = new TwitchApiService(env.get("CLIENT_ID"), env.get("CLIENT_SECRET"));
         this.twitchUserService = new TwitchUserService(userDao);
         this.seasonService = new SeasonService(seasonDao);
-        this.rankingService = new PlacementService(twitchUserService, seasonService, placementDao, twitchApiService);
+        this.placementService = new PlacementService(twitchUserService, seasonService, placementDao, twitchApiService);
 
-        // UI & Stream Handlers
+        twitchUserService.initCache();
+
+        // UI
+        this.hallOfFameComponents = new HallOfFameComponents(configManager, i18n);
         this.ideaComponents = new IdeaComponents(i18n);
         this.nixosComponents = new NixosComponents(configManager, i18n);
+        this.pointsComponents = new PointsComponents(i18n);
         this.twitchComponents = new TwitchComponents(configManager, i18n);
 
+        // Stream Handler
         String twitchChannel = configManager.getConfig().getString("twitch-channel");
         this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, twitchComponents, i18n);
 
         // Commands & Listeners
-        NixosCmd nixosCmd = new NixosCmd(rankingService, seasonService, channelProvider, nixosComponents, i18n);
+        HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, placementService, externalReferenceService, i18n);
         IdeaCmd ideaCmd = new IdeaCmd(channelProvider, ideaComponents, i18n);
+        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, nixosComponents, i18n);
+        PointsCmd pointsCmd = new PointsCmd(placementService, twitchUserService, pointsComponents, i18n);
         ServerStatsCmd serverStatsCmd = new ServerStatsCmd(guildProvider, i18n);
         TwitchCmd twitchCmd = new TwitchCmd(twitchStreamHandler, i18n);
         YoutubeCmd youtubeCmd = new YoutubeCmd();
 
-        this.interactionListener = new InteractionListener(nixosCmd, ideaCmd, serverStatsCmd, twitchCmd, youtubeCmd);
-    }
+        this.interactionListener = new InteractionListener(hallOfFameCmd, ideaCmd, nixosCmd, pointsCmd, serverStatsCmd, twitchCmd, youtubeCmd);
 
-    public Object[] getEventListeners() {
-        return new Object[]{
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(env.get("TOKEN"))
+                .setAutoReconnect(true)
+                .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
+                .setBulkDeleteSplittingEnabled(false)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .setChunkingFilter(ChunkingFilter.ALL)
+                .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE, CacheFlag.CLIENT_STATUS, CacheFlag.ACTIVITY, CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS, CacheFlag.EMOJI);
+
+        builder.addEventListeners(
                 interactionListener,
                 new MessageReceived(channelProvider),
                 new MemberLeave(channelProvider, i18n),
@@ -91,12 +117,20 @@ public class AppContainer {
                 new MessageEdit(channelProvider, i18n),
                 new MemberJoin(channelProvider, i18n),
                 new BotReady(interactionListener, guildProvider)
-        };
+        );
+
+        this.shardManager = builder.build();
+
+        this.channelProvider.setShardManager(this.shardManager);
+        this.guildProvider.setShardManager(this.shardManager);
     }
 
     public void shutdown() {
         twitchStreamHandler.shutdown();
         twitchApiService.shutdown();
+        if (shardManager != null) {
+            shardManager.shutdown();
+        }
         databaseManager.close();
     }
 }

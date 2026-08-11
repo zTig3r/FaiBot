@@ -3,7 +3,9 @@ package de.ztiger.faibot.utils;
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.config.ConfigManager;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -16,7 +18,9 @@ public class ChannelProvider {
 
     // TODO: Implement error if channel is not found
 
-    private final ShardManager shardManager;
+    @Setter
+    private ShardManager shardManager;
+
     private final ConfigManager configManager;
 
     public boolean isChannel(Channel channel, BotChannel targetChannel) {
@@ -38,7 +42,12 @@ public class ChannelProvider {
         getChannel(channel).ifPresent(c -> c.sendMessageComponents(component).useComponentsV2().queue());
     }
 
-    public void editComponents(BotChannel channel, String messageId, MessageTopLevelComponent component) {
+    public long sendComponentAndGetId(BotChannel channel, MessageTopLevelComponent component) {
+        return getChannel(channel).map(c -> c.sendMessageComponents(component).useComponentsV2().submit()
+                .thenApply(ISnowflake::getIdLong).join()).orElse(-1L);
+    }
+
+    public void editComponents(BotChannel channel, long messageId, MessageTopLevelComponent component) {
         getChannel(channel).ifPresent(c -> c.editMessageComponentsById(messageId, component).useComponentsV2().queue());
     }
 

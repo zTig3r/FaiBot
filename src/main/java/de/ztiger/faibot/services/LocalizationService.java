@@ -3,8 +3,7 @@ package de.ztiger.faibot.services;
 import de.ztiger.faibot.config.ConfigManager;
 import de.ztiger.faibot.localization.keys.Time;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.Period;
@@ -14,10 +13,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @RequiredArgsConstructor
 public class LocalizationService {
-
-    private static final Logger logger = LoggerFactory.getLogger(LocalizationService.class);
 
     private final ConfigManager configManager;
 
@@ -42,7 +40,7 @@ public class LocalizationService {
                 String value = configManager.getLanguageConfig().getString(k);
                 return (value != null) ? value : k;
             } catch (Exception e) {
-                logger.error("Error while loading language file: {}", e.getMessage());
+                log.error("Error while loading language file: {}", e.getMessage());
                 return k;
             }
         });
@@ -55,7 +53,7 @@ public class LocalizationService {
         }
 
         if (args.length % 2 != 0) {
-            logger.warn("Varargs passed to Lang.format for key '{}' are not balanced pairs!", key);
+            log.warn("Varargs passed to Lang.format for key '{}' are not balanced pairs!", key);
             return message;
         }
 

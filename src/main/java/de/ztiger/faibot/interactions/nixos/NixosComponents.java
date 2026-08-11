@@ -43,7 +43,7 @@ public class NixosComponents {
     public static final String CONFIRM_OVERRIDE = "confirm_override";
     public static final String CANCEL_OVERRIDE = "cancel_override";
 
-    public Modal nixoModal(List<String> winners) {
+    public Modal getNixoModal(List<String> winners) {
         YearMonth now = YearMonth.now();
 
         StringSelectMenu monthMenu = StringSelectMenu.create(FIELD_MONTH)
@@ -66,7 +66,7 @@ public class NixosComponents {
                 ).build();
     }
 
-    public Container winnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages) {
+    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages) {
         List<String> formattedWinners = IntStream.range(0, winners.size())
                 .mapToObj(i -> i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i))).toList();
 
@@ -84,7 +84,7 @@ public class NixosComponents {
         ).withAccentColor(configManager.getColor(BotColor.DEFAULT));
     }
 
-    public Container confirmOverride(String month, String year) {
+    public Container getConfirmOverride(String month, String year) {
         return Container.of(
                 TextDisplay.of(i18n.format(Nixos.Override.DESCRIPTION, "month", month, "year", year)),
                 ActionRow.of(

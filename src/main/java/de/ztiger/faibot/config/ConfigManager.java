@@ -2,10 +2,9 @@ package de.ztiger.faibot.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.simpleyaml.configuration.file.FileConfiguration;
 import org.simpleyaml.configuration.file.YamlConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
@@ -13,9 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Slf4j
 public class ConfigManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private final Dotenv env;
 
@@ -28,7 +26,7 @@ public class ConfigManager {
     public ConfigManager(Dotenv env) {
         this.env = env;
         this.configDir = resolveConfigDirectory();
-        logger.info("Using configuration directory: {}", configDir.toAbsolutePath());
+        log.info("Using configuration directory: {}", configDir.toAbsolutePath());
         config = loadYamlFile("config");
     }
 
@@ -49,14 +47,14 @@ public class ConfigManager {
             File configFile = localFile.exists() ? localFile : baseFile;
 
             if (!configFile.exists()) {
-                logger.warn("Config file {} does not exist.", configFile.getName());
+                log.warn("Config file {} does not exist.", configFile.getName());
                 return new YamlConfiguration();
             }
 
-            logger.info("Loading config: {}", configFile.getName());
+            log.info("Loading config: {}", configFile.getName());
             return YamlConfiguration.loadConfiguration(configFile);
         } catch (Exception e) {
-            logger.error("Error loading config file {}: {}", fileName, e.getMessage(), e);
+            log.error("Error loading config file {}: {}", fileName, e.getMessage(), e);
             return new YamlConfiguration();
         }
     }
@@ -76,13 +74,13 @@ public class ConfigManager {
     public Color getColor(BotColor color) {
         String hex = config.getString("color." + color.getConfigKey());
         if (hex == null || hex.isBlank()) {
-            logger.warn("Color key 'color.{}' missing in config. Defaulting to white.", color.getConfigKey());
+            log.warn("Color key 'color.{}' missing in config. Defaulting to white.", color.getConfigKey());
             return Color.WHITE;
         }
         try {
             return Color.decode(hex);
         } catch (NumberFormatException e) {
-            logger.error("Invalid color format for key 'color.{}': {}", color.getConfigKey(), hex);
+            log.error("Invalid color format for key 'color.{}': {}", color.getConfigKey(), hex);
             return Color.WHITE;
         }
     }

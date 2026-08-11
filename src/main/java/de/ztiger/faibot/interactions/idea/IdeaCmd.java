@@ -32,7 +32,7 @@ public class IdeaCmd implements ICommand, IModalHandler {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        event.replyModal(ideaComponents.ideaModal()).queue();
+        event.replyModal(ideaComponents.getIdeaModal()).queue();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class IdeaCmd implements ICommand, IModalHandler {
         String subject = event.getValue(IdeaComponents.FIELD_SUBJECT).getAsString();
         String body = event.getValue(IdeaComponents.FIELD_BODY).getAsString();
 
-        MessageCreateData pollMessage = ideaComponents.createPollMessage(
+        MessageCreateData pollMessage = ideaComponents.getPollMessage(
                 event.getUser().getAsMention(),
                 subject, body
         );

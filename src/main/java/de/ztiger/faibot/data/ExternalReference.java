@@ -1,25 +1,25 @@
 package de.ztiger.faibot.data;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class Placement {
+@DatabaseTable(tableName = "external_reference")
+public class ExternalReference {
 
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    @Getter
-    private Season season;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    private TwitchUser twitchUser;
+    @DatabaseField(columnName = "resource_type")
+    private String resourceType;
 
     @DatabaseField
     @Getter
-    private int position;
+    @Setter
+    private String identifier;
 }

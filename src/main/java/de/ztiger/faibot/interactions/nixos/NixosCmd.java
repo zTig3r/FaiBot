@@ -11,6 +11,7 @@ import de.ztiger.faibot.services.PlacementService;
 import de.ztiger.faibot.services.SeasonService;
 import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,8 +22,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Month;
 import java.time.YearMonth;
@@ -32,10 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @RequiredArgsConstructor
 public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(NixosCmd.class);
+    private static final String WINNER_OPTION = "winners";
 
     private final PlacementService placementService;
     private final SeasonService seasonService;
@@ -58,13 +58,13 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
     @Override
     public CommandData getCommandData() {
         return Commands.slash("nixos", "Erstellt eine Nachricht mit den Statistiken der aktuellen Nixo-Season")
-                .addOption(OptionType.STRING, "winners", "Nutzer markieren oder Namen eingeben (Leerzeichen um zu trennen)", true)
+                .addOption(OptionType.STRING, WINNER_OPTION, "Nutzer markieren oder Namen eingeben (Leerzeichen um zu trennen)", true)
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED);
     }
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        OptionMapping option = event.getOption("winners");
+        OptionMapping option = event.getOption(WINNER_OPTION);
         if (option == null) return;
 
         List<String> winnerNames = new ArrayList<>();
@@ -75,7 +75,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         }
 
         winnerCache.put(event.getUser().getId(), winnerNames);
-        event.replyModal(nixosComponents.nixoModal(winnerNames)).queue();
+        event.replyModal(nixosComponents.getNixoModal(winnerNames)).queue();
     }
 
     @Override
@@ -99,11 +99,11 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
             if (seasonService.seasonExists(season)) {
                 pendingOverrideCache.put(event.getUser().getId(), new PendingSeasonData(season, localizedMonth, yearStr, winners, rawTop10, attachments));
 
-                event.getHook().sendMessageComponents(nixosComponents.confirmOverride(localizedMonth, yearStr)).useComponentsV2().setEphemeral(true).queue();
+                event.getHook().sendMessageComponents(nixosComponents.getConfirmOverride(localizedMonth, yearStr)).useComponentsV2().setEphemeral(true).queue();
                 return;
             }
         } catch (Exception e) {
-            logger.error("Failed to check if a season already exists: {}", season, e);
+            log.error("Failed to check if a season already exists: {}", season, e);
             event.getHook().sendMessage(i18n.get(General.ERROR)).setEphemeral(true).queue();
             return;
         }
@@ -117,7 +117,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
         String userId = event.getUser().getId();
 
-        if (event.getButton().getCustomId().equals(NixosComponents.CANCEL_OVERRIDE)) {
+        if (event.getButton().getCustomId().contains(NixosComponents.CANCEL_OVERRIDE)) {
             pendingOverrideCache.remove(userId);
             event.getHook().sendMessage(i18n.get(Nixos.Override.CANCELLED)).setEphemeral(true).queue();
             return;
@@ -138,12 +138,12 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         List<String> formattedTopList = new ArrayList<>();
         List<PlacementService.ParsedPlacement> placementsToSave = new ArrayList<>();
 
-        Matcher matcher = Pattern.compile("#(\\d+)\\s+(.+?)\\s*\\((\\d+)\\)").matcher(rawTop10);
+        Matcher matcher = Pattern.compile("#(\\d+)\\s+(.+?)\\s*\\(([\\d.]+)\\)").matcher(rawTop10);
 
         while (matcher.find()) {
             int rank = Integer.parseInt(matcher.group(1));
             String username = matcher.group(2).trim();
-            long points = Long.parseLong(matcher.group(3));
+            long points = Long.parseLong(matcher.group(3).replace(".", ""));
 
             formattedTopList.add(String.format("**%02d\\. **%s (%d)", rank, username, points));
             placementsToSave.add(new PlacementService.ParsedPlacement(rank, username));
@@ -152,14 +152,14 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         try {
             placementService.processSeasonResults(season, placementsToSave);
         } catch (Exception e) {
-            logger.error("Failed to save Nixo season results to database for month: {}", season, e);
+            log.error("Failed to save Nixo season results to database for month: {}", season, e);
             hook.sendMessage(i18n.get(General.ERROR)).setEphemeral(true).queue();
             return;
         }
 
         channelProvider.sendComponentAndCreateThread(
                 BotChannel.NIXOS,
-                nixosComponents.winnerComponent(localizedMonth, yearStr, formattedTopList, winners, attachments),
+                nixosComponents.getWinnerComponent(localizedMonth, yearStr, formattedTopList, winners, attachments),
                 i18n.format(Nixos.Message.THREAD, "month", localizedMonth, "year", yearStr)
         );
 

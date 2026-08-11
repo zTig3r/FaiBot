@@ -2,12 +2,14 @@ package de.ztiger.faibot.services;
 
 import com.github.twitch4j.helix.domain.User;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.RawRowMapper;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import de.ztiger.faibot.data.Placement;
 import de.ztiger.faibot.data.Season;
 import de.ztiger.faibot.data.TwitchUser;
 import lombok.RequiredArgsConstructor;
 
+import java.sql.SQLException;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,12 @@ public class PlacementService {
     private final TwitchApiService twitchApiService;
 
     public record ParsedPlacement(int rank, String username) {
+    }
+
+    public record HallOfFameEntry(String userId, String username, int totalScore) {
+    }
+
+    public record UserScoreBreakdown(String userId, int totalScore, int appearances, List<Integer> positions) {
     }
 
     public void processSeasonResults(YearMonth yearMonth, List<ParsedPlacement> placements) throws Exception {
@@ -50,5 +58,38 @@ public class PlacementService {
             Placement placement = new Placement(0, season, dbUser, item.rank());
             placementDao.create(placement);
         }
+    }
+
+    public List<HallOfFameEntry> getHallOfFameData() throws SQLException {
+        String sql = """
+                SELECT
+                     u.id AS user_id,
+                     u.username AS username,
+                     COUNT(p.id) * 3 + SUM(11 - p.position) AS total_score,
+                     COUNT(p.id) AS appearances
+                 FROM placement p
+                 INNER JOIN twitchuser u ON p.twitchUser_id = u.id
+                 GROUP BY u.id, u.username
+                 ORDER BY total_score DESC
+                 LIMIT 10
+                """;
+
+        RawRowMapper<HallOfFameEntry> mapper = (columnNames, resultColumns) -> new HallOfFameEntry(
+                resultColumns[0],
+                resultColumns[1],
+                (int) Math.round(Double.parseDouble(resultColumns[2]))
+        );
+
+        return placementDao.queryRaw(sql, mapper).getResults();
+    }
+
+    public UserScoreBreakdown getUserScoreBreakdown(String twitchUserId) throws SQLException {
+        List<Placement> userPlacements = placementDao.queryBuilder().where().eq("twitchUser_id", twitchUserId).query();
+
+        List<Integer> positions = userPlacements.stream().map(Placement::getPosition).toList();
+
+        int totalScore = positions.stream().mapToInt(pos -> 14 - pos).sum();
+
+        return new UserScoreBreakdown(twitchUserId, totalScore, positions.size(), positions);
     }
 }
