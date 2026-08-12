@@ -6,10 +6,9 @@ import de.ztiger.faibot.services.LocalizationService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 @RequiredArgsConstructor
 public class TwitchCmd implements ICommand {
@@ -23,11 +22,11 @@ public class TwitchCmd implements ICommand {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("twitch", "Starte / Stoppe eine Live-Benachrichtigung")
-                .addOptions(new OptionData(OptionType.STRING, ACTION, "Live-Benachrichtigung starten / stoppen", true)
-                        .addChoice("start", START)
-                        .addChoice("stop", STOP))
-                .setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+        return Commands.slash("twitch", i18n.get(Twitch.Command.DESCRIPTION))
+                .addSubcommands(
+                        new SubcommandData(START, i18n.get(Twitch.Command.START)),
+                        new SubcommandData(STOP, i18n.get(Twitch.Command.STOP))
+                ).setDefaultPermissions(DefaultMemberPermissions.DISABLED);
     }
 
     @Override

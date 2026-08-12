@@ -35,7 +35,7 @@ public class MemberLeave extends ListenerAdapter {
                         TextDisplay.of(i18n.get(Log.Member.Leave.TITLE)),
                         TextDisplay.of(tag + " " + name)
                 ),
-                TextDisplay.of(i18n.format(Log.Member.FOOTER, "userId", userId))
+                TextDisplay.of(i18n.format(Log.Member.FOOTER, "userid", userId))
         ).withAccentColor(Color.RED);
     }
 }

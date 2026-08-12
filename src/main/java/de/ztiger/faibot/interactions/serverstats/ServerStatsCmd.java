@@ -24,7 +24,7 @@ public class ServerStatsCmd implements ICommand {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("setupstats", "Erstelle die Server Stats").setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+        return Commands.slash("setupstats", i18n.get(Serverstats.Command.DESCRIPTION)).setDefaultPermissions(DefaultMemberPermissions.DISABLED);
     }
 
     @Override

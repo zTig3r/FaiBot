@@ -2,6 +2,7 @@ package de.ztiger.faibot.interactions.halloffame;
 
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.interactions.ICommand;
+import de.ztiger.faibot.localization.keys.HallOfFame;
 import de.ztiger.faibot.services.ExternalReferenceService;
 import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.PlacementService;
@@ -30,17 +31,18 @@ public class HallOfFameCmd implements ICommand {
     private final LocalizationService i18n;
 
     private static final String POST = "post";
-    private static final String REFRESH = "refresh";
+    private static final String UPDATE = "update";
     private static final String SETMESSAGEID = "setmessageid";
+    private static final String MESSAGEID_FIELD = "messageid";
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("halloffame", "Zeigt die Hall of Fame an")
+        return Commands.slash("halloffame", i18n.get(HallOfFame.Command.DESCRIPTION))
                 .addSubcommands(
-                        new SubcommandData(POST, "Postet die Hall of Fame"),
-                        new SubcommandData(REFRESH, "Aktualisiert die Hall of Fame"),
-                        new SubcommandData(SETMESSAGEID, "Setzt die Nachrichten-ID der Hall of Fame")
-                                .addOption(OptionType.STRING, "messageid", "Die ID der Nachricht", true)
+                        new SubcommandData(POST, i18n.get(HallOfFame.Command.POST)),
+                        new SubcommandData(UPDATE, i18n.get(HallOfFame.Command.UPDATE)),
+                        new SubcommandData(SETMESSAGEID, i18n.get(HallOfFame.Command.SETMESSAGEID))
+                                .addOption(OptionType.STRING, MESSAGEID_FIELD, i18n.get(HallOfFame.Command.MESSAGEID), true)
                 )
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED);
     }
@@ -51,9 +53,9 @@ public class HallOfFameCmd implements ICommand {
 
         switch (event.getSubcommandName()) {
             case POST -> postHallOfFame(event);
-            case REFRESH -> updateHallOfFame(event);
+            case UPDATE -> updateHallOfFame(event);
             case SETMESSAGEID -> setHallOfFameMessageId(event);
-            default -> event.getHook().sendMessage("Unbekannte Aktion").queue();
+            default -> event.getHook().sendMessage(i18n.get(HallOfFame.Error.UNKNOWN)).queue();
         }
     }
 
@@ -63,10 +65,10 @@ public class HallOfFameCmd implements ICommand {
             long messageId = channelProvider.sendComponentAndGetId(BotChannel.NIXOS, hallOfFameComponents.getHallOfFame(formattedTopList));
 
             externalReferenceService.setHallOfFameMessage(String.valueOf(messageId));
-            event.getHook().sendMessage("Hall of Fame erfolgreich gepostet").queue();
+            event.getHook().sendMessage(i18n.get(HallOfFame.Success.POST)).queue();
         } catch (Exception e) {
-            log.error("Fehler beim Abrufen der Hall of Fame-Daten", e);
-            event.getHook().sendMessage("Fehler beim Abrufen der Hall of Fame-Daten").queue();
+            log.error("Error while fetching Hall of Fame data", e);
+            event.getHook().sendMessage(i18n.get(HallOfFame.Error.FETCH)).queue();
         }
     }
 
@@ -74,28 +76,28 @@ public class HallOfFameCmd implements ICommand {
         try {
             long messageId = externalReferenceService.getHallOfFameMessageId();
             if (messageId == -1) {
-                event.getHook().sendMessage("Keine Hall of Fame-Nachricht gefunden. Bitte zuerst die Hall of Fame posten.").queue();
+                event.getHook().sendMessage(i18n.get(HallOfFame.Error.NOTFOUND)).queue();
                 return;
             }
 
             List<String> formattedTopList = getFormattedTopList();
             channelProvider.editComponents(BotChannel.NIXOS, messageId, hallOfFameComponents.getHallOfFame(formattedTopList));
 
-            event.getHook().sendMessage("Hall of Fame erfolgreich aktualisiert").queue();
+            event.getHook().sendMessage(i18n.get(HallOfFame.Success.UPDATE)).queue();
         } catch (Exception e) {
-            log.error("Fehler beim Aktualisieren der Hall of Fame-Daten", e);
-            event.getHook().sendMessage("Fehler beim Aktualisieren der Hall of Fame-Daten").queue();
+            log.error("Error while updating Hall of Fame data", e);
+            event.getHook().sendMessage(i18n.get(HallOfFame.Error.UPDATE)).queue();
         }
     }
 
     private void setHallOfFameMessageId(SlashCommandInteractionEvent event) {
         try {
-            String messageId = event.getOption("messageid").getAsString();
+            String messageId = event.getOption(MESSAGEID_FIELD).getAsString();
             externalReferenceService.setHallOfFameMessage(messageId);
-            event.getHook().sendMessage("Nachrichten-ID erfolgreich gesetzt.").queue();
+            event.getHook().sendMessage(i18n.get(HallOfFame.Success.SETMESSAGEID)).queue();
         } catch (Exception e) {
-            log.error("Fehler beim Setzen der Hall of Fame-Nachricht", e);
-            event.getHook().sendMessage("Fehler beim Setzen der Hall of Fame-Nachricht").queue();
+            log.error("Error while setting Hall of Fame message", e);
+            event.getHook().sendMessage(i18n.get(HallOfFame.Error.SETMESSAGEID)).queue();
         }
     }
 

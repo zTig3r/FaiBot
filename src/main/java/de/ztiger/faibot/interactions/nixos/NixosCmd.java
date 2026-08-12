@@ -57,8 +57,8 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("nixos", "Erstellt eine Nachricht mit den Statistiken der aktuellen Nixo-Season")
-                .addOption(OptionType.STRING, WINNER_OPTION, "Nutzer markieren oder Namen eingeben (Leerzeichen um zu trennen)", true)
+        return Commands.slash("nixos", i18n.get(Nixos.Command.DESCRIPTION))
+                .addOption(OptionType.STRING, WINNER_OPTION, i18n.get(Nixos.Command.WINNERS), true)
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED);
     }
 

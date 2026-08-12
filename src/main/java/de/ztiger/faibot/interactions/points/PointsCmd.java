@@ -2,6 +2,7 @@ package de.ztiger.faibot.interactions.points;
 
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IAutoCompleteHandler;
+import de.ztiger.faibot.localization.keys.Points;
 import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.PlacementService;
 import de.ztiger.faibot.services.TwitchUserService;
@@ -24,21 +25,23 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
     private final PointsComponents pointsComponents;
     private final LocalizationService i18n;
 
+    private static final String USER_FIELD = "user";
+
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("points", "Zeigt die Punkte an").
-                addOption(OptionType.STRING, "user", "Der Benutzer, dessen Punkte angezeigt werden sollen", true, true);
+        return Commands.slash("points", i18n.get(Points.Command.DESCRIPTION)).
+                addOption(OptionType.STRING, USER_FIELD, i18n.get(Points.Command.USER), true, true);
     }
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
         event.deferReply().setEphemeral(true).queue();
 
-        String username = event.getOption("user").getAsString();
+        String username = event.getOption(USER_FIELD).getAsString();
         String userId = twitchUserService.getUserIdByName(username);
 
         if(userId == null) {
-            event.getHook().sendMessage("Benutzer nicht gefunden: " + username).queue();
+            event.getHook().sendMessage(i18n.format(Points.Error.NOTFOUND, "username", username)).queue();
             return;
         }
 
@@ -55,13 +58,13 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
             event.getHook().sendMessageComponents(pointsComponents.getPointsContainer(username, pointsInfo.totalScore(),
                     pointsInfo.appearances(), formattedPositions)).useComponentsV2().queue();
         } catch (Exception e) {
-            event.getHook().sendMessage("Fehler beim Abrufen der Punkte: " + e.getMessage()).queue();
+            event.getHook().sendMessage(i18n.get(Points.Error.FETCH)).queue();
         }
     }
 
     @Override
     public void handleAutoComplete(CommandAutoCompleteInteractionEvent event) {
-        if (event.getFocusedOption().getName().equals("user")) {
+        if (event.getFocusedOption().getName().equals(USER_FIELD)) {
             String input = event.getFocusedOption().getValue();
             event.replyChoices(twitchUserService.searchUsers(input)).queue();
         }

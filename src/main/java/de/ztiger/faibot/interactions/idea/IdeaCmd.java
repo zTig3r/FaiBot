@@ -27,7 +27,7 @@ public class IdeaCmd implements ICommand, IModalHandler {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("idea", "Erstelle eine Umfrage für einen Vorschlag");
+        return Commands.slash("idea", i18n.get(Idea.Command.DESCRIPTION));
     }
 
     @Override

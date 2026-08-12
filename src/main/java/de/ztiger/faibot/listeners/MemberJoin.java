@@ -46,7 +46,7 @@ public class MemberJoin extends ListenerAdapter {
                         TextDisplay.of(tag + " " + name),
                         TextDisplay.of(i18n.format(Log.Member.Join.AGE, "age", age))
                 ),
-                TextDisplay.of(i18n.format(Log.Member.FOOTER, "userId", userId))
+                TextDisplay.of(i18n.format(Log.Member.FOOTER, "userid", userId))
         ).withAccentColor(Color.GREEN);
     }
 }

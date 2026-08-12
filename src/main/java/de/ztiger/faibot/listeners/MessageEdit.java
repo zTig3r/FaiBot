@@ -43,13 +43,13 @@ public class MessageEdit extends ListenerAdapter {
 
     private Container messageEdit(String messageLink, String oldMessage, String newMessage, String userId, String messageId, String author) {
         return Container.of(
-                TextDisplay.of(i18n.format(Log.Message.Edit.TITLE, "messageLink", messageLink)),
+                TextDisplay.of(i18n.format(Log.Message.Edit.TITLE, "messagelink", messageLink)),
                 TextDisplay.of(i18n.format(Log.Message.SENDER, "user", author)),
                 TextDisplay.of(i18n.format(Log.Message.Edit.BEFORE, "message", oldMessage)),
                 Separator.createDivider(Separator.Spacing.SMALL),
                 TextDisplay.of(i18n.format(Log.Message.Edit.AFTER, "message", newMessage)),
                 Separator.createDivider(Separator.Spacing.SMALL),
-                TextDisplay.of(i18n.format(Log.Message.FOOTER, "userId", userId, "messageId", messageId))
+                TextDisplay.of(i18n.format(Log.Message.FOOTER, "userid", userId, "messageid", messageId))
         ).withAccentColor(Color.YELLOW);
     }
 }

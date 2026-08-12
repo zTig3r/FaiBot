@@ -44,7 +44,7 @@ public class MessageDelete extends ListenerAdapter {
                 TextDisplay.of(i18n.format(Log.Message.SENDER, "user", author)),
                 TextDisplay.of(content),
                 Separator.createDivider(Separator.Spacing.SMALL),
-                TextDisplay.of(i18n.format(Log.Message.FOOTER, "userId", userId, "messageId", messageId))
+                TextDisplay.of(i18n.format(Log.Message.FOOTER, "userid", userId, "messageid", messageId))
         ).withAccentColor(Color.RED);
     }
 }
