@@ -27,8 +27,14 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 @Getter
 public class AppContainer {
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
     private final Dotenv env;
     private final ConfigManager configManager;
@@ -123,6 +129,10 @@ public class AppContainer {
 
         this.channelProvider.setShardManager(this.shardManager);
         this.guildProvider.setShardManager(this.shardManager);
+
+        scheduler.scheduleAtFixedRate(serverStatsCmd.updateServerStats(), 10, 3600, TimeUnit.SECONDS);
+
+        //    scheduler.scheduleAtFixedRate(YoutubeHandler::checkVideo, 10, 300, TimeUnit.SECONDS);
     }
 
     public void shutdown() {

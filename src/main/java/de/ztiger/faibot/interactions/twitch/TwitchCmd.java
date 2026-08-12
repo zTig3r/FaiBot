@@ -35,9 +35,10 @@ public class TwitchCmd implements ICommand {
         if (event.getOption(ACTION).getAsString().equals(START)) {
             twitchStreamHandler.streamStart();
             event.reply(i18n.get(Twitch.Success.START)).setEphemeral(true).queue();
-        } else {
-            twitchStreamHandler.streamEnd();
-            event.reply(i18n.get(Twitch.Success.STOP)).setEphemeral(true).queue();
+            return;
         }
+
+        twitchStreamHandler.streamEnd();
+        event.reply(i18n.get(Twitch.Success.STOP)).setEphemeral(true).queue();
     }
 }
