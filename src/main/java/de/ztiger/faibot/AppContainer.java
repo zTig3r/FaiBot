@@ -43,6 +43,7 @@ public class AppContainer {
 
     private final ChannelProvider channelProvider;
     private final GuildProvider guildProvider;
+    private final UserProvider userProvider;
     private final LocalizationService i18n;
 
     private final ExternalReferenceService externalReferenceService;
@@ -51,6 +52,7 @@ public class AppContainer {
     private final SeasonService seasonService;
     private final PlacementService placementService;
     private final TwitchStreamHandler twitchStreamHandler;
+    private final MessageCachingService messageCachingService;
 
     private final HallOfFameComponents hallOfFameComponents;
     private final IdeaComponents ideaComponents;
@@ -67,6 +69,7 @@ public class AppContainer {
         this.configManager = new ConfigManager(env);
         this.channelProvider = new ChannelProvider(configManager);
         this.guildProvider = new GuildProvider(configManager);
+        this.userProvider = new UserProvider();
         this.i18n = new LocalizationService(configManager);
 
         // Database & DAOs
@@ -82,6 +85,7 @@ public class AppContainer {
         this.twitchUserService = new TwitchUserService(userDao);
         this.seasonService = new SeasonService(seasonDao);
         this.placementService = new PlacementService(twitchUserService, seasonService, placementDao, twitchApiService);
+        this.messageCachingService = new MessageCachingService();
 
         twitchUserService.initCache();
 
@@ -117,10 +121,10 @@ public class AppContainer {
 
         builder.addEventListeners(
                 interactionListener,
-                new MessageReceived(channelProvider),
+                new MessageReceived(channelProvider, messageCachingService),
                 new MemberLeave(channelProvider, i18n),
-                new MessageDelete(channelProvider, i18n),
-                new MessageEdit(channelProvider, i18n),
+                new MessageDelete(channelProvider, messageCachingService, userProvider, i18n),
+                new MessageEdit(channelProvider, messageCachingService, i18n),
                 new MemberJoin(channelProvider, i18n),
                 new BotReady(interactionListener, guildProvider)
         );
@@ -129,6 +133,7 @@ public class AppContainer {
 
         this.channelProvider.setShardManager(this.shardManager);
         this.guildProvider.setShardManager(this.shardManager);
+        this.userProvider.setShardManager(this.shardManager);
 
         scheduler.scheduleAtFixedRate(serverStatsCmd.updateServerStats(), 10, 3600, TimeUnit.SECONDS);
 

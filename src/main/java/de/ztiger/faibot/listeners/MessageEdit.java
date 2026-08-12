@@ -4,6 +4,7 @@ import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.Log;
 import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.services.MessageCachingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.components.container.Container;
@@ -15,33 +16,39 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
 
-import static de.ztiger.faibot.utils.MessageCachingService.add;
-import static de.ztiger.faibot.utils.MessageCachingService.get;
-
 @Slf4j
 @RequiredArgsConstructor
 public class MessageEdit extends ListenerAdapter {
 
     private final ChannelProvider channelProvider;
+    private final MessageCachingService messageCachingService;
     private final LocalizationService i18n;
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        // TODO: Add blacklist for channels
-        // if (event.getChannel().equals(logChannel) || event.getAuthor().isBot()) return;
+        if (event.getAuthor().isBot()) return;
 
         try {
             Message message = event.getMessage();
 
-            channelProvider.sendComponent(BotChannel.LOG, messageEdit(message.getJumpUrl(), get(message).getContentRaw(), message.getContentRaw(), message.getAuthor().getId(), message.getId(), message.getAuthor().getEffectiveName()));
+            MessageCachingService.CachedMessage oldMessage = messageCachingService.get(message.getIdLong());
 
-            add(event.getMessage());
+            if(oldMessage == null) {
+                log.warn("Message with ID {} not found in cache", message.getIdLong());
+                return;
+            }
+
+            channelProvider.sendComponent(BotChannel.LOG, messageEdit(message.getJumpUrl(),
+                    oldMessage.content(), message.getContentRaw(), message.getAuthor().getIdLong(),
+                    message.getIdLong(), message.getAuthor().getEffectiveName()));
+
+            messageCachingService.add(event.getMessage());
         } catch (Exception e) {
             log.error("Error while processing message edit event", e);
         }
     }
 
-    private Container messageEdit(String messageLink, String oldMessage, String newMessage, String userId, String messageId, String author) {
+    private Container messageEdit(String messageLink, String oldMessage, String newMessage, long userId, long messageId, String author) {
         return Container.of(
                 TextDisplay.of(i18n.format(Log.Message.Edit.TITLE, "messagelink", messageLink)),
                 TextDisplay.of(i18n.format(Log.Message.SENDER, "user", author)),

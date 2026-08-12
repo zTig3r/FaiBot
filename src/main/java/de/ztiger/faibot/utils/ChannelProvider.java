@@ -56,6 +56,13 @@ public class ChannelProvider {
                 .thenCompose(message -> message.createThreadChannel(threadName).submit()));
     }
 
+    public Optional<GuildMessageChannel> getChannelById(long channelId) {
+        if (channelId <= 0) return Optional.empty();
+
+        GuildMessageChannel guildChannel = shardManager.getChannelById(GuildMessageChannel.class, channelId);
+        return Optional.ofNullable(guildChannel);
+    }
+
     private Optional<GuildMessageChannel> getChannel(BotChannel channel) {
         String id = configManager.getChannelId(channel.getConfigKey());
         if (id == null || id.isEmpty()) return Optional.empty();
