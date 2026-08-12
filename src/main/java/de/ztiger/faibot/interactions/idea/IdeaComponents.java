@@ -20,17 +20,17 @@ public final class IdeaComponents {
     private final LocalizationService i18n;
 
     public static final String COMPONENT_ID = "idea";
-    public static final String FIELD_SUBJECT = "subject";
-    public static final String FIELD_BODY = "body";
+    public static final String SUBJECT_FIELD = "subject";
+    public static final String BODY_FIELD = "body";
 
     public Modal getIdeaModal() {
-        TextInput subject = TextInput.create(FIELD_SUBJECT, TextInputStyle.SHORT)
+        TextInput subject = TextInput.create(SUBJECT_FIELD, TextInputStyle.SHORT)
                 .setPlaceholder(i18n.get(Idea.Modal.Subject.PLACEHOLDER))
                 .setMaxLength(100)
                 .setRequired(true)
                 .build();
 
-        TextInput body = TextInput.create(FIELD_BODY, TextInputStyle.PARAGRAPH)
+        TextInput body = TextInput.create(BODY_FIELD, TextInputStyle.PARAGRAPH)
                 .setPlaceholder(i18n.get(Idea.Modal.Body.PLACEHOLDER))
                 .setMaxLength(1000)
                 .setRequired(false)

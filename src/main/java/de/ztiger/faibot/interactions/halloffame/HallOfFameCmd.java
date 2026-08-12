@@ -5,7 +5,6 @@ import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.localization.keys.HallOfFame;
 import de.ztiger.faibot.services.ExternalReferenceService;
 import de.ztiger.faibot.services.LocalizationService;
-import de.ztiger.faibot.services.PlacementService;
 import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,8 +23,8 @@ public class HallOfFameCmd implements ICommand {
 
     private final ChannelProvider channelProvider;
     private final HallOfFameComponents hallOfFameComponents;
-    private final PlacementService placementService;
     private final ExternalReferenceService externalReferenceService;
+    private final HallOfFameService hallOfFameService;
     private final LocalizationService i18n;
 
     private static final String POST = "post";
@@ -55,13 +52,13 @@ public class HallOfFameCmd implements ICommand {
             case POST -> postHallOfFame(event);
             case UPDATE -> updateHallOfFame(event);
             case SETMESSAGEID -> setHallOfFameMessageId(event);
-            default -> event.getHook().sendMessage(i18n.get(HallOfFame.Error.UNKNOWN)).queue();
+            case null, default -> event.getHook().sendMessage(i18n.get(HallOfFame.Error.UNKNOWN)).queue();
         }
     }
 
     private void postHallOfFame(SlashCommandInteractionEvent event) {
         try {
-            List<String> formattedTopList = getFormattedTopList();
+            List<String> formattedTopList = hallOfFameService.getFormattedTopList();
             long messageId = channelProvider.sendComponentAndGetId(BotChannel.NIXOS, hallOfFameComponents.getHallOfFame(formattedTopList));
 
             externalReferenceService.setHallOfFameMessage(String.valueOf(messageId));
@@ -74,15 +71,11 @@ public class HallOfFameCmd implements ICommand {
 
     private void updateHallOfFame(SlashCommandInteractionEvent event) {
         try {
-            long messageId = externalReferenceService.getHallOfFameMessageId();
-            if (messageId == -1) {
+            boolean updated = hallOfFameService.updateHallOfFame();
+            if (!updated) {
                 event.getHook().sendMessage(i18n.get(HallOfFame.Error.NOTFOUND)).queue();
                 return;
             }
-
-            List<String> formattedTopList = getFormattedTopList();
-            channelProvider.editComponents(BotChannel.NIXOS, messageId, hallOfFameComponents.getHallOfFame(formattedTopList));
-
             event.getHook().sendMessage(i18n.get(HallOfFame.Success.UPDATE)).queue();
         } catch (Exception e) {
             log.error("Error while updating Hall of Fame data", e);
@@ -101,8 +94,4 @@ public class HallOfFameCmd implements ICommand {
         }
     }
 
-    private List<String> getFormattedTopList() throws SQLException {
-        List<PlacementService.HallOfFameEntry> data = placementService.getHallOfFameData();
-        return IntStream.range(0, data.size()).mapToObj(i -> String.format("**%02d\\. **%s (%d)", i + 1, data.get(i).username(), data.get(i).totalScore())).toList();
-    }
 }

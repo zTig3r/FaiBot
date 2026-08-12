@@ -36,8 +36,8 @@ public class NixosComponents {
     private final LocalizationService i18n;
 
     public static final String COMPONENT_ID = "nixos";
-    public static final String FIELD_MONTH = "month";
-    public static final String FIELD_YEAR = "year";
+    public static final String MONTH_FIELD = "month";
+    public static final String YEAR_FIELD = "year";
     public static final String TOP_LIST = "top_list";
     public static final String WINNER_IMAGES = "winner_images";
     public static final String CONFIRM_OVERRIDE = "confirm_override";
@@ -46,7 +46,7 @@ public class NixosComponents {
     public Modal getNixoModal(List<String> winners) {
         YearMonth now = YearMonth.now();
 
-        StringSelectMenu monthMenu = StringSelectMenu.create(FIELD_MONTH)
+        StringSelectMenu monthMenu = StringSelectMenu.create(MONTH_FIELD)
                 .addOptions(Arrays.stream(Month.values())
                         .map(month -> SelectOption.of(month.getDisplayName(TextStyle.FULL_STANDALONE, i18n.getLocale()), month.name())
                                 .withDefault(month == now.getMonth()))
@@ -56,7 +56,7 @@ public class NixosComponents {
         return Modal.create(COMPONENT_ID, i18n.get(Nixos.Modal.TITLE))
                 .addComponents(
                         Label.of(i18n.get(Nixos.Modal.MONTH), monthMenu),
-                        Label.of(i18n.get(Nixos.Modal.YEAR), TextInput.create(FIELD_YEAR, TextInputStyle.SHORT)
+                        Label.of(i18n.get(Nixos.Modal.YEAR), TextInput.create(YEAR_FIELD, TextInputStyle.SHORT)
                                 .setPlaceholder(String.valueOf(now.getYear()))
                                 .setValue(String.valueOf(now.getYear()))
                                 .build()),
@@ -65,6 +65,8 @@ public class NixosComponents {
                         Label.of(i18n.get(Nixos.Modal.Winner.IMAGES), AttachmentUpload.create(WINNER_IMAGES).setMaxValues(10).build())
                 ).build();
     }
+
+    // TODO: Implement correct mention of the @nixos role
 
     public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages) {
         List<String> formattedWinners = IntStream.range(0, winners.size())

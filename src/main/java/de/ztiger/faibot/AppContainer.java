@@ -6,6 +6,7 @@ import de.ztiger.faibot.config.ConfigManager;
 import de.ztiger.faibot.data.*;
 import de.ztiger.faibot.interactions.halloffame.HallOfFameCmd;
 import de.ztiger.faibot.interactions.halloffame.HallOfFameComponents;
+import de.ztiger.faibot.interactions.halloffame.HallOfFameService;
 import de.ztiger.faibot.interactions.idea.IdeaCmd;
 import de.ztiger.faibot.interactions.idea.IdeaComponents;
 import de.ztiger.faibot.interactions.nixos.NixosCmd;
@@ -53,6 +54,7 @@ public class AppContainer {
     private final PlacementService placementService;
     private final TwitchStreamHandler twitchStreamHandler;
     private final MessageCachingService messageCachingService;
+    private final HallOfFameService hallOfFameService;
 
     private final HallOfFameComponents hallOfFameComponents;
     private final IdeaComponents ideaComponents;
@@ -96,14 +98,16 @@ public class AppContainer {
         this.pointsComponents = new PointsComponents(i18n);
         this.twitchComponents = new TwitchComponents(configManager, i18n);
 
+        this.hallOfFameService = new HallOfFameService(externalReferenceService, placementService, channelProvider, hallOfFameComponents);
+
         // Stream Handler
         String twitchChannel = configManager.getConfig().getString("twitch-channel");
         this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, twitchComponents, i18n);
 
         // Commands & Listeners
-        HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, placementService, externalReferenceService, i18n);
+        HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, externalReferenceService, hallOfFameService, i18n);
         IdeaCmd ideaCmd = new IdeaCmd(channelProvider, ideaComponents, i18n);
-        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, nixosComponents, i18n);
+        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, hallOfFameService, nixosComponents, i18n);
         PointsCmd pointsCmd = new PointsCmd(placementService, twitchUserService, pointsComponents, i18n);
         ServerStatsCmd serverStatsCmd = new ServerStatsCmd(guildProvider, i18n);
         TwitchCmd twitchCmd = new TwitchCmd(twitchStreamHandler, i18n);

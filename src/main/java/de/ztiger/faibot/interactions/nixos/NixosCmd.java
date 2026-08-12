@@ -4,7 +4,9 @@ import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
 import de.ztiger.faibot.interactions.components.IModalHandler;
+import de.ztiger.faibot.interactions.halloffame.HallOfFameService;
 import de.ztiger.faibot.localization.keys.General;
+import de.ztiger.faibot.localization.keys.HallOfFame;
 import de.ztiger.faibot.localization.keys.Nixos;
 import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.PlacementService;
@@ -40,6 +42,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
     private final PlacementService placementService;
     private final SeasonService seasonService;
     private final ChannelProvider channelProvider;
+    private final HallOfFameService hallOfFameService;
     private final NixosComponents nixosComponents;
     private final LocalizationService i18n;
 
@@ -82,8 +85,8 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
     public void modalInteraction(ModalInteractionEvent event) {
         event.deferReply(true).setEphemeral(true).queue();
 
-        String monthValue = event.getValue(NixosComponents.FIELD_MONTH).getAsStringList().getFirst();
-        String yearStr = event.getValue(NixosComponents.FIELD_YEAR).getAsString();
+        String monthValue = event.getValue(NixosComponents.MONTH_FIELD).getAsStringList().getFirst();
+        String yearStr = event.getValue(NixosComponents.YEAR_FIELD).getAsString();
 
         Month month = Month.valueOf(monthValue);
         YearMonth season = YearMonth.of(Integer.parseInt(yearStr), month);
@@ -164,5 +167,13 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         );
 
         hook.sendMessage(i18n.get(Nixos.Modal.SUCCESS)).setEphemeral(true).queue();
+
+        try {
+            hallOfFameService.updateHallOfFame();
+            hook.sendMessage(i18n.get(HallOfFame.Success.UPDATE)).setEphemeral(true).queue();
+        } catch (Exception e) {
+            log.error("Error while updating Hall of Fame data", e);
+            hook.sendMessage(i18n.get(HallOfFame.Error.UPDATE)).setEphemeral(true).queue();
+        }
     }
 }

@@ -38,6 +38,8 @@ public class PlacementService {
 
         List<String> usernames = placements.stream().map(ParsedPlacement::username).toList();
 
+        // TODO: Handle case where Twitch API does not return all users (e.g., user not found or banned)
+
         Map<String, User> twitchUserMap = twitchApiService.getUsersByUsernames(usernames).stream()
                 .collect(Collectors.toMap(User::getLogin, Function.identity(), (existing, replacement) -> existing));
 
