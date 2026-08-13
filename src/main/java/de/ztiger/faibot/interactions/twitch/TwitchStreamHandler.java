@@ -6,11 +6,12 @@ import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.localization.keys.Twitch;
 import de.ztiger.faibot.services.TwitchApiService;
 import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class TwitchStreamHandler {
         client.getEventManager().onEvent(ChannelGoOfflineEvent.class, event -> streamEnd());
     }
 
-    private Container createEmbed() {
+    private MessageEmbed createEmbed() {
         try {
             Optional<Stream> streamOpt = twitchApiService.getLiveStream(channelName);
             Stream stream = streamOpt.orElse(null);
@@ -74,8 +75,7 @@ public class TwitchStreamHandler {
             int viewers = stream != null ? stream.getViewerCount() : 0;
             String duration = i18n.formatDuration(stream != null ? stream.getUptime() : Duration.ZERO);
 
-            return twitchComponents.getNotification(previewURL, channelName, profileImageUrl, title, game, viewers, duration);
-
+            return twitchComponents.getNotificationEmbed(channelName, previewURL, "https://twitch.tv/" + channelName, profileImageUrl, title, game, viewers, duration);
         } catch (Exception e) {
             log.error("Error creating live stream embed", e);
             return null;
@@ -88,9 +88,9 @@ public class TwitchStreamHandler {
             return;
         }
 
-        Container embed = createEmbed();
+        MessageEmbed embed = createEmbed();
         if (embed != null) {
-            channelProvider.editComponents(BotChannel.TWITCH, messageID, embed);
+            channelProvider.editEmbed(BotChannel.TWITCH, messageID, embed);
         }
     }
 
@@ -99,9 +99,9 @@ public class TwitchStreamHandler {
 
         stopPeriodicUpdates();
 
-        Container initialEmbed = createEmbed();
+        MessageEmbed initialEmbed = createEmbed();
         if (initialEmbed != null) {
-            messageID = channelProvider.sendComponentAndGetId(BotChannel.TWITCH, initialEmbed);
+            messageID = channelProvider.sendEmbedAndGetId(BotChannel.TWITCH, i18n.get(Twitch.NOTIFICATION), initialEmbed);
         }
 
         updateTask = scheduler.scheduleAtFixedRate(this::updateEmbed, 5, 15, TimeUnit.MINUTES);
@@ -115,9 +115,9 @@ public class TwitchStreamHandler {
                 ? twitchApiService.getLatestVodDuration(currentUserId)
                 : Duration.ZERO;
 
-        Container embed = twitchComponents.getEndNotification(channelName, profileImageUrl, i18n.formatDuration(vodDuration));
+        MessageEmbed embed = twitchComponents.getEndNotificationEmbed(channelName, "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + channelName + "-1280x720.jpg", "https://twitch.tv/" + channelName, profileImageUrl, i18n.formatDuration(vodDuration));
 
-        channelProvider.sendComponent(BotChannel.TWITCH, embed);
+        channelProvider.editEmbed(BotChannel.TWITCH, messageID, embed);
     }
 
     private void stopPeriodicUpdates() {

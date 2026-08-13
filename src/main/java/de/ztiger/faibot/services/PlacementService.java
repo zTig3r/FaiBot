@@ -8,14 +8,17 @@ import de.ztiger.faibot.data.Placement;
 import de.ztiger.faibot.data.Season;
 import de.ztiger.faibot.data.TwitchUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PlacementService {
 
@@ -38,10 +41,8 @@ public class PlacementService {
 
         List<String> usernames = placements.stream().map(ParsedPlacement::username).toList();
 
-        // TODO: Handle case where Twitch API does not return all users (e.g., user not found or banned)
-
         Map<String, User> twitchUserMap = twitchApiService.getUsersByUsernames(usernames).stream()
-                .collect(Collectors.toMap(User::getLogin, Function.identity(), (existing, replacement) -> existing));
+                .collect(Collectors.toMap(u -> u.getLogin().toLowerCase(), Function.identity(), (existing, replacement) -> existing));
 
         Season season = seasonService.getOrCreateSeason(yearMonth);
 
@@ -49,9 +50,13 @@ public class PlacementService {
         deleteBuilder.where().eq("season_id", season);
         deleteBuilder.delete();
 
+        List<String> unresolvedUsernames = new ArrayList<>();
+
         for (ParsedPlacement item : placements) {
             User twitchApiUser = twitchUserMap.get(item.username().toLowerCase());
+
             if (twitchApiUser == null) {
+                unresolvedUsernames.add(item.username());
                 continue;
             }
 
@@ -59,6 +64,11 @@ public class PlacementService {
 
             Placement placement = new Placement(0, season, dbUser, item.rank());
             placementDao.create(placement);
+        }
+
+        if (!unresolvedUsernames.isEmpty()) {
+            log.error("Completed season {} processing with {} missing Twitch API user(s): {}",
+                    yearMonth, unresolvedUsernames.size(), String.join(", ", unresolvedUsernames));
         }
     }
 

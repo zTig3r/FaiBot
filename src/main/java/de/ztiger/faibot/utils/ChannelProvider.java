@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -69,5 +70,18 @@ public class ChannelProvider {
 
         GuildMessageChannel guildChannel = shardManager.getChannelById(GuildMessageChannel.class, id);
         return Optional.ofNullable(guildChannel);
+    }
+
+    /*
+     * Only use embeds for messages that really need them, otherwise use ComponentsV2.
+     */
+
+    public long sendEmbedAndGetId(BotChannel channel, String message, MessageEmbed embed) {
+        return getChannel(channel).map(c -> c.sendMessage(message).setEmbeds(embed).submit()
+                .thenApply(ISnowflake::getIdLong).join()).orElse(-1L);
+    }
+
+    public void editEmbed(BotChannel channel, long messageId, MessageEmbed embed) {
+        getChannel(channel).ifPresent(c -> c.editMessageEmbedsById(messageId, embed).queue());
     }
 }

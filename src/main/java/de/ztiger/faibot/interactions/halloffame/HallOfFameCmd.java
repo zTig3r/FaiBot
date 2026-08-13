@@ -93,5 +93,4 @@ public class HallOfFameCmd implements ICommand {
             event.getHook().sendMessage(i18n.get(HallOfFame.Error.SETMESSAGEID)).queue();
         }
     }
-
 }

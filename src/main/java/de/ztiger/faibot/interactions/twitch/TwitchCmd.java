@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 @RequiredArgsConstructor
 public class TwitchCmd implements ICommand {
 
-    private static final String ACTION = "action";
     private static final String START = "start";
     private static final String STOP = "stop";
 
@@ -31,7 +30,7 @@ public class TwitchCmd implements ICommand {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        if (event.getOption(ACTION).getAsString().equals(START)) {
+        if(event.getSubcommandName().equals(START)) {
             twitchStreamHandler.streamStart();
             event.reply(i18n.get(Twitch.Success.START)).setEphemeral(true).queue();
             return;
