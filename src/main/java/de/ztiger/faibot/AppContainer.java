@@ -44,6 +44,7 @@ public class AppContainer {
 
     private final ChannelProvider channelProvider;
     private final GuildProvider guildProvider;
+    private final RoleProvider roleProvider;
     private final UserProvider userProvider;
     private final LocalizationService i18n;
 
@@ -71,6 +72,7 @@ public class AppContainer {
         this.configManager = new ConfigManager(env);
         this.channelProvider = new ChannelProvider(configManager);
         this.guildProvider = new GuildProvider(configManager);
+        this.roleProvider = new RoleProvider(configManager);
         this.userProvider = new UserProvider();
         this.i18n = new LocalizationService(configManager);
 
@@ -102,12 +104,12 @@ public class AppContainer {
 
         // Stream Handler
         String twitchChannel = configManager.getConfig().getString("twitch-channel");
-        this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, twitchComponents, i18n);
+        this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, roleProvider, twitchComponents, i18n);
 
         // Commands & Listeners
         HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, externalReferenceService, hallOfFameService, i18n);
         IdeaCmd ideaCmd = new IdeaCmd(channelProvider, ideaComponents, i18n);
-        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, hallOfFameService, nixosComponents, i18n);
+        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, roleProvider, hallOfFameService, nixosComponents, i18n);
         PointsCmd pointsCmd = new PointsCmd(placementService, twitchUserService, pointsComponents, i18n);
         ServerStatsCmd serverStatsCmd = new ServerStatsCmd(guildProvider, i18n);
         TwitchCmd twitchCmd = new TwitchCmd(twitchStreamHandler, i18n);
@@ -137,6 +139,7 @@ public class AppContainer {
 
         this.channelProvider.setShardManager(this.shardManager);
         this.guildProvider.setShardManager(this.shardManager);
+        this.roleProvider.setShardManager(this.shardManager);
         this.userProvider.setShardManager(this.shardManager);
 
         scheduler.scheduleAtFixedRate(serverStatsCmd.updateServerStats(), 10, 3600, TimeUnit.SECONDS);

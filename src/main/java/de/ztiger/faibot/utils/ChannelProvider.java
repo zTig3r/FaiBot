@@ -84,4 +84,8 @@ public class ChannelProvider {
     public void editEmbed(BotChannel channel, long messageId, MessageEmbed embed) {
         getChannel(channel).ifPresent(c -> c.editMessageEmbedsById(messageId, embed).queue());
     }
+
+    public void editMessageWithEmbed(BotChannel channel, long messageId, String message, MessageEmbed embed) {
+        getChannel(channel).ifPresent(c -> c.editMessageById(messageId, message).setEmbeds(embed).queue());
+    }
 }

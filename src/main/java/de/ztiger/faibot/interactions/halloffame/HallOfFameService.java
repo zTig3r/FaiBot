@@ -23,7 +23,7 @@ public class HallOfFameService {
     public boolean updateHallOfFame() throws SQLException {
         long messageId = externalReferenceService.getHallOfFameMessageId();
         if (messageId == -1) {
-            log.warn("Cannot update Hall of Fame: message ID not found.");
+            log.error("Cannot update Hall of Fame: message ID not found.");
             return false;
         }
 

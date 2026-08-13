@@ -67,8 +67,16 @@ public class ConfigManager {
         return getLanguageConfig(getLanguage());
     }
 
+    public String getGuildId() {
+        return config.getString("guild");
+    }
+
     public String getChannelId(String key) {
         return config.getString("channel." + key);
+    }
+
+    public String getRoleId(String key) {
+        return config.getString("role." + key);
     }
 
     public Color getColor(BotColor color) {

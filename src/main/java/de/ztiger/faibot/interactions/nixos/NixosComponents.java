@@ -68,7 +68,7 @@ public class NixosComponents {
 
     // TODO: Implement correct mention of the @nixos role
 
-    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages) {
+    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages, String nixosRoleMention) {
         List<String> formattedWinners = IntStream.range(0, winners.size())
                 .mapToObj(i -> i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i))).toList();
 
@@ -82,7 +82,7 @@ public class NixosComponents {
                 Separator.createDivider(Separator.Spacing.SMALL),
                 TextDisplay.of(String.join("\n", formattedWinners)),
                 MediaGallery.of(winnerGalleryItems),
-                TextDisplay.of(i18n.get(Nixos.Message.FOOTER))
+                TextDisplay.of(i18n.format(Nixos.Message.FOOTER, "nixosrole", nixosRoleMention))
         ).withAccentColor(configManager.getColor(BotColor.DEFAULT));
     }
 

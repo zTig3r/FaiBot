@@ -6,11 +6,14 @@ import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import com.github.twitch4j.helix.domain.Stream;
 import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.config.BotRole;
 import de.ztiger.faibot.localization.keys.Twitch;
 import de.ztiger.faibot.services.TwitchApiService;
 import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.utils.RoleProvider;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.time.Duration;
@@ -26,6 +29,7 @@ public class TwitchStreamHandler {
     private final String channelName;
     private final TwitchApiService twitchApiService;
     private final ChannelProvider channelProvider;
+    private final RoleProvider roleProvider;
     private final TwitchComponents twitchComponents;
     private final LocalizationService i18n;
 
@@ -36,10 +40,11 @@ public class TwitchStreamHandler {
     private String profileImageUrl;
     private String currentUserId;
 
-    public TwitchStreamHandler(TwitchApiService twitchApiService, String channelName, ChannelProvider channelProvider, TwitchComponents twitchComponents, LocalizationService i18n) {
+    public TwitchStreamHandler(TwitchApiService twitchApiService, String channelName, ChannelProvider channelProvider, RoleProvider roleProvider, TwitchComponents twitchComponents, LocalizationService i18n) {
         this.twitchApiService = twitchApiService;
         this.channelName = channelName;
         this.channelProvider = channelProvider;
+        this.roleProvider = roleProvider;
         this.twitchComponents = twitchComponents;
         this.i18n = i18n;
 
@@ -101,7 +106,9 @@ public class TwitchStreamHandler {
 
         MessageEmbed initialEmbed = createEmbed();
         if (initialEmbed != null) {
-            messageID = channelProvider.sendEmbedAndGetId(BotChannel.TWITCH, i18n.get(Twitch.NOTIFICATION), initialEmbed);
+            String twitchRoleMention = roleProvider.getRole(BotRole.TWITCH).map(IMentionable::getAsMention).orElse("@twitch");
+
+            messageID = channelProvider.sendEmbedAndGetId(BotChannel.TWITCH, i18n.format(Twitch.NOTIFICATION, "twitchrole", twitchRoleMention), initialEmbed);
         }
 
         updateTask = scheduler.scheduleAtFixedRate(this::updateEmbed, 5, 15, TimeUnit.MINUTES);
@@ -117,7 +124,7 @@ public class TwitchStreamHandler {
 
         MessageEmbed embed = twitchComponents.getEndNotificationEmbed(channelName, "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + channelName + "-1280x720.jpg", "https://twitch.tv/" + channelName, profileImageUrl, i18n.formatDuration(vodDuration));
 
-        channelProvider.editEmbed(BotChannel.TWITCH, messageID, embed);
+        channelProvider.editMessageWithEmbed(BotChannel.TWITCH, messageID, " ", embed);
     }
 
     private void stopPeriodicUpdates() {

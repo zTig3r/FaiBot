@@ -1,6 +1,7 @@
 package de.ztiger.faibot.interactions.nixos;
 
 import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.config.BotRole;
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IButtonHandler;
 import de.ztiger.faibot.interactions.components.IModalHandler;
@@ -12,8 +13,10 @@ import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.PlacementService;
 import de.ztiger.faibot.services.SeasonService;
 import de.ztiger.faibot.utils.ChannelProvider;
+import de.ztiger.faibot.utils.RoleProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -42,6 +45,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
     private final PlacementService placementService;
     private final SeasonService seasonService;
     private final ChannelProvider channelProvider;
+    private final RoleProvider roleProvider;
     private final HallOfFameService hallOfFameService;
     private final NixosComponents nixosComponents;
     private final LocalizationService i18n;
@@ -160,9 +164,11 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
             return;
         }
 
+        String nixosRoleMention = roleProvider.getRole(BotRole.NIXOS).map(IMentionable::getAsMention).orElse("@nixos");
+
         channelProvider.sendComponentAndCreateThread(
                 BotChannel.NIXOS,
-                nixosComponents.getWinnerComponent(localizedMonth, yearStr, formattedTopList, winners, attachments),
+                nixosComponents.getWinnerComponent(localizedMonth, yearStr, formattedTopList, winners, attachments, nixosRoleMention),
                 i18n.format(Nixos.Message.THREAD, "month", localizedMonth, "year", yearStr)
         );
 

@@ -17,7 +17,7 @@ public class GuildProvider {
     private final ConfigManager configManager;
 
     public Optional<Guild> getMainGuild() {
-        String guildId = configManager.getConfig().getString("guild");
+        String guildId = configManager.getGuildId();
 
         if (guildId == null || guildId.isEmpty()) return Optional.empty();
 

@@ -10,7 +10,7 @@ public class MessageCachingService {
 
     private final Cache<Long, CachedMessage> CACHE = Caffeine.newBuilder()
             .maximumSize(10_000)
-            .expireAfterAccess(1, TimeUnit.HOURS)
+            .expireAfterAccess(12, TimeUnit.HOURS)
             .build();
 
     public record CachedMessage(long id, long channelId, long authorId, String content, long timestamp) {
