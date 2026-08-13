@@ -2,6 +2,7 @@ package de.ztiger.faibot.services;
 
 import com.github.twitch4j.helix.domain.User;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.dao.RawRowMapper;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import de.ztiger.faibot.data.Placement;
@@ -72,7 +73,7 @@ public class PlacementService {
         }
     }
 
-    public List<HallOfFameEntry> getHallOfFameData() throws SQLException {
+    public List<HallOfFameEntry> getHallOfFameData() {
         String sql = """
                 SELECT
                      u.id AS user_id,
@@ -92,7 +93,12 @@ public class PlacementService {
                 (int) Math.round(Double.parseDouble(resultColumns[2]))
         );
 
-        return placementDao.queryRaw(sql, mapper).getResults();
+
+        try (GenericRawResults<HallOfFameEntry> results = placementDao.queryRaw(sql, mapper)) {
+            return results.getResults();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public UserScoreBreakdown getUserScoreBreakdown(String twitchUserId) throws SQLException {

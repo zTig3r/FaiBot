@@ -89,8 +89,8 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
     public void modalInteraction(ModalInteractionEvent event) {
         event.deferReply(true).setEphemeral(true).queue();
 
-        String monthValue = event.getValue(NixosComponents.MONTH_FIELD).getAsStringList().getFirst();
-        String yearStr = event.getValue(NixosComponents.YEAR_FIELD).getAsString();
+        String monthValue = getRequiredStringOption(event, NixosComponents.MONTH_FIELD);
+        String yearStr = getRequiredValue(event, NixosComponents.YEAR_FIELD);
 
         Month month = Month.valueOf(monthValue);
         YearMonth season = YearMonth.of(Integer.parseInt(yearStr), month);
@@ -99,8 +99,8 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         List<String> winners = winnerCache.remove(event.getUser().getId());
         if (winners == null) winners = List.of();
 
-        String rawTop10 = event.getValue(NixosComponents.TOP_LIST).getAsString();
-        List<Message.Attachment> attachments = event.getValue(NixosComponents.WINNER_IMAGES).getAsAttachmentList();
+        String rawTop10 = getRequiredValue(event, NixosComponents.TOP_LIST);
+        List<Message.Attachment> attachments = getAttachments(event, NixosComponents.WINNER_IMAGES);
 
         try {
             if (seasonService.seasonExists(season)) {
@@ -124,7 +124,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
         String userId = event.getUser().getId();
 
-        if (event.getButton().getCustomId().contains(NixosComponents.CANCEL_OVERRIDE)) {
+        if (hasAction(event, NixosComponents.CANCEL_OVERRIDE)) {
             pendingOverrideCache.remove(userId);
             event.getHook().sendMessage(i18n.get(Nixos.Override.CANCELLED)).setEphemeral(true).queue();
             return;

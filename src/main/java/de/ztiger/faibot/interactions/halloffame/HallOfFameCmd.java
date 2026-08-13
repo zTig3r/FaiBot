@@ -52,7 +52,7 @@ public class HallOfFameCmd implements ICommand {
             case POST -> postHallOfFame(event);
             case UPDATE -> updateHallOfFame(event);
             case SETMESSAGEID -> setHallOfFameMessageId(event);
-            case null, default -> event.getHook().sendMessage(i18n.get(HallOfFame.Error.UNKNOWN)).queue();
+            case null, default -> event.getHook().sendMessage(i18n.get(HallOfFame.Error.UNKNOWN)).setEphemeral(true).queue();
         }
     }
 
@@ -85,7 +85,7 @@ public class HallOfFameCmd implements ICommand {
 
     private void setHallOfFameMessageId(SlashCommandInteractionEvent event) {
         try {
-            String messageId = event.getOption(MESSAGEID_FIELD).getAsString();
+            String messageId = getRequiredStringOption(event, MESSAGEID_FIELD);
             externalReferenceService.setHallOfFameMessage(messageId);
             event.getHook().sendMessage(i18n.get(HallOfFame.Success.SETMESSAGEID)).queue();
         } catch (Exception e) {

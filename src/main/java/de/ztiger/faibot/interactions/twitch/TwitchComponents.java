@@ -27,7 +27,7 @@ public class TwitchComponents {
 
     public MessageEmbed getEndNotificationEmbed(String username, String offlineImageUrl, String profileUrl, String profilePictureUrl, String duration) {
         return new EmbedBuilder().setAuthor(username, profileUrl, profilePictureUrl)
-                .setDescription(i18n.format(Twitch.DURATION, "duration", duration))
+                .setDescription(i18n.format(Twitch.OFFLINE, "duration", duration))
                 .setImage(offlineImageUrl)
                 .setColor(configManager.getColor(BotColor.TWITCH))
                 .build();

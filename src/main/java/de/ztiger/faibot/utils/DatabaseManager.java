@@ -17,7 +17,7 @@ import java.sql.SQLException;
 public class DatabaseManager {
 
     @Getter
-    private ConnectionSource connectionSource;
+    private final ConnectionSource connectionSource;
 
     public DatabaseManager(Dotenv env) throws SQLException {
         String url = env.get("DB_URL");

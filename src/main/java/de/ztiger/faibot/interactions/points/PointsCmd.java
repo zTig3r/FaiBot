@@ -37,7 +37,7 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
     public void executeSlash(SlashCommandInteractionEvent event) {
         event.deferReply().setEphemeral(true).queue();
 
-        String username = event.getOption(USER_FIELD).getAsString();
+        String username = getRequiredStringOption(event, USER_FIELD);
         String userId = twitchUserService.getUserIdByName(username);
 
         if(userId == null) {

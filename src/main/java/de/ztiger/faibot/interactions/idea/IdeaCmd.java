@@ -37,8 +37,8 @@ public class IdeaCmd implements ICommand, IModalHandler {
 
     @Override
     public void modalInteraction(ModalInteractionEvent event) {
-        String subject = event.getValue(IdeaComponents.SUBJECT_FIELD).getAsString();
-        String body = event.getValue(IdeaComponents.BODY_FIELD).getAsString();
+        String subject = getRequiredValue(event, IdeaComponents.SUBJECT_FIELD);
+        String body = getValueOrDefault(event, IdeaComponents.BODY_FIELD, "");
 
         MessageCreateData pollMessage = ideaComponents.getPollMessage(
                 event.getUser().getAsMention(),
