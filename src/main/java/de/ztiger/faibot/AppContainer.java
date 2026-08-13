@@ -16,6 +16,7 @@ import de.ztiger.faibot.interactions.points.PointsComponents;
 import de.ztiger.faibot.interactions.serverstats.ServerStatsCmd;
 import de.ztiger.faibot.interactions.twitch.*;
 import de.ztiger.faibot.interactions.youtube.YoutubeCmd;
+import de.ztiger.faibot.interactions.youtube.YoutubeHandler;
 import de.ztiger.faibot.listeners.*;
 import de.ztiger.faibot.services.*;
 import de.ztiger.faibot.utils.*;
@@ -54,6 +55,7 @@ public class AppContainer {
     private final SeasonService seasonService;
     private final PlacementService placementService;
     private final TwitchStreamHandler twitchStreamHandler;
+    private final YoutubeHandler youtubeHandler;
     private final MessageCachingService messageCachingService;
     private final HallOfFameService hallOfFameService;
 
@@ -102,6 +104,8 @@ public class AppContainer {
 
         this.hallOfFameService = new HallOfFameService(externalReferenceService, placementService, channelProvider, hallOfFameComponents);
 
+        this.youtubeHandler = new YoutubeHandler(channelProvider, externalReferenceService, roleProvider, env.get("YOUTUBE_KEY"), i18n);
+
         // Stream Handler
         String twitchChannel = configManager.getConfig().getString("twitch-channel");
         this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, roleProvider, twitchComponents, i18n);
@@ -113,7 +117,7 @@ public class AppContainer {
         PointsCmd pointsCmd = new PointsCmd(placementService, twitchUserService, pointsComponents, i18n);
         ServerStatsCmd serverStatsCmd = new ServerStatsCmd(guildProvider, i18n);
         TwitchCmd twitchCmd = new TwitchCmd(twitchStreamHandler, i18n);
-        YoutubeCmd youtubeCmd = new YoutubeCmd();
+        YoutubeCmd youtubeCmd = new YoutubeCmd(youtubeHandler, i18n);
 
         this.interactionListener = new InteractionListener(hallOfFameCmd, ideaCmd, nixosCmd, pointsCmd, serverStatsCmd, twitchCmd, youtubeCmd);
 
@@ -143,8 +147,7 @@ public class AppContainer {
         this.userProvider.setShardManager(this.shardManager);
 
         scheduler.scheduleAtFixedRate(serverStatsCmd.updateServerStats(), 10, 3600, TimeUnit.SECONDS);
-
-        //    scheduler.scheduleAtFixedRate(YoutubeHandler::checkVideo, 10, 300, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(youtubeHandler.checkVideo(), 10, 300, TimeUnit.SECONDS);
     }
 
     public void shutdown() {

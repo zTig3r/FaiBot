@@ -1,81 +1,88 @@
 package de.ztiger.faibot.interactions.youtube;
 
 import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.config.BotRole;
+import de.ztiger.faibot.localization.keys.Youtube;
+import de.ztiger.faibot.services.ExternalReferenceService;
+import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.utils.ChannelProvider;
-import io.github.cdimascio.dotenv.Dotenv;
+import de.ztiger.faibot.utils.RoleProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import org.json.JSONException;
+import net.dv8tion.jda.api.entities.IMentionable;
 import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 
-// TODO: Put strings into configs
 @Slf4j
 @RequiredArgsConstructor
 public class YoutubeHandler {
 
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    private static final String PLAYLIST_ID = "UU2YqG8Bc1RAncad0AFKuhtA";
+
     private final ChannelProvider channelProvider;
-    private final Dotenv env;
+    private final ExternalReferenceService externalReferenceService;
+    private final RoleProvider roleProvider;
+    private final String youtubeApiKey;
+    private final LocalizationService i18n;
 
-    public void checkVideo() {
-        JSONObject json = readFromUrl("https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=UU2YqG8Bc1RAncad0AFKuhtA&key=" + env.get("YOUTUBE_KEY") + "&maxResults=1&order=date&type=video");
-        if(json == null) return;
+    public Runnable checkVideo() {
+        return () -> {
+            try {
+                String playlistUrl = String.format(
+                        "https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=%s&key=%s",
+                        PLAYLIST_ID, youtubeApiKey);
 
-        try {
-            String videoId = json.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getJSONObject("resourceId").getString("videoId");
+                JSONObject json = fetchJson(playlistUrl);
+                if (json == null) return;
 
-            String lastVideo = null;
-            if (lastVideo == null || lastVideo.equals(videoId)) return;
-            //setter.setLastVideo(videoId);
+                String videoId = json.getJSONArray("items")
+                        .getJSONObject(0)
+                        .getJSONObject("snippet")
+                        .getJSONObject("resourceId")
+                        .getString("videoId");
 
-            JSONObject videoInfo = readFromUrl("https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&maxResults=1&id=" + videoId + "&key=" + env.get("YOUTUBE_KEY"));
-            if (videoInfo == null) return;
+                if (videoId.equals(externalReferenceService.getLastVideoId())) return;
 
-            String duration = videoInfo.getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails").getString("duration");
-            if(Duration.parse(duration).getSeconds() < 60) return;
+                String videoUrl = String.format("https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&id=%s&key=%s", videoId, youtubeApiKey);
 
-            sendVideoEmbed(videoId);
-        } catch (JSONException e) {
-            log.error(e.getMessage());
-        }
+                JSONObject videoInfo = fetchJson(videoUrl);
+                if (videoInfo == null) return;
+
+                String duration = videoInfo.getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails").getString("duration");
+
+                if (Duration.parse(duration).getSeconds() < 60) return;
+
+                externalReferenceService.setLastVideoId(videoId);
+                sendVideoEmbed(videoId);
+
+            } catch (Exception e) {
+                log.error("Error while checking for new video: {}", e.getMessage(), e);
+            }
+        };
     }
 
-    private JSONObject readFromUrl(String url) {
+    private JSONObject fetchJson(String url) {
         try {
-            URL u = new URL(url);
-            HttpsURLConnection connection = (HttpsURLConnection) u.openConnection();
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            br.close();
-
-            return new JSONObject(sb.toString());
-        } catch (IOException | JSONException e) {
-            log.error(e.getMessage());
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            return new JSONObject(response.body());
+        } catch (Exception e) {
+            log.error("Failed to fetch JSON from {}: {}", url, e.getMessage());
+            return null;
         }
-
-        return null;
     }
 
     private void sendVideoEmbed(String videoId) {
-        channelProvider.sendMessage(BotChannel.YOUTUBE, "@everyone Neues Video von **Izi Fit:** \n\rhttps://youtu.be/" + videoId);
-        log.info("New video posted: {}", videoId);
-    }
+        String youtubeRoleMention = roleProvider.getRole(BotRole.YOUTUBE).map(IMentionable::getAsMention).orElse("@youtube");
 
-    public void triggerVideoCheck(SlashCommandInteractionEvent event) {
-        checkVideo();
-        event.reply("Videostatus wurde erfolgreich überprüft!").setEphemeral(true).queue();
+        channelProvider.sendMessage(BotChannel.YOUTUBE, i18n.format(Youtube.NOTIFICATION, "youtuberole", youtubeRoleMention, "link", "https://youtu.be/" + videoId));
+        log.info("New video posted: {}", videoId);
     }
 }

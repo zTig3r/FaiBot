@@ -1,6 +1,6 @@
 package de.ztiger.faibot.data;
 
 public enum ResourceType {
-    YOUTUBE_VIDEO,
+    LAST_VIDEO,
     HALL_OF_FAME
 }

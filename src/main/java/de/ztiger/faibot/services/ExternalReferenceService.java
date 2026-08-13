@@ -22,6 +22,16 @@ public class ExternalReferenceService {
         return Long.parseLong(reference.getIdentifier());
     }
 
+    public void setLastVideoId(String videoId) throws SQLException {
+        createOrUpdateExternalReference(ResourceType.LAST_VIDEO, videoId);
+    }
+
+    public String getLastVideoId() throws SQLException {
+        ExternalReference reference = externalReferenceDao.queryBuilder().where().eq("resource_type", ResourceType.LAST_VIDEO.name()).queryForFirst();
+        if (reference == null) return "";
+        return reference.getIdentifier();
+    }
+
     public void createOrUpdateExternalReference(ResourceType type, String identifier) throws SQLException {
         ExternalReference reference = externalReferenceDao.queryBuilder().where().eq("resource_type", type.name()).queryForFirst();
 
