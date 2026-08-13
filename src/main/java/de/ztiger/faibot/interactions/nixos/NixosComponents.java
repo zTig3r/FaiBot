@@ -66,8 +66,6 @@ public class NixosComponents {
                 ).build();
     }
 
-    // TODO: Implement correct mention of the @nixos role
-
     public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages, String nixosRoleMention) {
         List<String> formattedWinners = IntStream.range(0, winners.size())
                 .mapToObj(i -> i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i))).toList();

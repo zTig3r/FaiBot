@@ -88,9 +88,4 @@ public class LocalizationService {
             parts.add(format(count == 1 ? singularKey : pluralKey, "count", count));
         }
     }
-
-    // TODO: Implement in some way for config reloading
-    public static void clearCache() {
-        cache.clear();
-    }
 }

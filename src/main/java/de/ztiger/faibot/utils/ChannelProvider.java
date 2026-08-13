@@ -2,8 +2,10 @@ package de.ztiger.faibot.utils;
 
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.config.ConfigManager;
+import de.ztiger.faibot.exceptions.ChannelNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -14,10 +16,9 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ChannelProvider {
-
-    // TODO: Implement error if channel is not found
 
     @Setter
     private ShardManager shardManager;
@@ -32,29 +33,46 @@ public class ChannelProvider {
     }
 
     public void sendMessage(BotChannel channel, String text) {
-        getChannel(channel).ifPresent(c -> c.sendMessage(text).queue());
+        getRequiredChannel(channel).sendMessage(text).queue();
     }
 
     public void sendMessage(BotChannel channel, MessageCreateData data) {
-        getChannel(channel).ifPresent(c -> c.sendMessage(data).queue());
+        getRequiredChannel(channel).sendMessage(data).queue();
     }
 
     public void sendComponent(BotChannel channel, MessageTopLevelComponent component) {
-        getChannel(channel).ifPresent(c -> c.sendMessageComponents(component).useComponentsV2().queue());
+        getRequiredChannel(channel).sendMessageComponents(component).useComponentsV2().queue();
     }
 
     public long sendComponentAndGetId(BotChannel channel, MessageTopLevelComponent component) {
-        return getChannel(channel).map(c -> c.sendMessageComponents(component).useComponentsV2().submit()
-                .thenApply(ISnowflake::getIdLong).join()).orElse(-1L);
+        return getRequiredChannel(channel).sendMessageComponents(component).useComponentsV2().submit()
+                .thenApply(ISnowflake::getIdLong).join();
     }
 
     public void editComponents(BotChannel channel, long messageId, MessageTopLevelComponent component) {
-        getChannel(channel).ifPresent(c -> c.editMessageComponentsById(messageId, component).useComponentsV2().queue());
+        getRequiredChannel(channel).editMessageComponentsById(messageId, component).useComponentsV2().queue();
     }
 
     public void sendComponentAndCreateThread(BotChannel channel, MessageTopLevelComponent component, String threadName) {
-        getChannel(channel).map(c -> c.sendMessageComponents(component).useComponentsV2().submit()
-                .thenCompose(message -> message.createThreadChannel(threadName).submit()));
+        getRequiredChannel(channel).sendMessageComponents(component).useComponentsV2().submit()
+                .thenCompose(message -> message.createThreadChannel(threadName).submit());
+    }
+
+    /*
+     * Only use embeds for messages that really need them, otherwise use ComponentsV2.
+     */
+
+    public long sendEmbedAndGetId(BotChannel channel, String message, MessageEmbed embed) {
+        return getRequiredChannel(channel).sendMessage(message).setEmbeds(embed).submit()
+                .thenApply(ISnowflake::getIdLong).join();
+    }
+
+    public void editEmbed(BotChannel channel, long messageId, MessageEmbed embed) {
+        getRequiredChannel(channel).editMessageEmbedsById(messageId, embed).queue();
+    }
+
+    public void editMessageWithEmbed(BotChannel channel, long messageId, String message, MessageEmbed embed) {
+        getRequiredChannel(channel).editMessageById(messageId, message).setEmbeds(embed).queue();
     }
 
     public Optional<GuildMessageChannel> getChannelById(long channelId) {
@@ -64,28 +82,17 @@ public class ChannelProvider {
         return Optional.ofNullable(guildChannel);
     }
 
-    private Optional<GuildMessageChannel> getChannel(BotChannel channel) {
+    public GuildMessageChannel getRequiredChannel(BotChannel channel) {
         String id = configManager.getChannelId(channel.getConfigKey());
-        if (id == null || id.isEmpty()) return Optional.empty();
+        if (id == null || id.isBlank()) {
+            throw new ChannelNotFoundException(channel, "Channel ID is not configured in ConfigManager");
+        }
 
         GuildMessageChannel guildChannel = shardManager.getChannelById(GuildMessageChannel.class, id);
-        return Optional.ofNullable(guildChannel);
-    }
+        if (guildChannel == null) {
+            throw new ChannelNotFoundException(channel, "No channel found on Discord for ID: " + id);
+        }
 
-    /*
-     * Only use embeds for messages that really need them, otherwise use ComponentsV2.
-     */
-
-    public long sendEmbedAndGetId(BotChannel channel, String message, MessageEmbed embed) {
-        return getChannel(channel).map(c -> c.sendMessage(message).setEmbeds(embed).submit()
-                .thenApply(ISnowflake::getIdLong).join()).orElse(-1L);
-    }
-
-    public void editEmbed(BotChannel channel, long messageId, MessageEmbed embed) {
-        getChannel(channel).ifPresent(c -> c.editMessageEmbedsById(messageId, embed).queue());
-    }
-
-    public void editMessageWithEmbed(BotChannel channel, long messageId, String message, MessageEmbed embed) {
-        getChannel(channel).ifPresent(c -> c.editMessageById(messageId, message).setEmbeds(embed).queue());
+        return guildChannel;
     }
 }
