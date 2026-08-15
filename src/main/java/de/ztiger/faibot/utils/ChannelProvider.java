@@ -20,10 +20,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChannelProvider {
 
+    private final ConfigManager configManager;
     @Setter
     private ShardManager shardManager;
-
-    private final ConfigManager configManager;
 
     public boolean isChannel(Channel channel, BotChannel targetChannel) {
         if (channel == null) return false;

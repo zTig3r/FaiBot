@@ -15,10 +15,10 @@ public class PointsComponents {
     public Container getPointsContainer(String username, int points, int appearances, String positions) {
         return Container.of(
                 TextDisplay.of(i18n.format(Points.TITLE, "user", username, "points", points)),
-                TextDisplay.of(i18n.get(Points.CALCULATION)),
-                Separator.createDivider(Separator.Spacing.SMALL),
                 TextDisplay.of(i18n.format(Points.APPEARANCES, "appearances", appearances)),
-                TextDisplay.of(i18n.format(Points.POSITIONS, "positions", positions))
+                TextDisplay.of(i18n.format(Points.POSITIONS, "positions", positions)),
+                Separator.createDivider(Separator.Spacing.SMALL),
+                TextDisplay.of(i18n.get(Points.CALCULATION))
         );
     }
 }

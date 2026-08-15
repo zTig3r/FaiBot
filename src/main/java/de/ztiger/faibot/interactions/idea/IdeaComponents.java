@@ -17,11 +17,11 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public final class IdeaComponents {
 
-    private final LocalizationService i18n;
-
     public static final String COMPONENT_ID = "idea";
     public static final String SUBJECT_FIELD = "subject";
     public static final String BODY_FIELD = "body";
+
+    private final LocalizationService i18n;
 
     public Modal getIdeaModal() {
         TextInput subject = TextInput.create(SUBJECT_FIELD, TextInputStyle.SHORT)

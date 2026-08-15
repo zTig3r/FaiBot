@@ -28,15 +28,6 @@ public class PlacementService {
     private final Dao<Placement, Integer> placementDao;
     private final TwitchApiService twitchApiService;
 
-    public record ParsedPlacement(int rank, String username) {
-    }
-
-    public record HallOfFameEntry(String userId, String username, int totalScore) {
-    }
-
-    public record UserScoreBreakdown(String userId, int totalScore, int appearances, List<Integer> positions) {
-    }
-
     public void processSeasonResults(YearMonth yearMonth, List<ParsedPlacement> placements) throws Exception {
         if (placements == null || placements.isEmpty()) return;
 
@@ -69,7 +60,7 @@ public class PlacementService {
 
         if (!unresolvedUsernames.isEmpty()) {
             log.error("Completed season {} processing with {} missing Twitch API user(s): {}",
-                    yearMonth, unresolvedUsernames.size(), String.join(", ", unresolvedUsernames));
+                      yearMonth, unresolvedUsernames.size(), String.join(", ", unresolvedUsernames));
         }
     }
 
@@ -109,5 +100,14 @@ public class PlacementService {
         int totalScore = positions.stream().mapToInt(pos -> 14 - pos).sum();
 
         return new UserScoreBreakdown(twitchUserId, totalScore, positions.size(), positions);
+    }
+
+    public record ParsedPlacement(int rank, String username) {
+    }
+
+    public record HallOfFameEntry(String userId, String username, int totalScore) {
+    }
+
+    public record UserScoreBreakdown(String userId, int totalScore, int appearances, List<Integer> positions) {
     }
 }

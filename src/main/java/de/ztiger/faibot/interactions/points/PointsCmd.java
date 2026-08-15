@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PointsCmd implements ICommand, IAutoCompleteHandler {
 
+    private static final String USER_FIELD = "user";
+
     private final PlacementService placementService;
     private final TwitchUserService twitchUserService;
     private final PointsComponents pointsComponents;
     private final LocalizationService i18n;
-
-    private static final String USER_FIELD = "user";
 
     @Override
     public CommandData getCommandData() {
@@ -40,7 +40,7 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
         String username = getRequiredStringOption(event, USER_FIELD);
         String userId = twitchUserService.getUserIdByName(username);
 
-        if(userId == null) {
+        if (userId == null) {
             event.getHook().sendMessage(i18n.format(Points.Error.NOTFOUND, "username", username)).queue();
             return;
         }
@@ -56,7 +56,8 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
                     .orElse("Keine Positionen");
 
             event.getHook().sendMessageComponents(pointsComponents.getPointsContainer(username, pointsInfo.totalScore(),
-                    pointsInfo.appearances(), formattedPositions)).useComponentsV2().queue();
+                                                                                      pointsInfo.appearances(),
+                                                                                      formattedPositions)).useComponentsV2().queue();
         } catch (Exception e) {
             event.getHook().sendMessage(i18n.get(Points.Error.FETCH)).queue();
         }

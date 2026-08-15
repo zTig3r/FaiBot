@@ -31,7 +31,9 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,10 +54,6 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
     private final Map<String, List<String>> winnerCache = new ConcurrentHashMap<>();
     private final Map<String, PendingSeasonData> pendingOverrideCache = new ConcurrentHashMap<>();
-
-    private record PendingSeasonData(YearMonth season, String localizedMonth, String yearStr, List<String> winners,
-                                     String rawTop10, List<Message.Attachment> attachments) {
-    }
 
     @Override
     public String getComponentId() {
@@ -104,9 +102,11 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
 
         try {
             if (seasonService.seasonExists(season)) {
-                pendingOverrideCache.put(event.getUser().getId(), new PendingSeasonData(season, localizedMonth, yearStr, winners, rawTop10, attachments));
+                pendingOverrideCache.put(event.getUser().getId(),
+                                         new PendingSeasonData(season, localizedMonth, yearStr, winners, rawTop10, attachments));
 
-                event.getHook().sendMessageComponents(nixosComponents.getConfirmOverride(localizedMonth, yearStr)).useComponentsV2().setEphemeral(true).queue();
+                event.getHook().sendMessageComponents(nixosComponents.getConfirmOverride(localizedMonth, yearStr)).useComponentsV2()
+                        .setEphemeral(true).queue();
                 return;
             }
         } catch (Exception e) {
@@ -137,7 +137,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
         }
 
         processSeasonData(event.getHook(), pendingData.season(), pendingData.localizedMonth(), pendingData.yearStr(),
-                pendingData.rawTop10(), pendingData.winners(), pendingData.attachments());
+                          pendingData.rawTop10(), pendingData.winners(), pendingData.attachments());
     }
 
     private void processSeasonData(InteractionHook hook, YearMonth season, String localizedMonth, String yearStr,
@@ -172,7 +172,7 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
                 i18n.format(Nixos.Message.THREAD, "month", localizedMonth, "year", yearStr)
         );
 
-        hook.sendMessage(i18n.get(Nixos.Modal.SUCCESS)).setEphemeral(true).queue();
+        hook.sendMessage(i18n.get(Nixos.Success.PUBLISH)).setEphemeral(true).queue();
 
         try {
             hallOfFameService.updateHallOfFame();
@@ -181,5 +181,9 @@ public class NixosCmd implements ICommand, IButtonHandler, IModalHandler {
             log.error("Error while updating Hall of Fame data", e);
             hook.sendMessage(i18n.get(HallOfFame.Error.UPDATE)).setEphemeral(true).queue();
         }
+    }
+
+    private record PendingSeasonData(YearMonth season, String localizedMonth, String yearStr, List<String> winners,
+                                     String rawTop10, List<Message.Attachment> attachments) {
     }
 }

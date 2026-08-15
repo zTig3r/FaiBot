@@ -10,40 +10,44 @@ import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class ConfigManager {
 
     private final Dotenv env;
+    private final Map<String, FileConfiguration> langConfigs = new HashMap<>();
+    private final Path langDir;
 
     @Getter
     private FileConfiguration config = new YamlConfiguration();
 
-    private final Map<String, FileConfiguration> langConfigs = new HashMap<>();
-    private final Path configDir;
-
     public ConfigManager(Dotenv env) {
         this.env = env;
-        this.configDir = resolveConfigDirectory();
+        Path configDir = resolveDirectory("CONFIG_PATH", "Config");
+        this.langDir = resolveDirectory("LOCALIZATION_PATH", "Localization");
         log.info("Using configuration directory: {}", configDir.toAbsolutePath());
-        config = loadYamlFile("config");
+        log.info("Using localization directory: {}", langDir.toAbsolutePath());
+        config = loadYamlFile("config", configDir);
     }
 
-    private Path resolveConfigDirectory() {
-        String configPath = env.get("CONFIG_PATH");
-        if (configPath == null || configPath.isBlank()) throw new RuntimeException("Config path is not defined.");
-        return Paths.get(configPath);
+    private Path resolveDirectory(String envVar, String description) {
+        String path = env.get(envVar);
+        if (path == null || path.isBlank()) {
+            throw new RuntimeException(description + " path is not defined.");
+        }
+        return Paths.get(path);
     }
 
     public FileConfiguration getLanguageConfig(String langCode) {
-        return langConfigs.computeIfAbsent(langCode, this::loadYamlFile);
+        return langConfigs.computeIfAbsent(langCode, lang -> loadYamlFile(lang, langDir));
     }
 
-    private FileConfiguration loadYamlFile(String fileName) {
+    private FileConfiguration loadYamlFile(String fileName, Path directory) {
         try {
-            File baseFile = configDir.resolve(fileName + ".yml").toFile();
-            File localFile = configDir.resolve(fileName + ".local.yml").toFile();
+            File baseFile = directory.resolve(fileName + ".yml").toFile();
+            File localFile = directory.resolve(fileName + ".local.yml").toFile();
             File configFile = localFile.exists() ? localFile : baseFile;
 
             if (!configFile.exists()) {

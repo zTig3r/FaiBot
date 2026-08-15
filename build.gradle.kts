@@ -33,7 +33,7 @@ dependencies {
 
 val generatedLocalizationDir = layout.buildDirectory.dir("generated/sources/localization/java")
 
-val localizationYamlPath: String = rootProject.file("../k8s-deployments/apps/faibot/config/de_DE.yml").absolutePath
+val localizationYamlPath: String = rootProject.file("../k8s-deployments/apps/faibot/i18n/de_DE.yml").absolutePath
 
 val targetPackage = "de.ztiger.faibot.localization.keys"
 

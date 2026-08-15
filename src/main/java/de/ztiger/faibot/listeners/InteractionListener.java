@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class InteractionListener extends ListenerAdapter {
 
     private final Map<String, ICommand> commands = new HashMap<>();
-    private final Map<String , IAutoCompleteHandler> autoCompleteHandlers = new HashMap<>();
+    private final Map<String, IAutoCompleteHandler> autoCompleteHandlers = new HashMap<>();
     private final Map<String, IButtonHandler> buttonHandlers = new HashMap<>();
     private final Map<String, IModalHandler> modalHandlers = new HashMap<>();
 

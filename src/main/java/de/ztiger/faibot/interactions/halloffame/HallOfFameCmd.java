@@ -21,16 +21,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HallOfFameCmd implements ICommand {
 
+    private static final String POST = "post";
+    private static final String UPDATE = "update";
+    private static final String SETMESSAGEID = "setmessageid";
+    private static final String MESSAGEID_FIELD = "messageid";
+
     private final ChannelProvider channelProvider;
     private final HallOfFameComponents hallOfFameComponents;
     private final ExternalReferenceService externalReferenceService;
     private final HallOfFameService hallOfFameService;
     private final LocalizationService i18n;
-
-    private static final String POST = "post";
-    private static final String UPDATE = "update";
-    private static final String SETMESSAGEID = "setmessageid";
-    private static final String MESSAGEID_FIELD = "messageid";
 
     @Override
     public CommandData getCommandData() {

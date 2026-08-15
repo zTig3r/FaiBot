@@ -3,7 +3,10 @@ package de.ztiger.faibot;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import de.ztiger.faibot.config.ConfigManager;
-import de.ztiger.faibot.data.*;
+import de.ztiger.faibot.data.ExternalReference;
+import de.ztiger.faibot.data.Placement;
+import de.ztiger.faibot.data.Season;
+import de.ztiger.faibot.data.TwitchUser;
 import de.ztiger.faibot.interactions.halloffame.HallOfFameCmd;
 import de.ztiger.faibot.interactions.halloffame.HallOfFameComponents;
 import de.ztiger.faibot.interactions.halloffame.HallOfFameService;
@@ -14,7 +17,9 @@ import de.ztiger.faibot.interactions.nixos.NixosComponents;
 import de.ztiger.faibot.interactions.points.PointsCmd;
 import de.ztiger.faibot.interactions.points.PointsComponents;
 import de.ztiger.faibot.interactions.serverstats.ServerStatsCmd;
-import de.ztiger.faibot.interactions.twitch.*;
+import de.ztiger.faibot.interactions.twitch.TwitchCmd;
+import de.ztiger.faibot.interactions.twitch.TwitchComponents;
+import de.ztiger.faibot.interactions.twitch.TwitchStreamHandler;
 import de.ztiger.faibot.interactions.youtube.YoutubeCmd;
 import de.ztiger.faibot.interactions.youtube.YoutubeHandler;
 import de.ztiger.faibot.listeners.*;
@@ -83,7 +88,8 @@ public class AppContainer {
         Dao<TwitchUser, String> userDao = DaoManager.createDao(databaseManager.getConnectionSource(), TwitchUser.class);
         Dao<Season, String> seasonDao = DaoManager.createDao(databaseManager.getConnectionSource(), Season.class);
         Dao<Placement, Integer> placementDao = DaoManager.createDao(databaseManager.getConnectionSource(), Placement.class);
-        Dao<ExternalReference, Integer> externalReferenceDao = DaoManager.createDao(databaseManager.getConnectionSource(), ExternalReference.class);
+        Dao<ExternalReference, Integer> externalReferenceDao = DaoManager.createDao(databaseManager.getConnectionSource(),
+                                                                                    ExternalReference.class);
 
         // Domain Services & Component Factories
         this.externalReferenceService = new ExternalReferenceService(externalReferenceDao);
@@ -108,26 +114,33 @@ public class AppContainer {
 
         // Stream Handler
         String twitchChannel = configManager.getConfig().getString("twitch-channel");
-        this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, roleProvider, twitchComponents, i18n);
+        this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, roleProvider, twitchComponents,
+                                                           i18n);
 
         // Commands & Listeners
-        HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, externalReferenceService, hallOfFameService, i18n);
+        HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, externalReferenceService, hallOfFameService,
+                                                        i18n);
         IdeaCmd ideaCmd = new IdeaCmd(channelProvider, ideaComponents, i18n);
-        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, roleProvider, hallOfFameService, nixosComponents, i18n);
+        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, roleProvider, hallOfFameService, nixosComponents,
+                                         i18n);
         PointsCmd pointsCmd = new PointsCmd(placementService, twitchUserService, pointsComponents, i18n);
         ServerStatsCmd serverStatsCmd = new ServerStatsCmd(guildProvider, i18n);
         TwitchCmd twitchCmd = new TwitchCmd(twitchStreamHandler, i18n);
         YoutubeCmd youtubeCmd = new YoutubeCmd(youtubeHandler, i18n);
 
-        this.interactionListener = new InteractionListener(hallOfFameCmd, ideaCmd, nixosCmd, pointsCmd, serverStatsCmd, twitchCmd, youtubeCmd);
+        this.interactionListener = new InteractionListener(hallOfFameCmd, ideaCmd, nixosCmd, pointsCmd, serverStatsCmd, twitchCmd,
+                                                           youtubeCmd);
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(env.get("TOKEN"))
                 .setAutoReconnect(true)
-                .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
+                .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_MEMBERS,
+                                   GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS,
+                                   GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.MESSAGE_CONTENT)
                 .setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.ALL)
-                .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE, CacheFlag.CLIENT_STATUS, CacheFlag.ACTIVITY, CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS, CacheFlag.EMOJI);
+                .enableCache(CacheFlag.ONLINE_STATUS, CacheFlag.VOICE_STATE, CacheFlag.CLIENT_STATUS, CacheFlag.ACTIVITY,
+                             CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS, CacheFlag.EMOJI);
 
         builder.addEventListeners(
                 interactionListener,

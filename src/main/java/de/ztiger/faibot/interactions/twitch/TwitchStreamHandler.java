@@ -8,9 +8,9 @@ import com.github.twitch4j.helix.domain.Stream;
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.config.BotRole;
 import de.ztiger.faibot.localization.keys.Twitch;
+import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.TwitchApiService;
 import de.ztiger.faibot.utils.ChannelProvider;
-import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.utils.RoleProvider;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -39,8 +39,10 @@ public class TwitchStreamHandler {
     private long messageID;
     private String profileImageUrl;
     private String currentUserId;
+    private String offlineImageUrl;
 
-    public TwitchStreamHandler(TwitchApiService twitchApiService, String channelName, ChannelProvider channelProvider, RoleProvider roleProvider, TwitchComponents twitchComponents, LocalizationService i18n) {
+    public TwitchStreamHandler(TwitchApiService twitchApiService, String channelName, ChannelProvider channelProvider,
+                               RoleProvider roleProvider, TwitchComponents twitchComponents, LocalizationService i18n) {
         this.twitchApiService = twitchApiService;
         this.channelName = channelName;
         this.channelProvider = channelProvider;
@@ -58,6 +60,7 @@ public class TwitchStreamHandler {
         twitchApiService.getUserByUsername(channelName).ifPresent(user -> {
             this.currentUserId = user.getId();
             this.profileImageUrl = user.getProfileImageUrl();
+            this.offlineImageUrl = user.getOfflineImageUrl();
         });
     }
 
@@ -74,13 +77,14 @@ public class TwitchStreamHandler {
             Optional<Stream> streamOpt = twitchApiService.getLiveStream(channelName);
             Stream stream = streamOpt.orElse(null);
 
-            String previewURL = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + channelName + "-1280x720.jpg";
+            String previewURL = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + channelName + "-1280x720.jpg" + "?t=" + System.currentTimeMillis();
             String title = stream != null ? stream.getTitle() : "Stream Title";
             String game = stream != null ? stream.getGameName() : "Game Name";
             int viewers = stream != null ? stream.getViewerCount() : 0;
             String duration = i18n.formatDuration(stream != null ? stream.getUptime() : Duration.ZERO);
 
-            return twitchComponents.getNotificationEmbed(channelName, previewURL, "https://twitch.tv/" + channelName, profileImageUrl, title, game, viewers, duration);
+            return twitchComponents.getNotificationEmbed(channelName, previewURL, "https://twitch.tv/" + channelName, profileImageUrl,
+                                                         title, game, viewers, duration);
         } catch (Exception e) {
             log.error("Error creating live stream embed", e);
             return null;
@@ -108,7 +112,8 @@ public class TwitchStreamHandler {
         if (initialEmbed != null) {
             String twitchRoleMention = roleProvider.getRole(BotRole.TWITCH).map(IMentionable::getAsMention).orElse("@twitch");
 
-            messageID = channelProvider.sendEmbedAndGetId(BotChannel.TWITCH, i18n.format(Twitch.NOTIFICATION, "twitchrole", twitchRoleMention), initialEmbed);
+            messageID = channelProvider.sendEmbedAndGetId(BotChannel.TWITCH,
+                                                          i18n.format(Twitch.NOTIFICATION, "twitchrole", twitchRoleMention), initialEmbed);
         }
 
         updateTask = scheduler.scheduleAtFixedRate(this::updateEmbed, 5, 15, TimeUnit.MINUTES);
@@ -118,11 +123,10 @@ public class TwitchStreamHandler {
         log.info("TwitchHandler: Stream offline detected for {}", channelName);
         stopPeriodicUpdates();
 
-        Duration vodDuration = currentUserId != null
-                ? twitchApiService.getLatestVodDuration(currentUserId)
-                : Duration.ZERO;
+        Duration vodDuration = currentUserId != null ? twitchApiService.getLatestVodDuration(currentUserId) : Duration.ZERO;
 
-        MessageEmbed embed = twitchComponents.getEndNotificationEmbed(channelName, "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + channelName + "-1280x720.jpg", "https://twitch.tv/" + channelName, profileImageUrl, i18n.formatDuration(vodDuration));
+        MessageEmbed embed = twitchComponents.getEndNotificationEmbed(channelName, offlineImageUrl, "https://twitch.tv/" + channelName,
+                                                                      profileImageUrl, i18n.formatDuration(vodDuration));
 
         channelProvider.editMessageWithEmbed(BotChannel.TWITCH, messageID, " ", embed);
     }

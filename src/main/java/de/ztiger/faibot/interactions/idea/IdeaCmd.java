@@ -4,8 +4,8 @@ import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.interactions.ICommand;
 import de.ztiger.faibot.interactions.components.IModalHandler;
 import de.ztiger.faibot.localization.keys.Idea;
-import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -47,6 +47,6 @@ public class IdeaCmd implements ICommand, IModalHandler {
 
         channelProvider.sendMessage(BotChannel.RECOMMENDATIONS, pollMessage);
 
-        event.reply(i18n.get(Idea.Modal.SUCCESS)).setEphemeral(true).queue();
+        event.reply(i18n.get(Idea.Success.SUBMIT)).setEphemeral(true).queue();
     }
 }

@@ -2,11 +2,7 @@ package de.ztiger.faibot.services;
 
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
-import com.github.twitch4j.helix.domain.Stream;
-import com.github.twitch4j.helix.domain.StreamList;
-import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.helix.domain.Video;
-import com.github.twitch4j.helix.domain.VideoList;
+import com.github.twitch4j.helix.domain.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

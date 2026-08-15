@@ -2,9 +2,9 @@ package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.Log;
-import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.MessageCachingService;
+import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.components.container.Container;
@@ -33,14 +33,15 @@ public class MessageEdit extends ListenerAdapter {
 
             MessageCachingService.CachedMessage oldMessage = messageCachingService.get(message.getIdLong());
 
-            if(oldMessage == null) {
+            if (oldMessage == null) {
                 log.warn("Message with ID {} not found in cache", message.getIdLong());
                 return;
             }
 
             channelProvider.sendComponent(BotChannel.LOG, messageEdit(message.getJumpUrl(),
-                    oldMessage.content(), message.getContentRaw(), message.getAuthor().getIdLong(),
-                    message.getIdLong(), message.getAuthor().getEffectiveName()));
+                                                                      oldMessage.content(), message.getContentRaw(),
+                                                                      message.getAuthor().getIdLong(),
+                                                                      message.getIdLong(), message.getAuthor().getEffectiveName()));
 
             messageCachingService.add(event.getMessage());
         } catch (Exception e) {

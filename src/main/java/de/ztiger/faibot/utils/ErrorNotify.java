@@ -16,10 +16,10 @@ public class ErrorNotify extends AppenderBase<ILoggingEvent> {
 
     private static final Set<String> errors = ConcurrentHashMap.newKeySet();
 
-    private final ChannelProvider channelProvider;
-
     // Send no errors in development environment (ENV=dev)
     private static final boolean IS_DEV = "dev".equalsIgnoreCase(System.getenv("ENV"));
+
+    private final ChannelProvider channelProvider;
 
     public ErrorNotify(ChannelProvider channelProvider) {
         this.channelProvider = channelProvider;
@@ -50,7 +50,8 @@ public class ErrorNotify extends AppenderBase<ILoggingEvent> {
     private Container error(String message, String stackTrace) {
         return Container.of(
                 TextDisplay.of(message),
-                TextDisplay.of(stackTrace != null ? "```java\n" + stackTrace.substring(0, 350) + "\n... [truncated]```" : "No stack trace available")
+                TextDisplay.of(stackTrace != null ? "```java\n" + stackTrace.substring(0,
+                                                                                       350) + "\n... [truncated]```" : "No stack trace available")
         ).withAccentColor(Color.RED);
 
     }

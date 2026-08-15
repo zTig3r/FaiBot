@@ -14,7 +14,8 @@ public class TwitchComponents {
     private final ConfigManager configManager;
     private final LocalizationService i18n;
 
-    public MessageEmbed getNotificationEmbed(String username, String previewUrl, String profileUrl, String profilePictureUrl, String title, String game, int viewers, String duration) {
+    public MessageEmbed getNotificationEmbed(String username, String previewUrl, String profileUrl, String profilePictureUrl, String title,
+                                             String game, int viewers, String duration) {
         return new EmbedBuilder().setAuthor(username, profileUrl, profilePictureUrl)
                 .setTitle(title, profileUrl)
                 .addField(i18n.get(Twitch.GAME), game, true)
@@ -25,7 +26,8 @@ public class TwitchComponents {
                 .build();
     }
 
-    public MessageEmbed getEndNotificationEmbed(String username, String offlineImageUrl, String profileUrl, String profilePictureUrl, String duration) {
+    public MessageEmbed getEndNotificationEmbed(String username, String offlineImageUrl, String profileUrl, String profilePictureUrl,
+                                                String duration) {
         return new EmbedBuilder().setAuthor(username, profileUrl, profilePictureUrl)
                 .setDescription(i18n.format(Twitch.OFFLINE, "duration", duration))
                 .setImage(offlineImageUrl)

@@ -12,10 +12,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RoleProvider {
 
+    private final ConfigManager configManager;
+
     @Setter
     private ShardManager shardManager;
-
-    private final ConfigManager configManager;
 
     public Optional<Role> getRole(BotRole role) {
         String roleId = configManager.getRoleId(role.getConfigKey());

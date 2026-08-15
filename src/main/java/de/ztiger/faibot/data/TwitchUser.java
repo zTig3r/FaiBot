@@ -15,6 +15,7 @@ public class TwitchUser {
     private String id;
 
     @DatabaseField
-    @Getter @Setter
+    @Getter
+    @Setter
     private String username;
 }

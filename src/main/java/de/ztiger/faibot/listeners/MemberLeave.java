@@ -2,8 +2,8 @@ package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.Log;
-import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.section.Section;
@@ -25,7 +25,8 @@ public class MemberLeave extends ListenerAdapter {
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         User user = event.getUser();
 
-        channelProvider.sendComponent(BotChannel.LOG, memberLeave(user.getAsMention(), user.getEffectiveName(), user.getId(), user.getEffectiveAvatarUrl()));
+        channelProvider.sendComponent(BotChannel.LOG, memberLeave(user.getAsMention(), user.getEffectiveName(), user.getId(),
+                                                                  user.getEffectiveAvatarUrl()));
     }
 
     private Container memberLeave(String tag, String name, String userId, String avatarUrl) {

@@ -3,8 +3,8 @@ package de.ztiger.faibot.listeners;
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.General;
 import de.ztiger.faibot.localization.keys.Log;
-import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.section.Section;
@@ -35,7 +35,8 @@ public class MemberJoin extends ListenerAdapter {
 
         channelProvider.sendMessage(BotChannel.WELCOME, i18n.format(General.WELCOME_MESSAGE, "user", user.getAsMention()));
 
-        channelProvider.sendComponent(BotChannel.LOG, memberJoin(user.getAsMention(), user.getName(), ageString, user.getId(), user.getEffectiveAvatarUrl()));
+        channelProvider.sendComponent(BotChannel.LOG, memberJoin(user.getAsMention(), user.getName(), ageString, user.getId(),
+                                                                 user.getEffectiveAvatarUrl()));
     }
 
     private Container memberJoin(String tag, String name, String age, String userId, String avatarUrl) {

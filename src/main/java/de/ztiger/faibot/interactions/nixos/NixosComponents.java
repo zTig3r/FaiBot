@@ -32,9 +32,6 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class NixosComponents {
 
-    private final ConfigManager configManager;
-    private final LocalizationService i18n;
-
     public static final String COMPONENT_ID = "nixos";
     public static final String MONTH_FIELD = "month";
     public static final String YEAR_FIELD = "year";
@@ -43,14 +40,18 @@ public class NixosComponents {
     public static final String CONFIRM_OVERRIDE = "confirm_override";
     public static final String CANCEL_OVERRIDE = "cancel_override";
 
+    private final ConfigManager configManager;
+    private final LocalizationService i18n;
+
     public Modal getNixoModal(List<String> winners) {
         YearMonth now = YearMonth.now();
 
         StringSelectMenu monthMenu = StringSelectMenu.create(MONTH_FIELD)
                 .addOptions(Arrays.stream(Month.values())
-                        .map(month -> SelectOption.of(month.getDisplayName(TextStyle.FULL_STANDALONE, i18n.getLocale()), month.name())
-                                .withDefault(month == now.getMonth()))
-                        .toList())
+                                    .map(month -> SelectOption.of(month.getDisplayName(TextStyle.FULL_STANDALONE, i18n.getLocale()),
+                                                                  month.name())
+                                            .withDefault(month == now.getMonth()))
+                                    .toList())
                 .build();
 
         return Modal.create(COMPONENT_ID, i18n.get(Nixos.Modal.TITLE))
@@ -66,7 +67,8 @@ public class NixosComponents {
                 ).build();
     }
 
-    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<Message.Attachment> winnerImages, String nixosRoleMention) {
+    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners,
+                                        List<Message.Attachment> winnerImages, String nixosRoleMention) {
         List<String> formattedWinners = IntStream.range(0, winners.size())
                 .mapToObj(i -> i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i))).toList();
 

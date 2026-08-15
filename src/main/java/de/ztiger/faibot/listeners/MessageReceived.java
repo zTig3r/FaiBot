@@ -1,8 +1,8 @@
 package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.config.BotChannel;
-import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.MessageCachingService;
+import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageType;

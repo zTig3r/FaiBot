@@ -13,18 +13,6 @@ public class MessageCachingService {
             .expireAfterAccess(12, TimeUnit.HOURS)
             .build();
 
-    public record CachedMessage(long id, long channelId, long authorId, String content, long timestamp) {
-        public static CachedMessage fromJDA(Message message) {
-            return new CachedMessage(
-                    message.getIdLong(),
-                    message.getChannel().getIdLong(),
-                    message.getAuthor().getIdLong(),
-                    message.getContentRaw(),
-                    message.getTimeCreated().toInstant().toEpochMilli()
-            );
-        }
-    }
-
     public void add(Message message) {
         CACHE.put(message.getIdLong(), CachedMessage.fromJDA(message));
     }
@@ -35,5 +23,17 @@ public class MessageCachingService {
 
     public CachedMessage get(long messageId) {
         return CACHE.getIfPresent(messageId);
+    }
+
+    public record CachedMessage(long id, long channelId, long authorId, String content, long timestamp) {
+        public static CachedMessage fromJDA(Message message) {
+            return new CachedMessage(
+                    message.getIdLong(),
+                    message.getChannel().getIdLong(),
+                    message.getAuthor().getIdLong(),
+                    message.getContentRaw(),
+                    message.getTimeCreated().toInstant().toEpochMilli()
+            );
+        }
     }
 }

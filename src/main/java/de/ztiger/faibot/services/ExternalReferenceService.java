@@ -17,19 +17,21 @@ public class ExternalReferenceService {
     }
 
     public long getHallOfFameMessageId() throws SQLException {
-        ExternalReference reference = externalReferenceDao.queryBuilder().where().eq("resource_type", ResourceType.HALL_OF_FAME.name()).queryForFirst();
+        ExternalReference reference = externalReferenceDao.queryBuilder().where().eq("resource_type",
+                                                                                     ResourceType.HALL_OF_FAME.name()).queryForFirst();
         if (reference == null) return -1;
         return Long.parseLong(reference.getIdentifier());
     }
 
-    public void setLastVideoId(String videoId) throws SQLException {
-        createOrUpdateExternalReference(ResourceType.LAST_VIDEO, videoId);
-    }
-
     public String getLastVideoId() throws SQLException {
-        ExternalReference reference = externalReferenceDao.queryBuilder().where().eq("resource_type", ResourceType.LAST_VIDEO.name()).queryForFirst();
+        ExternalReference reference = externalReferenceDao.queryBuilder().where().eq("resource_type",
+                                                                                     ResourceType.LAST_VIDEO.name()).queryForFirst();
         if (reference == null) return "";
         return reference.getIdentifier();
+    }
+
+    public void setLastVideoId(String videoId) throws SQLException {
+        createOrUpdateExternalReference(ResourceType.LAST_VIDEO, videoId);
     }
 
     public void createOrUpdateExternalReference(ResourceType type, String identifier) throws SQLException {

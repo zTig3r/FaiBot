@@ -2,9 +2,9 @@ package de.ztiger.faibot.listeners;
 
 import de.ztiger.faibot.config.BotChannel;
 import de.ztiger.faibot.localization.keys.Log;
-import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.MessageCachingService;
+import de.ztiger.faibot.utils.ChannelProvider;
 import de.ztiger.faibot.utils.UserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +54,9 @@ public class MessageDelete extends ListenerAdapter {
             GuildMessageChannel channel = channelOpt.get();
             User user = userOpt.get();
 
-            channelProvider.sendComponent(BotChannel.LOG, messageDelete(channel.getAsMention(), message.content(), user.getIdLong(), message.id(), user.getEffectiveName()));
+            channelProvider.sendComponent(BotChannel.LOG,
+                                          messageDelete(channel.getAsMention(), message.content(), user.getIdLong(), message.id(),
+                                                        user.getEffectiveName()));
         } catch (Exception e) {
             log.error("Error while processing message delete event", e);
         }

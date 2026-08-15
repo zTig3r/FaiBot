@@ -11,10 +11,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GuildProvider {
 
+    private final ConfigManager configManager;
+
     @Setter
     private ShardManager shardManager;
-
-    private final ConfigManager configManager;
 
     public Optional<Guild> getMainGuild() {
         String guildId = configManager.getGuildId();

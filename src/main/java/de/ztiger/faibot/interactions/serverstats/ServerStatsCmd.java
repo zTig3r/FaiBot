@@ -24,7 +24,8 @@ public class ServerStatsCmd implements ICommand {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("setupstats", i18n.get(Serverstats.Command.DESCRIPTION)).setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+        return Commands.slash("setupstats", i18n.get(Serverstats.Command.DESCRIPTION)).setDefaultPermissions(
+                DefaultMemberPermissions.DISABLED);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ServerStatsCmd implements ICommand {
 
         guildProvider.getMainGuild().ifPresent(guild -> {
             if (!guild.getCategoriesByName(name, true).isEmpty()) {
-                event.reply(i18n.get(Serverstats.ERROR)).setEphemeral(true).queue();
+                event.reply(i18n.get(Serverstats.Error.ALREADY_EXISTS)).setEphemeral(true).queue();
                 return;
             }
 
@@ -47,7 +48,7 @@ public class ServerStatsCmd implements ICommand {
                 category.createVoiceChannel(i18n.format(Serverstats.BOTS, "bots", bots)).queue();
 
                 log.info("Created Server Stats category");
-                event.reply(i18n.get(Serverstats.SUCCESS)).setEphemeral(true).queue();
+                event.reply(i18n.get(Serverstats.Success.SETUP)).setEphemeral(true).queue();
             });
         });
     }

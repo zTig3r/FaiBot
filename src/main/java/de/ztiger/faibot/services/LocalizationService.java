@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class LocalizationService {
 
-    private final ConfigManager configManager;
-
     private static final Map<String, String> cache = new ConcurrentHashMap<>();
     private static volatile Locale cachedLocale;
+
+    private final ConfigManager configManager;
 
     public Locale getLocale() {
         if (cachedLocale == null) {
@@ -34,6 +34,7 @@ public class LocalizationService {
         }
         return cachedLocale;
     }
+
     public String get(String key) {
         return cache.computeIfAbsent(key, k -> {
             try {
@@ -77,7 +78,7 @@ public class LocalizationService {
 
     public String formatDuration(Duration duration) {
         List<String> parts = new ArrayList<>();
-        addPart(parts ,duration.toHoursPart(), Time.HOUR, Time.HOURS);
+        addPart(parts, duration.toHoursPart(), Time.HOUR, Time.HOURS);
         addPart(parts, duration.toMinutesPart(), Time.MINUTE, Time.MINUTES);
 
         return parts.isEmpty() ? " " : String.join(" ", parts);

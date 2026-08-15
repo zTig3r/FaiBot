@@ -49,7 +49,8 @@ public class YoutubeHandler {
 
                 if (videoId.equals(externalReferenceService.getLastVideoId())) return;
 
-                String videoUrl = String.format("https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&id=%s&key=%s", videoId, youtubeApiKey);
+                String videoUrl = String.format("https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&id=%s&key=%s",
+                                                videoId, youtubeApiKey);
 
                 JSONObject videoInfo = fetchJson(videoUrl);
                 if (videoInfo == null) return;
@@ -82,7 +83,8 @@ public class YoutubeHandler {
     private void sendVideoEmbed(String videoId) {
         String youtubeRoleMention = roleProvider.getRole(BotRole.YOUTUBE).map(IMentionable::getAsMention).orElse("@youtube");
 
-        channelProvider.sendMessage(BotChannel.YOUTUBE, i18n.format(Youtube.NOTIFICATION, "youtuberole", youtubeRoleMention, "link", "https://youtu.be/" + videoId));
+        channelProvider.sendMessage(BotChannel.YOUTUBE, i18n.format(Youtube.NOTIFICATION, "youtuberole", youtubeRoleMention, "link",
+                                                                    "https://youtu.be/" + videoId));
         log.info("New video posted: {}", videoId);
     }
 }

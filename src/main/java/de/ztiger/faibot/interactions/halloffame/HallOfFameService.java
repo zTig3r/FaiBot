@@ -34,6 +34,7 @@ public class HallOfFameService {
 
     public List<String> getFormattedTopList() {
         List<PlacementService.HallOfFameEntry> data = placementService.getHallOfFameData();
-        return IntStream.range(0, data.size()).mapToObj(i -> String.format("**%02d\\. **%s (%d)", i + 1, data.get(i).username(), data.get(i).totalScore())).toList();
+        return IntStream.range(0, data.size())
+                .mapToObj(i -> String.format("**%02d\\. **%s (%d)", i + 1, data.get(i).username(), data.get(i).totalScore())).toList();
     }
 }
