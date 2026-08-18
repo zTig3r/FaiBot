@@ -86,7 +86,7 @@ public class AppContainer {
         // Database & DAOs
         this.databaseManager = new DatabaseManager(env);
         Dao<TwitchUser, String> userDao = DaoManager.createDao(databaseManager.getConnectionSource(), TwitchUser.class);
-        Dao<Season, String> seasonDao = DaoManager.createDao(databaseManager.getConnectionSource(), Season.class);
+        Dao<Season, Integer> seasonDao = DaoManager.createDao(databaseManager.getConnectionSource(), Season.class);
         Dao<Placement, Integer> placementDao = DaoManager.createDao(databaseManager.getConnectionSource(), Placement.class);
         Dao<ExternalReference, Integer> externalReferenceDao = DaoManager.createDao(databaseManager.getConnectionSource(),
                                                                                     ExternalReference.class);
@@ -114,6 +114,10 @@ public class AppContainer {
 
         // Stream Handler
         String twitchChannel = configManager.getConfig().getString("twitch-channel");
+        if (twitchChannel == null || twitchChannel.isEmpty()) {
+            throw new IllegalStateException("Twitch channel is not configured. Please set 'twitch-channel' in the configuration.");
+        }
+
         this.twitchStreamHandler = new TwitchStreamHandler(twitchApiService, twitchChannel, channelProvider, roleProvider, twitchComponents,
                                                            i18n);
 
@@ -121,8 +125,8 @@ public class AppContainer {
         HallOfFameCmd hallOfFameCmd = new HallOfFameCmd(channelProvider, hallOfFameComponents, externalReferenceService, hallOfFameService,
                                                         i18n);
         IdeaCmd ideaCmd = new IdeaCmd(channelProvider, ideaComponents, i18n);
-        NixosCmd nixosCmd = new NixosCmd(placementService, seasonService, channelProvider, roleProvider, hallOfFameService, nixosComponents,
-                                         i18n);
+        NixosCmd nixosCmd = new NixosCmd(configManager, placementService, seasonService, channelProvider, roleProvider, hallOfFameService,
+                                         nixosComponents, i18n);
         PointsCmd pointsCmd = new PointsCmd(placementService, twitchUserService, pointsComponents, i18n);
         ServerStatsCmd serverStatsCmd = new ServerStatsCmd(guildProvider, i18n);
         TwitchCmd twitchCmd = new TwitchCmd(twitchStreamHandler, i18n);

@@ -29,7 +29,7 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("points", i18n.get(Points.Command.DESCRIPTION)).
+        return Commands.slash("punkte", i18n.get(Points.Command.DESCRIPTION)).
                 addOption(OptionType.STRING, USER_FIELD, i18n.get(Points.Command.USER), true, true);
     }
 
@@ -55,9 +55,10 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
                     .reduce((a, b) -> a + ", " + b)
                     .orElse("Keine Positionen");
 
-            event.getHook().sendMessageComponents(pointsComponents.getPointsContainer(username, pointsInfo.totalScore(),
-                                                                                      pointsInfo.appearances(),
-                                                                                      formattedPositions)).useComponentsV2().queue();
+            event.getHook().sendMessageComponents(
+                    pointsComponents.getPointsContainer(username, pointsInfo.totalScore(), pointsInfo.hallOfFamePosition(),
+                                                        pointsInfo.appearances(),
+                                                        formattedPositions)).useComponentsV2().queue();
         } catch (Exception e) {
             event.getHook().sendMessage(i18n.get(Points.Error.FETCH)).queue();
         }

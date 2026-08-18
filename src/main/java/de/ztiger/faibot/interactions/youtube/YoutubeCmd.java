@@ -23,7 +23,7 @@ public class YoutubeCmd implements ICommand {
 
     @Override
     public void executeSlash(SlashCommandInteractionEvent event) {
-        youtubeHandler.checkVideo();
+        youtubeHandler.checkVideo().run();
         event.reply("Videostatus wurde erfolgreich überprüft!").setEphemeral(true).queue();
     }
 }

@@ -12,9 +12,9 @@ public class PointsComponents {
 
     private final LocalizationService i18n;
 
-    public Container getPointsContainer(String username, int points, int appearances, String positions) {
+    public Container getPointsContainer(String username, int points, int position, int appearances, String positions) {
         return Container.of(
-                TextDisplay.of(i18n.format(Points.TITLE, "user", username, "points", points)),
+                TextDisplay.of(i18n.format(Points.TITLE, "user", username, "points", points, "position", position)),
                 TextDisplay.of(i18n.format(Points.APPEARANCES, "appearances", appearances)),
                 TextDisplay.of(i18n.format(Points.POSITIONS, "positions", positions)),
                 Separator.createDivider(Separator.Spacing.SMALL),

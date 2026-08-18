@@ -48,10 +48,16 @@ public class ErrorNotify extends AppenderBase<ILoggingEvent> {
     }
 
     private Container error(String message, String stackTrace) {
+        String formattedStackTrace = null;
+        if (stackTrace != null) {
+            int maxLen = 350;
+            String snippet = stackTrace.substring(0, Math.min(stackTrace.length(), maxLen));
+            formattedStackTrace = "```java\n" + snippet + (stackTrace.length() > maxLen ? "\n... [truncated]" : "") + "```";
+        }
+
         return Container.of(
                 TextDisplay.of(message),
-                TextDisplay.of(stackTrace != null ? "```java\n" + stackTrace.substring(0,
-                                                                                       350) + "\n... [truncated]```" : "No stack trace available")
+                TextDisplay.of(formattedStackTrace != null ? formattedStackTrace : "No stack trace available")
         ).withAccentColor(Color.RED);
 
     }

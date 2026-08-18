@@ -75,7 +75,7 @@ public class ChannelProvider {
     }
 
     public Optional<GuildMessageChannel> getChannelById(long channelId) {
-        if (channelId <= 0) return Optional.empty();
+        if (channelId <= 0 || shardManager == null) return Optional.empty();
 
         GuildMessageChannel guildChannel = shardManager.getChannelById(GuildMessageChannel.class, channelId);
         return Optional.ofNullable(guildChannel);

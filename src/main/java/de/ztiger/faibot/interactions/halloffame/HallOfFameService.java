@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -27,8 +29,10 @@ public class HallOfFameService {
             return false;
         }
 
+        int year = getEffectiveYear();
         List<String> formattedTopList = getFormattedTopList();
-        channelProvider.editComponents(BotChannel.NIXOS, messageId, hallOfFameComponents.getHallOfFame(formattedTopList));
+        List<String> formattedTopListForYear = getFormattedTopListForYear(year);
+        channelProvider.editComponents(BotChannel.NIXOS, messageId, hallOfFameComponents.getHallOfFame(formattedTopList, formattedTopListForYear, year));
         return true;
     }
 
@@ -36,5 +40,20 @@ public class HallOfFameService {
         List<PlacementService.HallOfFameEntry> data = placementService.getHallOfFameData();
         return IntStream.range(0, data.size())
                 .mapToObj(i -> String.format("**%02d\\. **%s (%d)", i + 1, data.get(i).username(), data.get(i).totalScore())).toList();
+    }
+
+    public List<String> getFormattedTopListForYear(int year) {
+        List<PlacementService.HallOfFameEntry> data = placementService.getHallOfFameDataForYear(year);
+        return IntStream.range(0, data.size())
+                .mapToObj(i -> String.format("**%02d\\. **%s (%d)", i + 1, data.get(i).username(), data.get(i).totalScore())).toList();
+    }
+
+    public int getEffectiveYear() {
+        LocalDate now = LocalDate.now();
+
+        if (now.getMonth() == Month.JANUARY && now.getDayOfMonth() < 25) {
+            return now.getYear() - 1;
+        }
+        return now.getYear();
     }
 }

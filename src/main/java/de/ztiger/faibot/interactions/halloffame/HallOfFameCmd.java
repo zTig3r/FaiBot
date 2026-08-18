@@ -22,6 +22,7 @@ import java.util.List;
 public class HallOfFameCmd implements ICommand {
 
     private static final String POST = "post";
+    private static final String YEAR_FIELD = "year";
     private static final String UPDATE = "update";
     private static final String SETMESSAGEID = "setmessageid";
     private static final String MESSAGEID_FIELD = "messageid";
@@ -36,7 +37,8 @@ public class HallOfFameCmd implements ICommand {
     public CommandData getCommandData() {
         return Commands.slash("halloffame", i18n.get(HallOfFame.Command.DESCRIPTION))
                 .addSubcommands(
-                        new SubcommandData(POST, i18n.get(HallOfFame.Command.POST)),
+                        new SubcommandData(POST, i18n.get(HallOfFame.Command.POST))
+                                .addOption(OptionType.STRING, YEAR_FIELD, i18n.get(HallOfFame.Command.YEAR), false),
                         new SubcommandData(UPDATE, i18n.get(HallOfFame.Command.UPDATE)),
                         new SubcommandData(SETMESSAGEID, i18n.get(HallOfFame.Command.SETMESSAGEID))
                                 .addOption(OptionType.STRING, MESSAGEID_FIELD, i18n.get(HallOfFame.Command.MESSAGEID), true)
@@ -58,8 +60,36 @@ public class HallOfFameCmd implements ICommand {
 
     private void postHallOfFame(SlashCommandInteractionEvent event) {
         try {
+            String yearOption = getOptionalStringOption(event, YEAR_FIELD);
+
+            if (yearOption != null) {
+                int year;
+
+                try {
+                    year = Integer.parseInt(yearOption);
+                } catch (NumberFormatException e) {
+                    event.getHook().sendMessage(i18n.get(HallOfFame.Error.INVALIDYEAR)).queue();
+                    return;
+                }
+
+                List<String> formattedYearlyTopList = hallOfFameService.getFormattedTopListForYear(year);
+                if (formattedYearlyTopList.isEmpty()) {
+                    event.getHook().sendMessage(i18n.get(HallOfFame.Error.NOTFOUND)).queue();
+                    return;
+                }
+
+                channelProvider.sendComponent(BotChannel.NIXOS, hallOfFameComponents.getYearlyHallOfFame(formattedYearlyTopList, year));
+                event.getHook().sendMessage(i18n.get(HallOfFame.Success.POST)).queue();
+                return;
+            }
+
+            int displayYear = hallOfFameService.getEffectiveYear();
             List<String> formattedTopList = hallOfFameService.getFormattedTopList();
-            long messageId = channelProvider.sendComponentAndGetId(BotChannel.NIXOS, hallOfFameComponents.getHallOfFame(formattedTopList));
+            List<String> formattedCurrentYearTopList = hallOfFameService.getFormattedTopListForYear(displayYear);
+
+            long messageId = channelProvider.sendComponentAndGetId(BotChannel.NIXOS, hallOfFameComponents.getHallOfFame(formattedTopList,
+                                                                                                                        formattedCurrentYearTopList,
+                                                                                                                        displayYear));
 
             externalReferenceService.setHallOfFameMessage(String.valueOf(messageId));
             event.getHook().sendMessage(i18n.get(HallOfFame.Success.POST)).queue();
@@ -86,6 +116,12 @@ public class HallOfFameCmd implements ICommand {
     private void setHallOfFameMessageId(SlashCommandInteractionEvent event) {
         try {
             String messageId = getRequiredStringOption(event, MESSAGEID_FIELD);
+
+            if (!messageId.matches("\\d+") || messageId.isBlank() || messageId.length() < 10) {
+                event.getHook().sendMessage(i18n.get(HallOfFame.Error.INVALIDMESSAGEID)).queue();
+                return;
+            }
+
             externalReferenceService.setHallOfFameMessage(messageId);
             event.getHook().sendMessage(i18n.get(HallOfFame.Success.SETMESSAGEID)).queue();
         } catch (Exception e) {

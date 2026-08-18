@@ -123,6 +123,11 @@ public class TwitchStreamHandler {
         log.info("TwitchHandler: Stream offline detected for {}", channelName);
         stopPeriodicUpdates();
 
+        if(messageID == 0) {
+            log.warn("TwitchHandler: No message ID set for end notification. Skipping end notification.");
+            return;
+        }
+
         Duration vodDuration = currentUserId != null ? twitchApiService.getLatestVodDuration(currentUserId) : Duration.ZERO;
 
         MessageEmbed embed = twitchComponents.getEndNotificationEmbed(channelName, offlineImageUrl, "https://twitch.tv/" + channelName,

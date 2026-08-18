@@ -11,6 +11,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -81,6 +82,10 @@ public class ConfigManager {
 
     public String getRoleId(String key) {
         return config.getString("role." + key);
+    }
+
+    public List<String> getDefaultPrices() {
+        return config.getStringList("default-prices");
     }
 
     public Color getColor(BotColor color) {

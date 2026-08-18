@@ -12,9 +12,8 @@ public class UserProvider {
     private ShardManager shardManager;
 
     public Optional<User> getUserById(long userId) {
-        if (userId <= 0) return Optional.empty();
+        if (userId <= 0 || shardManager == null) return Optional.empty();
 
-        User user = shardManager.getUserById(userId);
-        return Optional.ofNullable(user);
+        return Optional.ofNullable(shardManager.getUserById(userId));
     }
 }

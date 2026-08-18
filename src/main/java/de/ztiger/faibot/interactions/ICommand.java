@@ -16,4 +16,10 @@ public interface ICommand {
                 .map(OptionMapping::getAsString)
                 .orElseThrow(() -> new IllegalArgumentException("Missing required option: " + name));
     }
+
+    default String getOptionalStringOption(SlashCommandInteractionEvent event, String name) {
+        return Optional.ofNullable(event.getOption(name))
+                .map(OptionMapping::getAsString)
+                .orElse(null);
+    }
 }

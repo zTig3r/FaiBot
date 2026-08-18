@@ -19,7 +19,7 @@ public class GuildProvider {
     public Optional<Guild> getMainGuild() {
         String guildId = configManager.getGuildId();
 
-        if (guildId == null || guildId.isEmpty()) return Optional.empty();
+        if (guildId == null || guildId.isEmpty() || shardManager == null) return Optional.empty();
 
         return Optional.ofNullable(shardManager.getGuildById(guildId));
     }

@@ -64,31 +64,43 @@ public class PlacementService {
         }
     }
 
+    private static final RawRowMapper<HallOfFameEntry> HOF_MAPPER = (cols, row) -> new HallOfFameEntry(
+            row[0], row[1], (int) Math.round(Double.parseDouble(row[2]))
+    );
+
     public List<HallOfFameEntry> getHallOfFameData() {
+        return queryHallOfFame(null, 10);
+    }
+
+    public List<HallOfFameEntry> getHallOfFameDataForYear(int year) {
+        return queryHallOfFame(year + "-%", 10);
+    }
+
+    private List<HallOfFameEntry> queryHallOfFame(String yearPattern, Integer limit) {
+        boolean filterByYear = yearPattern != null;
+
         String sql = """
                 SELECT
                      u.id AS user_id,
                      u.username AS username,
-                     COUNT(p.id) * 3 + SUM(11 - p.position) AS total_score,
+                     COUNT(p.id) * 5 + SUM(11 - p.position) AS total_score,
                      COUNT(p.id) AS appearances
                  FROM placement p
                  INNER JOIN twitchuser u ON p.twitchUser_id = u.id
+                """
+                + (filterByYear ? "INNER JOIN season s ON p.season_id = s.id WHERE s.year_month LIKE ? " : "")
+                + """
                  GROUP BY u.id, u.username
                  ORDER BY total_score DESC
-                 LIMIT 10
-                """;
+                """
+                + (limit != null ? " LIMIT " + limit : "");
 
-        RawRowMapper<HallOfFameEntry> mapper = (columnNames, resultColumns) -> new HallOfFameEntry(
-                resultColumns[0],
-                resultColumns[1],
-                (int) Math.round(Double.parseDouble(resultColumns[2]))
-        );
-
-
-        try (GenericRawResults<HallOfFameEntry> results = placementDao.queryRaw(sql, mapper)) {
+        try (GenericRawResults<HallOfFameEntry> results = filterByYear
+                ? placementDao.queryRaw(sql, HOF_MAPPER, yearPattern)
+                : placementDao.queryRaw(sql, HOF_MAPPER)) {
             return results.getResults();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to fetch Hall of Fame data", e);
         }
     }
 
@@ -96,10 +108,19 @@ public class PlacementService {
         List<Placement> userPlacements = placementDao.queryBuilder().where().eq("twitchUser_id", twitchUserId).query();
 
         List<Integer> positions = userPlacements.stream().map(Placement::getPosition).toList();
-
         int totalScore = positions.stream().mapToInt(pos -> 14 - pos).sum();
 
-        return new UserScoreBreakdown(twitchUserId, totalScore, positions.size(), positions);
+        List<HallOfFameEntry> allHofEntries = queryHallOfFame(null, null);
+        int hallOfFamePosition = -1;
+
+        for (int i = 0; i < allHofEntries.size(); i++) {
+            if (allHofEntries.get(i).userId().equals(twitchUserId)) {
+                hallOfFamePosition = i + 1;
+                break;
+            }
+        }
+
+        return new UserScoreBreakdown(twitchUserId, totalScore, positions.size(), positions, hallOfFamePosition);
     }
 
     public record ParsedPlacement(int rank, String username) {
@@ -108,6 +129,6 @@ public class PlacementService {
     public record HallOfFameEntry(String userId, String username, int totalScore) {
     }
 
-    public record UserScoreBreakdown(String userId, int totalScore, int appearances, List<Integer> positions) {
+    public record UserScoreBreakdown(String userId, int totalScore, int appearances, List<Integer> positions, int hallOfFamePosition) {
     }
 }

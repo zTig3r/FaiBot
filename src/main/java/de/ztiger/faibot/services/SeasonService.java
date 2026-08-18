@@ -10,7 +10,7 @@ import java.time.YearMonth;
 @RequiredArgsConstructor
 public class SeasonService {
 
-    private final Dao<Season, String> seasonDao;
+    private final Dao<Season, Integer> seasonDao;
 
     public boolean seasonExists(YearMonth yearMonth) throws SQLException {
         return !seasonDao.queryForEq("year_month", yearMonth.toString()).isEmpty();

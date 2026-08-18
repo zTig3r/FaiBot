@@ -67,10 +67,14 @@ public class NixosComponents {
                 ).build();
     }
 
-    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners,
+    public Container getWinnerComponent(String month, String year, List<String> top, List<String> winners, List<String> prices,
                                         List<Message.Attachment> winnerImages, String nixosRoleMention) {
         List<String> formattedWinners = IntStream.range(0, winners.size())
-                .mapToObj(i -> i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i))).toList();
+                .mapToObj(i -> {
+                    String price = (i < prices.size()) ? prices.get(i) : "-";
+                    return i18n.format(Nixos.Message.WINNER, "number", i + 1, "user", winners.get(i), "price", price);
+                })
+                .toList();
 
         List<MediaGalleryItem> winnerGalleryItems = winnerImages.stream().map(image -> MediaGalleryItem.fromUrl(image.getUrl())).toList();
 
