@@ -14,4 +14,4 @@ jobs:
     with:
       project_name: 'faibot'
     secrets:
-      CONFIG_REPO_PAT: ${{ secrets.DEPLOYMENT_REPO_PAT }}
+      DEPLOYMENT_REPO_PAT: ${{ secrets.DEPLOYMENT_REPO_PAT }}
