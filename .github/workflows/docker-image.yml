@@ -13,3 +13,5 @@ jobs:
     uses: zTig3r/workflows/.github/workflows/build-and-push-docker-image.yml@master
     with:
       project_name: 'faibot'
+    secrets:
+      CONFIG_REPO_PAT: ${{ secrets.CONFIG_REPO_PAT }}

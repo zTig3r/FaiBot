@@ -1,47 +1,41 @@
 package de.ztiger.faibot.listeners;
 
+import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.services.MessageCachingService;
+import de.ztiger.faibot.utils.ChannelProvider;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.MessageCachingService.add;
-import static de.ztiger.faibot.utils.XP.*;
-
-@SuppressWarnings("ConstantConditions")
+@RequiredArgsConstructor
 public class MessageReceived extends ListenerAdapter {
+
+    private final ChannelProvider channelProvider;
+    private final MessageCachingService messageCachingService;
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        Channel channel = event.getChannel();
+        Message message = event.getMessage();
+
+        if (channelProvider.isChannel(channel, BotChannel.RECOMMENDATIONS) && message.getType() == MessageType.POLL_RESULT) {
+            message.delete().queue();
+            return;
+        }
+
         if (event.getAuthor().isBot()) return;
 
-        Message message = event.getMessage();
-        Channel channel = event.getChannel();
+        if (channelProvider.isChannel(channel, BotChannel.LOG)) return;
 
-        if (channel.equals(logChannel)) return;
+        messageCachingService.add(message);
 
-        add(message);
-
-        if ((channel.equals(recommendationsChannel) && message.getContentRaw().contains("V:") || channel.equals(reactionChannel))) {
+        if (channelProvider.isChannel(channel, BotChannel.REACTION)) {
             message.addReaction(Emoji.fromUnicode("✅")).queue();
             message.addReaction(Emoji.fromUnicode("❌")).queue();
         }
-
-        if (channel.equals(botChannel)) return;
-
-        String id = event.getMember().getId();
-
-        if (canGetXp(event.getMember())) {
-            setter.addXP(id, ThreadLocalRandom.current().nextInt(15, 25));
-            setter.addPoints(id, ThreadLocalRandom.current().nextInt(0, 3));
-            checkLevelUp(event.getMember());
-            addUserTimer(event.getMember());
-        }
-
-        setter.addMessage(id);
     }
 }

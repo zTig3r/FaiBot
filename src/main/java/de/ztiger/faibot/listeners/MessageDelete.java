@@ -1,34 +1,74 @@
 package de.ztiger.faibot.listeners;
 
-import net.dv8tion.jda.api.entities.Message;
+import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.localization.keys.Log;
+import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.services.MessageCachingService;
+import de.ztiger.faibot.utils.ChannelProvider;
+import de.ztiger.faibot.utils.UserProvider;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.separator.Separator;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
-import java.util.Map;
+import java.util.Optional;
 
-import static de.ztiger.faibot.FaiBot.logChannel;
-import static de.ztiger.faibot.FaiBot.logger;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.MessageCachingService.get;
-import static de.ztiger.faibot.utils.MessageCachingService.remove;
-
-@SuppressWarnings("ConstantConditions")
+@Slf4j
+@RequiredArgsConstructor
 public class MessageDelete extends ListenerAdapter {
 
+    private final ChannelProvider channelProvider;
+    private final MessageCachingService messageCachingService;
+    private final UserProvider userProvider;
+    private final LocalizationService i18n;
+
     @Override
-    public void onMessageDelete(MessageDeleteEvent event) {
-        if (event.getChannel() == logChannel) return;
-
+    public void onMessageDelete(@NonNull MessageDeleteEvent event) {
         try {
-            Message message = get(event.getMessageId(), event.getChannel().getId());
+            long messageId = event.getMessageIdLong();
 
-            Map<String, String> contents = Map.of("channel", message.getChannel().getAsMention(), "message", message.getContentRaw(), "uID", message.getAuthor().getId(), "mID", message.getId(), "author_name", message.getAuthor().getEffectiveName(), "author_icon", message.getAuthor().getAvatarUrl());
-            remove(message);
+            MessageCachingService.CachedMessage message = messageCachingService.get(messageId);
 
-            logChannel.sendMessageEmbeds(getEmbed("messageDelete", contents, Color.RED)).queue();
+            if (message == null) {
+                log.warn("Message with ID {} not found in cache", messageId);
+                return;
+            }
+
+            messageCachingService.remove(messageId);
+
+            Optional<GuildMessageChannel> channelOpt = channelProvider.getChannelById(message.channelId());
+            Optional<User> userOpt = userProvider.getUserById(message.authorId());
+
+            if (channelOpt.isEmpty() || userOpt.isEmpty()) {
+                log.warn("Could not resolve channel or user for cached message ID {}", messageId);
+                return;
+            }
+
+            GuildMessageChannel channel = channelOpt.get();
+            User user = userOpt.get();
+
+            channelProvider.sendComponent(BotChannel.LOG,
+                                          messageDelete(channel.getAsMention(), message.content(), user.getIdLong(), message.id(),
+                                                        user.getEffectiveName()));
         } catch (Exception e) {
-            logger.error("Error while processing message delete event", e);
+            log.error("Error while processing message delete event", e);
         }
+    }
+
+    private Container messageDelete(String channel, String content, long userId, long messageId, String author) {
+        return Container.of(
+                TextDisplay.of(i18n.format(Log.Message.Delete.TITLE, "channel", channel)),
+                TextDisplay.of(i18n.format(Log.Message.SENDER, "user", author)),
+                TextDisplay.of(content),
+                Separator.createDivider(Separator.Spacing.SMALL),
+                TextDisplay.of(i18n.format(Log.Message.FOOTER, "userid", userId, "messageid", messageId))
+        ).withAccentColor(Color.RED);
     }
 }

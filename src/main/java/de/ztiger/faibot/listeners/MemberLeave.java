@@ -1,24 +1,42 @@
 package de.ztiger.faibot.listeners;
 
+import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.localization.keys.Log;
+import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.utils.ChannelProvider;
+import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.section.Section;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.thumbnail.Thumbnail;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
-import java.util.Map;
 
-import static de.ztiger.faibot.FaiBot.logChannel;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-
+@RequiredArgsConstructor
 public class MemberLeave extends ListenerAdapter {
 
+    private final ChannelProvider channelProvider;
+    private final LocalizationService i18n;
+
     @Override
-    @SuppressWarnings("ConstantConditions")
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         User user = event.getUser();
 
-        Map<String, String> contents = Map.of("tag", user.getAsMention(), "name", user.getEffectiveName(), "id", user.getId(), "img", user.getAvatarUrl());
+        channelProvider.sendComponent(BotChannel.LOG, memberLeave(user.getAsMention(), user.getEffectiveName(), user.getId(),
+                                                                  user.getEffectiveAvatarUrl()));
+    }
 
-        logChannel.sendMessageEmbeds(getEmbed("memberLeave", contents, Color.RED)).queue();
+    private Container memberLeave(String tag, String name, String userId, String avatarUrl) {
+        return Container.of(
+                Section.of(
+                        Thumbnail.fromUrl(avatarUrl),
+                        TextDisplay.of(i18n.get(Log.Member.Leave.TITLE)),
+                        TextDisplay.of(tag + " " + name)
+                ),
+                TextDisplay.of(i18n.format(Log.Member.FOOTER, "userid", userId))
+        ).withAccentColor(Color.RED);
     }
 }

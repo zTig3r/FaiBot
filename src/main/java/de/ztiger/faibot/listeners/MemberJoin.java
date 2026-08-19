@@ -1,5 +1,15 @@
 package de.ztiger.faibot.listeners;
 
+import de.ztiger.faibot.config.BotChannel;
+import de.ztiger.faibot.localization.keys.General;
+import de.ztiger.faibot.localization.keys.Log;
+import de.ztiger.faibot.services.LocalizationService;
+import de.ztiger.faibot.utils.ChannelProvider;
+import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.components.container.Container;
+import net.dv8tion.jda.api.components.section.Section;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.thumbnail.Thumbnail;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -8,30 +18,36 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 
-import static de.ztiger.faibot.FaiBot.*;
-import static de.ztiger.faibot.utils.EmbedCreator.getEmbed;
-import static de.ztiger.faibot.utils.Lang.format;
-
+@RequiredArgsConstructor
 public class MemberJoin extends ListenerAdapter {
 
+    private final ChannelProvider channelProvider;
+    private final LocalizationService i18n;
+
     @Override
-    @SuppressWarnings("ConstantConditions")
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         User user = event.getUser();
 
         String age = user.getTimeCreated().toString().split("T")[0];
         Period period = Period.between(LocalDate.parse(age, DateTimeFormatter.ofPattern("yyyy-MM-dd")), LocalDate.now());
-        String ageString = period.getYears() + " year" + (period.getYears() != 1 ? "s" : "") + ", " +
-                period.getMonths() + " month" + (period.getMonths() != 1 ? "s" : "") + ", " +
-                period.getDays() + " day" + (period.getDays() != 1 ? "s" : "");
+        String ageString = i18n.formatPeriod(period);
 
-        Map<String, String> contents = Map.of("tag", user.getAsMention(), "name", user.getEffectiveName(), "age", ageString, "id", user.getId(), "img", user.getAvatarUrl());
+        channelProvider.sendMessage(BotChannel.WELCOME, i18n.format(General.WELCOME_MESSAGE, "user", user.getAsMention()));
 
-        if (!getter.userExists(user.getId())) setter.addUser(event.getUser().getId());
+        channelProvider.sendComponent(BotChannel.LOG, memberJoin(user.getAsMention(), user.getName(), ageString, user.getId(),
+                                                                 user.getEffectiveAvatarUrl()));
+    }
 
-        welcomeChannel.sendMessage(format("welcomeMessage", Map.of("user", user.getAsMention()))).queue();
-        logChannel.sendMessageEmbeds(getEmbed("memberJoin", contents, Color.GREEN)).queue();
+    private Container memberJoin(String tag, String name, String age, String userId, String avatarUrl) {
+        return Container.of(
+                Section.of(
+                        Thumbnail.fromUrl(avatarUrl),
+                        TextDisplay.of(i18n.get(Log.Member.Join.TITLE)),
+                        TextDisplay.of(tag + " " + name),
+                        TextDisplay.of(i18n.format(Log.Member.Join.AGE, "age", age))
+                ),
+                TextDisplay.of(i18n.format(Log.Member.FOOTER, "userid", userId))
+        ).withAccentColor(Color.GREEN);
     }
 }
