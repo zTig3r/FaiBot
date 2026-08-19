@@ -25,7 +25,7 @@ COPY src src
 # Copy the checked-out k8s-deployments folder into the container
 COPY k8s-deployments /k8s-deployments
 
-ENV LOCALIZATION_YAML_PATH=/k8s-deployments/apps/faibot/config/de_DE.yml
+ENV LOCALIZATION_YAML_PATH=/k8s-deployments/apps/faibot/i18n/de_DE.yml
 RUN ./gradlew --no-daemon shadowJar
 
 # ---- Runtime Stage ----
