@@ -108,7 +108,7 @@ public class PlacementService {
         List<Placement> userPlacements = placementDao.queryBuilder().where().eq("twitchUser_id", twitchUserId).query();
 
         List<Integer> positions = userPlacements.stream().map(Placement::getPosition).toList();
-        int totalScore = positions.stream().mapToInt(pos -> 14 - pos).sum();
+        int totalScore = positions.stream().mapToInt(pos -> 16 - pos).sum();
 
         List<HallOfFameEntry> allHofEntries = queryHallOfFame(null, null);
         int hallOfFamePosition = -1;

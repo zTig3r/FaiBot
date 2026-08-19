@@ -9,6 +9,7 @@ import de.ztiger.faibot.utils.ChannelProvider;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -27,7 +28,7 @@ public class IdeaCmd implements ICommand, IModalHandler {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("vorschlag", i18n.get(Idea.Command.DESCRIPTION));
+        return Commands.slash("vorschlag", i18n.get(Idea.Command.DESCRIPTION)).setDefaultPermissions(DefaultMemberPermissions.ENABLED);
     }
 
     @Override

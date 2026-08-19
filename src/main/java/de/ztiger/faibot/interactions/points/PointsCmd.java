@@ -9,6 +9,7 @@ import de.ztiger.faibot.services.TwitchUserService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -29,8 +30,9 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash("punkte", i18n.get(Points.Command.DESCRIPTION)).
-                addOption(OptionType.STRING, USER_FIELD, i18n.get(Points.Command.USER), true, true);
+        return Commands.slash("punkte", i18n.get(Points.Command.DESCRIPTION))
+                .addOption(OptionType.STRING, USER_FIELD, i18n.get(Points.Command.USER), true, true)
+                .setDefaultPermissions(DefaultMemberPermissions.ENABLED);
     }
 
     @Override
