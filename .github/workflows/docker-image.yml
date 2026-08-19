@@ -10,8 +10,8 @@ permissions:
 
 jobs:
   call-build:
-    uses: zTig3r/workflows/.github/workflows/build-and-push-docker-image.yml@master
+    uses: zTig3r/workflows/.github/workflows/build-and-push-docker-image.yml@main
     with:
       project_name: 'faibot'
     secrets:
-      CONFIG_REPO_PAT: ${{ secrets.CONFIG_REPO_PAT }}
+      CONFIG_REPO_PAT: ${{ secrets.DEPLOYMENT_REPO_PAT }}
