@@ -14,7 +14,7 @@ COPY gradle gradle
 RUN chmod +x ./gradlew
 
 # Download dependencies only
-RUN ./gradlew --no-daemon build -x test || true
+RUN ./gradlew --no-daemon dependencies || true
 
 # Copy the generator script directory
 COPY scripts scripts
