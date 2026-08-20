@@ -7,6 +7,7 @@ import de.ztiger.faibot.services.LocalizationService;
 import de.ztiger.faibot.services.PlacementService;
 import de.ztiger.faibot.services.TwitchUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
@@ -18,6 +19,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PointsCmd implements ICommand, IAutoCompleteHandler {
 
@@ -61,6 +63,8 @@ public class PointsCmd implements ICommand, IAutoCompleteHandler {
                     pointsComponents.getPointsContainer(username, pointsInfo.totalScore(), pointsInfo.hallOfFamePosition(),
                                                         pointsInfo.appearances(),
                                                         formattedPositions)).useComponentsV2().queue();
+
+            log.info("{} Fetched points for user {}", event.getUser().getEffectiveName(), username);
         } catch (Exception e) {
             event.getHook().sendMessage(i18n.get(Points.Error.FETCH)).queue();
         }
